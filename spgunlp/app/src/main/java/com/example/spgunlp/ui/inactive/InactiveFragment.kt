@@ -8,8 +8,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.spgunlp.databinding.FragmentInactiveBinding
+import com.example.spgunlp.ui.BaseFragment
 
-class InactiveFragment : Fragment() {
+class InactiveFragment : BaseFragment() {
 
     private var _binding: FragmentInactiveBinding? = null
 
@@ -22,14 +23,14 @@ class InactiveFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val dashboardViewModel =
+        val inactiveViewModel =
                 ViewModelProvider(this).get(InactiveViewModel::class.java)
 
         _binding = FragmentInactiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val textView: TextView = binding.textInactive
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
+        inactiveViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root

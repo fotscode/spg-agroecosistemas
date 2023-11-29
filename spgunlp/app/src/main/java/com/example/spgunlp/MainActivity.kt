@@ -15,7 +15,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -28,5 +27,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_active, R.id.navigation_inactive, R.id.navigation_profile, R.id.navigation_stats))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
+
+    fun setBottomNavigationVisibility(visibility: Int) {
+        binding.navView.visibility = visibility
     }
 }

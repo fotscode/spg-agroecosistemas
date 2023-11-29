@@ -4,4 +4,6 @@
     <string name="title_inactive">Inactivas</string>
     <string name="title_profile">Perfil</string>
     <string name="title_stats">Estadisticas</string>
+    <string name="title_login">Iniciar sesion</string>
+    <string name="text_password">Contraseña</string>
 </resources>

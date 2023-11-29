@@ -8,8 +8,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.spgunlp.databinding.FragmentActiveBinding
+import com.example.spgunlp.ui.BaseFragment
 
-class ActiveFragment : Fragment() {
+class ActiveFragment : BaseFragment() {
 
     private var _binding: FragmentActiveBinding? = null
 
@@ -22,14 +23,14 @@ class ActiveFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
+        val activeViewModel =
                 ViewModelProvider(this).get(ActiveViewModel::class.java)
 
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val textView: TextView = binding.textActive
-        homeViewModel.text.observe(viewLifecycleOwner) {
+        activeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root

@@ -1,13 +1,13 @@
-package com.example.spgunlp.ui.active
+package com.example.spgunlp.ui.login
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class ActiveViewModel : ViewModel() {
+class LoginViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is active Fragment"
+        value = "This is login Fragment"
     }
     val text: LiveData<String> = _text
 }
