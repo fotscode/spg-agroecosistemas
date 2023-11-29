@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">spgunlp</string>
+    <string name="title_active">Activas</string>
+    <string name="title_inactive">Inactivas</string>
+    <string name="title_profile">Perfil</string>
+    <string name="title_stats">Estadisticas</string>
+</resources>
