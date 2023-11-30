@@ -6,4 +6,6 @@
     <string name="title_stats">Estadisticas</string>
     <string name="title_login">Iniciar sesion</string>
     <string name="text_password">Contraseña</string>
+    <string name="inicio_de_sesion">Inicio de sesion</string>
+    <string name="email">Email</string>
 </resources>

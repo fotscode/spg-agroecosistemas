@@ -13,7 +13,7 @@
         android:layout_marginTop="116dp"
         android:textSize="20dp"
         android:textStyle="bold"
-        android:text="Inicio de sesion"
+        android:text="@string/inicio_de_sesion"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +36,7 @@
             android:id="@+id/label_mail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Email" />
+            android:text="@string/email" />
 
         <EditText
             android:id="@+id/edit_mail"
