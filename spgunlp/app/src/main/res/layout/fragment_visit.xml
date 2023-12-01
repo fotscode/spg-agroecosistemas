@@ -53,8 +53,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="@{viewModel.nameProducer}" />
+                android:gravity="center" />
         </TableRow>
 
         <TableRow
@@ -74,7 +73,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="integrantes"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
         </TableRow>
@@ -96,7 +94,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="fechaVisita"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
         </TableRow>
@@ -118,7 +115,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="superficieTotalCampo"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
         </TableRow>
@@ -140,7 +136,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="superficieAgroecologiaCampo"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
         </TableRow>
@@ -148,8 +143,8 @@
     </TableLayout>
 
     <Button
-        android:id="@+id/principlesButton"
-        android:layout_width="fill_parent"
+        android:id="@+id/btn_principles"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24sp"
         android:layout_marginHorizontal="24sp"
@@ -159,7 +154,7 @@
         app:layout_constraintTop_toBottomOf="@+id/informationTable" />
 
     <Button
-        android:id="@+id/downloadPDF"
+        android:id="@+id/btn_downloadPDF"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24sp"
@@ -170,7 +165,7 @@
         app:layout_constraintTop_toBottomOf="@+id/principlesButton" />
 
     <Button
-        android:id="@+id/downloadCSV"
+        android:id="@+id/btn_downloadCSV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24sp"
@@ -198,6 +193,5 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/locationName" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class VisitViewModel : ViewModel() {
+class PrinciplesViewModel : ViewModel() {
     private val _nameProducer = MutableLiveData<String>().apply { value = "Productor" }
     private val _members = MutableLiveData<String>().apply { value = "Miembro1,Miembro2" }
     private val _visitDate = MutableLiveData<String>().apply { value = "14/09/2024" }
