@@ -1,4 +1,4 @@
-package com.example.spgunlp.ui.active
+package com.example.spgunlp.ui.visit
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,12 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.visit.VisitFragment
 
-class ActiveFragment : BaseFragment() {
+class VisitFragment : BaseFragment() {
 
     private var _binding: FragmentActiveBinding? = null
 
@@ -24,24 +22,13 @@ class ActiveFragment : BaseFragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val activeViewModel =
-                ViewModelProvider(this).get(ActiveViewModel::class.java)
+        val visitViewModel =
+                ViewModelProvider(this).get(VisitViewModel::class.java)
 
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textActive
-        activeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-
-        binding.btnVisita.setOnClickListener(){
-            val newFragment= VisitFragment()
-            val transaction = parentFragmentManager.beginTransaction()
-            transaction.replace(R.id.nav_host_fragment_activity_main, newFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
-        }
+        visitViewModel.nameProducer.value = "Productor"
 
         return root
     }
