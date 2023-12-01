@@ -60,8 +60,8 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun goToLoginFragment(){
-        val navView = requireActivity().findViewById<View>(R.id.nav_view) as BottomNavigationView
-        navView.selectedItemId = R.id.navigation_active
+        val bottomNavigationView: BottomNavigationView = requireActivity().findViewById(R.id.nav_view)
+        bottomNavigationView.selectedItemId = R.id.navigation_active
         val newFragment = LoginFragment()
         val transaction = parentFragmentManager.beginTransaction()
         transaction.replace(R.id.nav_host_fragment_activity_main, newFragment)

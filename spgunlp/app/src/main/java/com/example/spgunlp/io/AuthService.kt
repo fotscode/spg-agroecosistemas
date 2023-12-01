@@ -15,7 +15,7 @@ interface AuthService {
     suspend fun login(@Body user:AppUser): Response<LoginResponse>
 
     @POST("auth/registro")
-    suspend fun registro(): String
+    suspend fun registro(@Body user:AppUser): Response<Void>
 
     companion object Factory {
         fun create(): AuthService {

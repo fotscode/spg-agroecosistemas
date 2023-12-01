@@ -1,6 +1,7 @@
 package com.example.spgunlp.ui.login
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,9 @@ import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.logging.Logger
 
 
 class LoginFragment : BaseFragment() {
@@ -27,11 +30,11 @@ class LoginFragment : BaseFragment() {
         AuthService.create()
     }
 
-    private var _binding: FragmentLoginBinding? = null
     override var bottomNavigationViewVisibility = View.GONE
 
     // This property is only valid between onCreateView and
     // onDestroyView.
+    private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -56,6 +59,11 @@ class LoginFragment : BaseFragment() {
         binding.btnIniciarSesion.setOnClickListener(){
             performLogin()
         }
+
+        binding.btnCrearUsr.setOnClickListener(){
+            goToRegisterFragment()
+        }
+
         return root
     }
 
@@ -72,9 +80,6 @@ class LoginFragment : BaseFragment() {
     private fun performLogin(){
         val editEmail=binding.editMail.text.toString()
         val editPassword=binding.editPassword.text.toString()
-        if (editEmail.isEmpty() || editPassword.isEmpty()){
-            return
-        }
 
         // make the call to the remote API with coroutines
         lifecycleScope.launch {
@@ -91,13 +96,24 @@ class LoginFragment : BaseFragment() {
             } else {
                 Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
             }
+            cancel()
         }
     }
 
     private fun goToActiveFragment(){
         val newFragment=ActiveFragment()
         val transaction = parentFragmentManager.beginTransaction()
-        transaction.replace(R.id.nav_host_fragment_activity_main, newFragment)
+        transaction.remove(this)
+        transaction.add(R.id.nav_host_fragment_activity_main, newFragment)
+        transaction.commit()
+    }
+
+    private fun goToRegisterFragment(){
+        val newFragment=RegisterFragment()
+        val transaction = parentFragmentManager.beginTransaction()
+        transaction.remove(this)
+        transaction.add(R.id.nav_host_fragment_activity_main, newFragment)
+        transaction.addToBackStack(null)
         transaction.commit()
     }
 }

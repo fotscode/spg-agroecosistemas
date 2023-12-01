@@ -67,9 +67,9 @@
         <Button
             android:id="@+id/btn_crear_usr"
             android:layout_width="match_parent"
-            android:background="@android:color/transparent"
             android:textColor="@android:color/darker_gray"
             android:textAllCaps="false"
+            android:background="@android:color/transparent"
             android:layout_height="wrap_content"
             android:text="No tenes una cuenta? Crear usuario" />
 
