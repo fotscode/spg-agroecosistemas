@@ -1,15 +1,15 @@
 package com.example.spgunlp.ui.active
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.visit.VisitFragment
+import com.example.spgunlp.ui.visit.VisitActivity
 
 class ActiveFragment : BaseFragment() {
 
@@ -35,12 +35,9 @@ class ActiveFragment : BaseFragment() {
             textView.text = it
         }
 
-        binding.btnVisita.setOnClickListener(){
-            val newFragment= VisitFragment()
-            val transaction = parentFragmentManager.beginTransaction()
-            transaction.replace(R.id.nav_host_fragment_activity_main, newFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+        this.binding.btnVisita.setOnClickListener(){
+            val intent = Intent(requireActivity(), VisitActivity::class.java)
+            startActivity(intent)
         }
 
         return root
