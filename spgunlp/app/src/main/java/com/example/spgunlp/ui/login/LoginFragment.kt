@@ -60,7 +60,7 @@ class LoginFragment : BaseFragment() {
             performLogin()
         }
 
-        binding.btnCrearUsr.setOnClickListener(){
+        binding.btnCrearUsuario.setOnClickListener(){
             goToRegisterFragment()
         }
 
@@ -86,6 +86,10 @@ class LoginFragment : BaseFragment() {
             val user= AppUser(editEmail, editPassword)
             val response = authService.login(user)
 
+            if (response.code()==400){
+                Toast.makeText(context, "El usuario no se encuentra autorizado", Toast.LENGTH_SHORT).show()
+                cancel()
+            }
             if (response.isSuccessful) {
                 val loginResponse = response.body()
                 if (loginResponse != null) {

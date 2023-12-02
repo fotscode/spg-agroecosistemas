@@ -1,11 +1,15 @@
 package com.example.spgunlp.ui.login
 
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.text.InputType
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
@@ -58,6 +62,11 @@ class RegisterFragment : BaseFragment() {
             performRegister()
         }
 
+        binding.autoCompleteTextView.setOnClickListener(){
+            val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
+
         return root
     }
 
@@ -70,7 +79,7 @@ class RegisterFragment : BaseFragment() {
     }
 
     private fun performRegister(){
-        //val editEmail=binding.editMail.text.toString()
+        val editMail=binding.editMail.text.toString()
         val editPassword=binding.editPassword.text.toString()
         val editName=binding.editName.text.toString()
         val editCellphone=binding.editCellphone.text.toString()
@@ -79,16 +88,15 @@ class RegisterFragment : BaseFragment() {
 
         // make the call to the remote API with coroutines
         lifecycleScope.launch {
-            val user= AppUser("", editPassword)
+            val user= AppUser(editMail, editPassword, editCellphone, editName, editOrganization, position,null)
             val response = authService.registro(user)
 
             if (response.isSuccessful) {
-                Toast.makeText(context, "Se ha creado el usuario correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Se ha creado el usuario correctamente, se encuentra a la espera de autorizacion", Toast.LENGTH_SHORT).show()
                 goToLoginFragment()
             } else {
                 Toast.makeText(context, "El mail ya se encuentra registrado", Toast.LENGTH_SHORT).show()
             }
-            cancel()
         }
 
     }
