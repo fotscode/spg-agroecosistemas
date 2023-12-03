@@ -53,8 +53,9 @@ class LoginFragment : BaseFragment() {
         // Check if the user is already logged in
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val jwt = preferences["jwt", ""]
-        if (jwt.contains("."))
+        if (jwt.contains(".") || true) //CAMBIAR EL TRUE
             goToActiveFragment()
+
 
         binding.btnIniciarSesion.setOnClickListener(){
             performLogin()
