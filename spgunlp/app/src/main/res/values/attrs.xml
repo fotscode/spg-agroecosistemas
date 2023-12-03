@@ -4,6 +4,7 @@
     <attr name="observations" format="reference"/>.
     <attr name="checklist" format="reference"/>.
     <attr name="done" format="reference"/>.
+    <attr name="colorBW" format="reference"/>
 
 </resources>
 
