@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".ui.active.ActiveFragment">
 
+    <Button
+        android:id="@+id/btn_visita"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Visita"
+        app:layout_constraintTop_toBottomOf="@id/text_active"/>
+
+
     <TextView
         android:id="@+id/text_active"
         android:layout_width="match_parent"

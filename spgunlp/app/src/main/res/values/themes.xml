@@ -11,6 +11,9 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+        <!-- Visit icons. -->
+        <item name="observations">@drawable/observations_light</item>
+        <item name="checklist">@drawable/checklist_light</item>
+        <item name="done">@drawable/done_light</item>
     </style>
 </resources>

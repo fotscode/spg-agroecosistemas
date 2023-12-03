@@ -8,6 +8,14 @@
     <string name="text_password">Contraseña</string>
     <string name="inicio_de_sesion">Inicio de sesion</string>
     <string name="email">Email</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="detalle">Detalle</string>
+    <string name="ver_principios">Ver principios</string>
+    <string name="nombre_del_productor">Nombre del Productor</string>
+    <string name="integrantes">Integrantes</string>
+    <string name="fecha">Fecha</string>
+    <string name="superficie_total">Superficie total</string>
+    <string name="superficie_con_agroecolog_a">Superficie con agroecología</string>
+    <string name="visita">Visita</string>
+    <string name="principios">Principios</string>
 </resources>

@@ -1,14 +1,15 @@
 package com.example.spgunlp.ui.active
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.ui.BaseFragment
+import com.example.spgunlp.ui.visit.VisitActivity
 
 class ActiveFragment : BaseFragment() {
 
@@ -33,6 +34,12 @@ class ActiveFragment : BaseFragment() {
         activeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
+
+        this.binding.btnVisita.setOnClickListener(){
+            val intent = Intent(requireActivity(), VisitActivity::class.java)
+            startActivity(intent)
+        }
+
         return root
     }
 
