@@ -13,28 +13,4 @@ data class AppVisit(
     val visitaParametrosResponse: AppVisitParameters?,
     val id: Int?,
 ){
-    constructor(
-        comentarioImagenes: String,
-        estadoVisita: String,
-        fechaActualizacion: String,
-        fechaCreacion: String,
-        fechaVisita: String,
-        imagenes: List<AppImage>,
-        integrantes: List<AppUser>,
-        quintaResponse: AppQuinta,
-        usuarioOperacion: String,
-        visitaParametrosResponse: AppVisitParameters
-    ) : this(
-        comentarioImagenes,
-        estadoVisita,
-        fechaActualizacion,
-        fechaCreacion,
-        fechaVisita,
-        imagenes,
-        integrantes,
-        quintaResponse,
-        usuarioOperacion,
-        visitaParametrosResponse,
-        null
-    )
 }

@@ -9,24 +9,6 @@ data class AppVisitParameters (
     val parametro: Parameter?,
     val sugerencias: String?
 ){
-    constructor(
-        aspiracionesFamiliares: String,
-        comentarios: String,
-        cumple: Boolean,
-        id: Int,
-        nombre: String,
-        parametro: Parameter,
-        sugerencias: String
-    ):this(
-        aspiracionesFamiliares,
-        comentarios,
-        cumple,
-        null,
-        nombre,
-        parametro,
-        sugerencias
-    )
-
     data class Parameter(
         val habilitado: Boolean?,
         val id: Int?,

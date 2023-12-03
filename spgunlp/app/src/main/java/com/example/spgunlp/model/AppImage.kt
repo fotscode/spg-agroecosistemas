@@ -5,5 +5,5 @@ data class AppImage(
     val id: Int?,
     val tipo: String?,
 ){
-    constructor(contenido: ByteArray, id: Int, tipo: String) : this(contenido, id, null)
+    constructor(contenido: ByteArray, tipo: String) : this(contenido, null, tipo)
 }
