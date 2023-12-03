@@ -33,16 +33,4 @@
         android:name="com.example.spgunlp.ui.stats.StatsFragment"
         android:label="@string/title_stats"
         tools:layout="@layout/fragment_stats" />
-
-    <fragment
-        android:id="@+id/active_visit"
-        android:name="com.example.spgunlp.ui.visit.VisitFragment"
-        android:label="@string/visita"
-        tools:layout="@layout/fragment_visit" />
-
-    <fragment
-        android:id="@+id/principles_visit"
-        android:name="com.example.spgunlp.ui.visit.PrinciplesFragment"
-        android:label="@string/principios"
-        tools:layout="@layout/fragment_principles" />
 </navigation>

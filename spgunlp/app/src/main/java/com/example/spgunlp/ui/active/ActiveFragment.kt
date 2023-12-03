@@ -35,7 +35,7 @@ class ActiveFragment : BaseFragment() {
             textView.text = it
         }
 
-        this.binding.btnVisita.setOnClickListener(){
+        binding.btnVisita.setOnClickListener(){
             val intent = Intent(requireActivity(), VisitActivity::class.java)
             startActivity(intent)
         }
