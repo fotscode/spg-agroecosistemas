@@ -5,8 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
+import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.ui.BaseFragment
+import com.example.spgunlp.ui.login.PrinciplesAdapter
 
 class PrinciplesFragment: BaseFragment() {
 
@@ -15,6 +20,8 @@ class PrinciplesFragment: BaseFragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,6 +36,18 @@ class PrinciplesFragment: BaseFragment() {
 
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        recyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
+        // Create and set the adapter
+        val items = listOf(AppVisitParameters.Principle(true, 2, "Biodiversidad"), AppVisitParameters.Principle(false, 3,"Nutrición, estructura y vida del suelo"))
+        val adapter = PrinciplesAdapter(items)
+        recyclerView.adapter = adapter
     }
 
     override fun onDestroyView() {
