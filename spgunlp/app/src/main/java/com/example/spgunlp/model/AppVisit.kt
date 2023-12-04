@@ -1,5 +1,6 @@
 package com.example.spgunlp.model
 
+val VISIT_ITEM="VISIT_ITEM"
 data class AppVisit(
     val comentarioImagenes: String?,
     val estadoVisita: String?,
@@ -10,7 +11,7 @@ data class AppVisit(
     val integrantes: List<AppUser>?,
     val quintaResponse: AppQuinta?,
     val usuarioOperacion: String?,
-    val visitaParametrosResponse: AppVisitParameters?,
+    val visitaParametrosResponse: List<AppVisitParameters>?,
     val id: Int?,
 ){
 }
