@@ -1,4 +1,4 @@
-package com.example.spgunlp.ui.login
+package com.example.spgunlp.ui.visit
 
 import android.view.LayoutInflater
 import android.view.View

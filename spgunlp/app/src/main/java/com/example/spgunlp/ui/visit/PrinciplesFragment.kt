@@ -5,13 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.login.PrinciplesAdapter
+import com.example.spgunlp.util.PreferenceHelper
+import com.example.spgunlp.util.PreferenceHelper.get
+import kotlinx.coroutines.launch
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class PrinciplesFragment: BaseFragment() {
 

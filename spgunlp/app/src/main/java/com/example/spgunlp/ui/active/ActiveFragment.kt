@@ -49,20 +49,9 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        //val textView: TextView = binding.textActive
-        //activeViewModel.text.observe(viewLifecycleOwner) {
-        //    textView.text = it
-        //}
-
-        binding.btnVisita.setOnClickListener(){
-            val intent = Intent(requireActivity(), VisitActivity::class.java)
-            startActivity(intent)
-        }
-
         binding.searchView.clearFocus()
 
         populateVisits()
-
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {

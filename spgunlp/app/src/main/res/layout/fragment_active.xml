@@ -15,81 +15,74 @@
             android:layout_height="match_parent">
 
 
-    <TextView
-        android:id="@+id/title_active"
-        android:text="Visitas Activas"
-        android:textColor="?attr/colorBW"
-        android:textSize="30sp"
-        android:layout_marginBottom="20dp"
-        android:textAllCaps="false"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/search_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_view"
-        android:layout_margin="12dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/search_view_bg"
-        app:iconifiedByDefault="false"
-        app:queryHint="Buscar visitas..."
-        app:layout_constraintTop_toBottomOf="@id/title_active"/>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/extra_btn_container"
-        app:layout_constraintTop_toBottomOf="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_marginHorizontal="12dp"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/btn_filtro"
+        <TextView
+            android:id="@+id/title_active"
+            android:text="Visitas Activas"
+            android:textColor="?attr/colorBW"
+            android:textSize="30sp"
+            android:layout_marginBottom="20dp"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_width="wrap_content"
-            android:background="@android:color/transparent"
-            android:textColor="?attr/colorPrimary"
-            android:textAllCaps="false"
-            android:text="Filtros"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/btn_calendario"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/search_view"
             android:layout_width="wrap_content"
-            android:textColor="?attr/colorPrimary"
-            android:textAllCaps="false"
-            android:background="@android:color/transparent"
-            android:text="Calendario"
             android:layout_height="wrap_content"/>
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_view"
+            android:layout_margin="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_view_bg"
+            app:iconifiedByDefault="false"
+            app:queryHint="Buscar visitas..."
+            app:layout_constraintTop_toBottomOf="@id/title_active"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/extra_btn_container"
+            app:layout_constraintTop_toBottomOf="@+id/search_view"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="12dp"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_filtro"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_width="wrap_content"
+                android:background="@android:color/transparent"
+                android:textColor="?attr/colorPrimary"
+                android:textAllCaps="false"
+                android:text="Filtros"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btn_calendario"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_width="wrap_content"
+                android:textColor="?attr/colorPrimary"
+                android:textAllCaps="false"
+                android:background="@android:color/transparent"
+                android:text="Calendario"
+                android:layout_height="wrap_content"/>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/active_list"
-        android:layout_marginHorizontal="12dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:nestedScrollingEnabled="false"
-        app:layout_constraintTop_toBottomOf="@id/extra_btn_container"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layoutManager="LinearLayoutManager"
-        android:scrollbars="none"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/active_list"
+            android:layout_marginHorizontal="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintTop_toBottomOf="@id/extra_btn_container"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layoutManager="LinearLayoutManager"
+            android:scrollbars="none"/>
 
-    <Button
-        android:id="@+id/btn_visita"
-        android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="wrap_content"
-        android:text="Visita"
-        app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
