@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.model.AppVisitParameters.Principle
 
-class PrinciplesAdapter(private val principles: List<Principle>):
+class PrinciplesAdapter(private val principles: List<Principle>, private val clickListener: PrincipleClickListener):
     RecyclerView.Adapter<PrinciplesAdapter.PrinciplesViewHolder>() {
 
 
@@ -22,7 +22,9 @@ class PrinciplesAdapter(private val principles: List<Principle>):
     override fun onBindViewHolder(viewHolder: PrinciplesViewHolder, position: Int) {
 
         val item = principles[position]
-        viewHolder.bind(item)
+        if (item != null) {
+            viewHolder.bind(item)
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)

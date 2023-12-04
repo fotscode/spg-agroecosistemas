@@ -2,6 +2,7 @@ package com.example.spgunlp.io
 
 import com.example.spgunlp.io.response.VisitByIdResponse
 import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.AppVisitParameters
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,6 +21,10 @@ interface VisitService {
 
     @GET("visitas/{id}")
     suspend fun getVisitById(@Path("id") visitId: Int): Response<VisitByIdResponse>
+
+    @Headers("Accept: */*")
+    @GET("principios/")
+    suspend fun getPrinciples(@Header("Authorization") token: String): Response<List<AppVisitParameters.Principle>>
 
     companion object Factory {
         fun create(): VisitService {
