@@ -1,5 +1,6 @@
 package com.example.spgunlp.io
 
+import com.example.spgunlp.BuildConfig
 import com.example.spgunlp.io.response.VisitByIdResponse
 import com.example.spgunlp.model.AppVisit
 import retrofit2.Response
@@ -12,8 +13,6 @@ import retrofit2.http.Path
 
 interface VisitService {
 
-
-
     @Headers("Accept: */*")
     @GET("visitas/")
     suspend fun getVisits(@Header("Authorization") token: String): Response<List<AppVisit>>
@@ -23,9 +22,10 @@ interface VisitService {
 
     companion object Factory {
         fun create(): VisitService {
+            val baseUrl= BuildConfig.BASE_URL
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.1.87:9090/tesina/")
+                .baseUrl("$baseUrl/tesina/")
                 .build()
 
             return retrofit.create(VisitService::class.java)

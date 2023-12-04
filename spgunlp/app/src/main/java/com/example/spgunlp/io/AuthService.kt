@@ -1,5 +1,6 @@
 package com.example.spgunlp.io
 
+import com.example.spgunlp.BuildConfig
 import com.example.spgunlp.io.response.LoginResponse
 import com.example.spgunlp.model.AppUser
 import retrofit2.Call
@@ -19,9 +20,10 @@ interface AuthService {
 
     companion object Factory {
         fun create(): AuthService {
+            val baseUrl= BuildConfig.BASE_URL
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.1.87:9090/tesina/")
+                .baseUrl("$baseUrl/tesina/")
                 .build()
 
             return retrofit.create(AuthService::class.java)
