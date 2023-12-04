@@ -6,26 +6,24 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.io.VisitService
-import com.example.spgunlp.io.response.VisitByIdResponse
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
+import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.net.InetAddress
-import java.util.logging.Level
-import java.util.logging.Logger
+import java.util.Date
 
 class ActiveFragment : BaseFragment(), VisitClickListener {
     private val visitService: VisitService by lazy {
@@ -98,13 +96,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header="Bearer $jwt"
-            val response = visitService.getVisits(header)
-            Logger.getGlobal().log(Level.INFO, "Response: $response")
-            val visits = response.body()
-            Logger.getGlobal().log(Level.SEVERE, visits.toString())
-            if (visits != null) {
-                activeVisits(visits)
-            }
+            val visits=getVisits(header)
+            activeVisits(visits)
             updateRecycler(visitList)
         }
     }
@@ -119,14 +112,49 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         visitList.addAll(filteredVisits)
     }
 
-    private fun isInternetAvailable(): Boolean {
-        try{
-            val ipAddr: InetAddress = InetAddress.getByName("google.com")
-            return !ipAddr.equals("")
-        } catch (e: Exception) {
-            return false
-        }
+    private fun updatePreferences(visits: List<AppVisit>){
+        val currentDate= Date().time
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val gson= Gson()
+        val visitsGson=gson.toJson(visits)
+        preferences["LIST_VISITS"] = visitsGson
+        preferences["LAST_UPDATE"] = currentDate
     }
+
+    private fun getPreferences(): List<AppVisit>{
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val gson= Gson()
+        val visitsGson=preferences["LIST_VISITS", ""]
+        val type = object : TypeToken<List<AppVisit>>() {}.type
+        return gson.fromJson(visitsGson, type)
+    }
+
+    private suspend fun getVisits(header:String):List<AppVisit>{
+        var visits:List<AppVisit> = emptyList()
+        val lastUpdate=PreferenceHelper.defaultPrefs(requireContext())["LAST_UPDATE", 0L]
+        val currentDate= Date().time
+
+        if (currentDate-lastUpdate<300000){// 5mins
+            visits=getPreferences()
+            return visits
+        }
+
+        try{
+            val response = visitService.getVisits(header)
+            val body=response.body()
+            if (response.isSuccessful && body!=null){
+                visits = body
+                updatePreferences(visits)
+            } else if(response.code()==401 || response.code()==403){
+                visits=getPreferences()
+            }
+        } catch (e: Exception){
+            Log.e("SPGUNLP_TAG", e.message.toString())
+            visits=getPreferences()
+        }
+        return visits
+    }
+
 
     private fun updateRecycler(list: List<AppVisit>){
         binding.activeList.apply{
