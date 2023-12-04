@@ -56,6 +56,7 @@ class ProfileFragment : BaseFragment() {
     private fun performLogout(){
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         preferences["jwt"] = ""
+        preferences["email"] = ""
         goToLoginFragment()
     }
 

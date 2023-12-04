@@ -21,6 +21,7 @@ import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.google.gson.Gson
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.net.InetAddress
 import java.util.logging.Level
@@ -94,6 +95,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
+            if (!jwt.contains("."))
+                cancel()
             val header="Bearer $jwt"
             val response = visitService.getVisits(header)
             Logger.getGlobal().log(Level.INFO, "Response: $response")
