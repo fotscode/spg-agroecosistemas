@@ -53,7 +53,7 @@ class LoginFragment : BaseFragment() {
         // Check if the user is already logged in
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val jwt = preferences["jwt", ""]
-        if (jwt.contains(".") || true) //CAMBIAR EL TRUE
+        if (jwt.contains(".")) //TODO(CAMBIAR EL TRUE)
             goToActiveFragment()
 
 
@@ -73,9 +73,10 @@ class LoginFragment : BaseFragment() {
         _binding = null
     }
 
-    private fun createSessionPreferences(jwt: String){
+    private fun createSessionPreferences(jwt: String,email:String){
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         preferences["jwt"] = jwt
+        preferences["email"] = email
     }
 
     private fun performLogin(){
@@ -94,7 +95,7 @@ class LoginFragment : BaseFragment() {
             if (response.isSuccessful) {
                 val loginResponse = response.body()
                 if (loginResponse != null) {
-                    createSessionPreferences(loginResponse.token)
+                    createSessionPreferences(loginResponse.token,loginResponse.usuario)
                     Toast.makeText(context, "Se ha iniciado sesión correctamente", Toast.LENGTH_SHORT).show()
                     goToActiveFragment()
                 }

@@ -14,6 +14,6 @@ data class VisitByIdResponse(
     val integrantes: List<AppUser>?,
     val quintaResponse: AppQuinta?,
     val usuarioOperacion: String?,
-    val visitaParametrosResponse: AppVisitParameters?,
+    val visitaParametrosResponse: List<AppVisitParameters>?,
     val id: Int?
 ){}

@@ -77,10 +77,11 @@
         android:layout_marginHorizontal="12dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:nestedScrollingEnabled="false"
         app:layout_constraintTop_toBottomOf="@id/extra_btn_container"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layoutManager="LinearLayoutManager"
-        android:scrollbars="vertical"/>
+        android:scrollbars="none"/>
 
     <Button
         android:id="@+id/btn_visita"
