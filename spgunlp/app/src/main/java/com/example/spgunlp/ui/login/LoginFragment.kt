@@ -114,7 +114,6 @@ class LoginFragment : BaseFragment() {
         val transaction = parentFragmentManager.beginTransaction()
         transaction.remove(this)
         transaction.add(R.id.nav_host_fragment_activity_main, newFragment)
-        transaction.addToBackStack(null)
         transaction.commit()
     }
 }
