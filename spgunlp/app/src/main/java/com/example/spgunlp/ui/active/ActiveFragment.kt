@@ -135,6 +135,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         val currentDate= Date().time
 
         if (currentDate-lastUpdate<300000){// 5mins
+            Log.i("SPGUNLP_TAG", "getVisits: last update less than 5 mins")
             visits=getPreferences()
             return visits
         }
@@ -145,6 +146,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             if (response.isSuccessful && body!=null){
                 visits = body
                 updatePreferences(visits)
+                Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if(response.code()==401 || response.code()==403){
                 visits=getPreferences()
             }
