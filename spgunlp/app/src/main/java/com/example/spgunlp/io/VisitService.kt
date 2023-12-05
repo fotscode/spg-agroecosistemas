@@ -26,6 +26,10 @@ interface VisitService {
     @GET("principios/")
     suspend fun getPrinciples(@Header("Authorization") token: String): Response<List<AppVisitParameters.Principle>>
 
+    @Headers("Accept: */*")
+    @GET("parametros/habilitados")
+    suspend fun getParameters(@Header("Authorization") token: String): Response<List<AppVisitParameters>>
+
     companion object Factory {
         fun create(): VisitService {
             val retrofit = Retrofit.Builder()

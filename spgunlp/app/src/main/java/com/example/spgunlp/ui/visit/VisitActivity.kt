@@ -18,7 +18,7 @@ class VisitActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVisitBinding
     private lateinit var visit: AppVisit
     private val visitViewModel: VisitViewModel by viewModels()
-    private val principlesViewModel: PrinciplesViewModel by viewModels()
+    private val parametersViewModel: ParametersViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,20 +44,11 @@ class VisitActivity : AppCompatActivity() {
         visitViewModel.setSurfaceAgro(visit.quintaResponse?.superficieAgroecologiaCampo)
         visitViewModel.setSurfaceCountry(visit.quintaResponse?.superficieTotalCampo)
 
-        //TODO usar API de principios en lugar de extraerlos de la visita. Tomar parámetros de la visita y asignarlos como checks de cada principio
+        //TODO tomar parámetros y pasarlos al viewmodel para que lo vean los principios
 
-        /* viewModel for principles
-        val principleValues = visit.visitaParametrosResponse?.map { it.parametro?.principioAgroecologico }
-        principlesViewModel.setPrinciples(principleValues)
-        principleValues?.forEach {
-                principle -> Log.d("Principles", "${principle?.nombre}, ${principle?.id}")
-        }
-        val parameters = visit.visitaParametrosResponse?.map {it.parametro}
-        parameters?.forEach{
-            parameter ->
-            Log.d("Parameters", "${parameter?.nombre}, ${parameter?.id}, ${parameter?.principioAgroecologico?.nombre}")
-        }
-        */
+        // viewModel for Parameters
+        val parameterValues = visit.visitaParametrosResponse?.map { it.parametro?.id to it.cumple }
+        parametersViewModel.setParameters(parameterValues)
 
 
         //Logger.getGlobal().log(Level.SEVERE,visit.quintaResponse?.nombreProductor) TODO(remove)

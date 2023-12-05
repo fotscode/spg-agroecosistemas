@@ -40,8 +40,6 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val visitViewModel =
-            ViewModelProvider(this).get(VisitViewModel::class.java)
 
         _binding = FragmentPrinciplesBinding.inflate(inflater, container, false)
 
@@ -52,6 +50,15 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         populatePrinciples()
+
+        /*
+        binding.btnPrinciples.setOnClickListener() {
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(this.id, ParametersFragment())
+                .commit()
+        }
+
+         */
     }
 
     override fun onDestroyView() {
@@ -91,5 +98,9 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
 
     override fun onClick(principle: AppVisitParameters.Principle) {
         //TODO
+
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(this.id, ParametersFragment())
+            .commit()
     }
 }
