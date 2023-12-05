@@ -1,26 +1,17 @@
 package com.example.spgunlp.ui.visit
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
 import com.example.spgunlp.io.VisitService
-import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
-import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.util.logging.Level
 import java.util.logging.Logger
