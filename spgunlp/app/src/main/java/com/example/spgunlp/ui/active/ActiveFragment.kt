@@ -86,6 +86,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        visitList.clear()
         _binding = null
     }
 
@@ -125,6 +126,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val gson= Gson()
         val visitsGson=preferences["LIST_VISITS", ""]
+        if (visitsGson=="")
+            return emptyList()
         val type = object : TypeToken<List<AppVisit>>() {}.type
         return gson.fromJson(visitsGson, type)
     }
