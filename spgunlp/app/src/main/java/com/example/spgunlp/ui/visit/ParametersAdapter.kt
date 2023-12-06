@@ -24,7 +24,6 @@ class ParametersAdapter(private val parameters: List<AppVisitParameters>, privat
         }
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     override fun getItemCount() = parameters.size
 
     inner class ParametersViewHolder(private val cardCellBinding: ParameterItemBinding, private val clickListener: ParameterClickListener) : RecyclerView.ViewHolder(cardCellBinding.root) {

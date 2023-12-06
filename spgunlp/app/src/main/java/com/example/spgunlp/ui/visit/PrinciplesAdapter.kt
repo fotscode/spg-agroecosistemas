@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.model.AppVisitParameters.Principle
 import com.example.spgunlp.databinding.PrincipleItemBinding
 
-class PrinciplesAdapter(private val principles: List<Principle>, private val clickListener: PrincipleClickListener):
+class PrinciplesAdapter(private val principles: List<Principle>, private val states: List<Boolean>, private val clickListener: PrincipleClickListener):
     RecyclerView.Adapter<PrinciplesAdapter.PrinciplesViewHolder>() {
 
 
@@ -19,18 +19,28 @@ class PrinciplesAdapter(private val principles: List<Principle>, private val cli
     override fun onBindViewHolder(viewHolder: PrinciplesViewHolder, position: Int) {
 
         val item = principles[position]
-        if (item != null) {
-            viewHolder.bind(item)
-        }
-    }
+        val state = states[position]
 
-    // Return the size of your dataset (invoked by the layout manager)
+        viewHolder.bind(item, state)
+    }
     override fun getItemCount() = principles.size
 
     inner class PrinciplesViewHolder(private val cardCellBinding:PrincipleItemBinding,private val clickListener: PrincipleClickListener) : RecyclerView.ViewHolder(cardCellBinding.root) {
-        fun bind(principle: Principle) {
+        fun bind(principle: Principle, cumple: Boolean) {
+
+            if (cumple){
+                cardCellBinding.principleState.text = "Cumplido"
+            }else {
+                cardCellBinding.principleState.text = "Incumplido"
+            }
+
             cardCellBinding.principleTitle.text = principle.nombre
+
+            cardCellBinding.btnChecklist.setOnClickListener(){
+                clickListener.onClick(principle)
+            }
         }
+
     }
 
 }

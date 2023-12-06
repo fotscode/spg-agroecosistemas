@@ -4,22 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentParametersBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.util.PreferenceHelper
-import com.example.spgunlp.util.PreferenceHelper.get
-import kotlinx.coroutines.launch
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class ParametersFragment: BaseFragment(), ParameterClickListener {
     private val visitService: VisitService by lazy {
         VisitService.create()
     }
+
+    private val parameterViewModel: ParametersViewModel by activityViewModels()
 
     private var _binding: FragmentParametersBinding? = null
 
@@ -49,16 +47,16 @@ class ParametersFragment: BaseFragment(), ParameterClickListener {
     }
 
     private fun populateParameters() {
-        lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
-            val jwt = preferences["jwt", ""]
-            val header="Bearer $jwt"
-            val response = visitService.getParameters(header)
-            Logger.getGlobal().log(Level.INFO, "Response: $response")
-            val parameters = response.body()
-            Logger.getGlobal().log(Level.SEVERE, parameters.toString())
-            updateRecycler(parametersList)
-        }
+
+        parameterViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
+            value?.forEach{ it ->
+                if (it != null) {
+                    this.parametersList.add(it)
+                }
+            }
+        })
+
+        updateRecycler(parametersList)
     }
 
     private fun updateRecycler(list: List<AppVisitParameters>){

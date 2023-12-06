@@ -1,9 +1,12 @@
 package com.example.spgunlp.ui.visit
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
@@ -25,6 +28,8 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
 
     private val binding get() = _binding!!
     private val principlesList = mutableListOf<AppVisitParameters.Principle>()
+    private val statesList = mutableListOf<Boolean>()
+    private val parametersViewModel: ParametersViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,14 +47,6 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
 
         populatePrinciples()
 
-        /*
-        binding.btnPrinciples.setOnClickListener() {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(this.id, ParametersFragment())
-                .commit()
-        }
-
-         */
     }
 
     override fun onDestroyView() {
@@ -69,7 +66,14 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
             if (principles != null) {
                 activePrinciples(principles)
             }
-            updateRecycler(principlesList)
+            parametersViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
+                val parametersMap = value?.groupBy{ it?.parametro?.principioAgroecologico?.id }
+                principlesList?.forEach{ principle ->
+                    statesList.add(parametersMap?.get(principle.id)?.all {it?.cumple == true} ?: true)
+                }
+            })
+
+            updateRecycler(principlesList, statesList)
         }
     }
 
@@ -80,16 +84,14 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         principlesList.addAll(filteredPrinciples)
     }
 
-    private fun updateRecycler(list: List<AppVisitParameters.Principle>){
+    private fun updateRecycler(principles: List<AppVisitParameters.Principle>, states: List<Boolean>){
         binding.principlesList.apply{
             layoutManager = LinearLayoutManager(activity)
-            adapter = PrinciplesAdapter(list,this@PrinciplesFragment)
+            adapter = PrinciplesAdapter(principles,states, this@PrinciplesFragment)
         }
     }
 
     override fun onClick(principle: AppVisitParameters.Principle) {
-        //TODO
-
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ParametersFragment())
             .commit()

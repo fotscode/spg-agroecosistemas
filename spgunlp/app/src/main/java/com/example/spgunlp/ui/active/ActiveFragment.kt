@@ -34,8 +34,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     val visitList = mutableListOf<AppVisit>()
     private var _binding: FragmentActiveBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(

@@ -44,11 +44,10 @@ class VisitActivity : AppCompatActivity() {
         visitViewModel.setSurfaceAgro(visit.quintaResponse?.superficieAgroecologiaCampo)
         visitViewModel.setSurfaceCountry(visit.quintaResponse?.superficieTotalCampo)
 
-        //TODO tomar parámetros y pasarlos al viewmodel para que lo vean los principios
-
         // viewModel for Parameters
-        val parameterValues = visit.visitaParametrosResponse?.map { it.parametro?.id to it.cumple }
-        parametersViewModel.setParameters(parameterValues)
+        val parameterValues = visit.visitaParametrosResponse?.map { it }
+        val parametersFiltered = parameterValues?.filter { it?.parametro?.habilitado == true }
+        parametersViewModel.setParameters(parametersFiltered)
 
 
         //Logger.getGlobal().log(Level.SEVERE,visit.quintaResponse?.nombreProductor) TODO(remove)
