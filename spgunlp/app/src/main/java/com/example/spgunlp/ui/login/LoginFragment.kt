@@ -83,7 +83,7 @@ class LoginFragment : BaseFragment() {
             val user= AppUser(editEmail, editPassword)
             val response = authService.login(user)
 
-            if (response.code()==400){
+            if (response.code()==400 && (editPassword.isNotEmpty() || editEmail.isNotEmpty())){
                 Toast.makeText(context, "El usuario no se encuentra autorizado", Toast.LENGTH_SHORT).show()
                 cancel()
             }
