@@ -1,12 +1,10 @@
 package com.example.spgunlp.ui.login
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.get
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.R
@@ -18,10 +16,8 @@ import com.example.spgunlp.ui.active.ActiveFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.util.logging.Logger
 
 
 class LoginFragment : BaseFragment() {
@@ -42,7 +38,6 @@ class LoginFragment : BaseFragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-
 
         val loginViewModel =
                 ViewModelProvider(this).get(LoginViewModel::class.java)
@@ -119,7 +114,6 @@ class LoginFragment : BaseFragment() {
         val transaction = parentFragmentManager.beginTransaction()
         transaction.remove(this)
         transaction.add(R.id.nav_host_fragment_activity_main, newFragment)
-        transaction.addToBackStack(null)
         transaction.commit()
     }
 }

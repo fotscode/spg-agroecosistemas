@@ -19,9 +19,10 @@ interface AuthService {
 
     companion object Factory {
         fun create(): AuthService {
+            val baseUrl= BuildConfig.BASE_URL
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://192.168.0.53:9090/tesina/")
+                .baseUrl("$baseUrl/tesina/")
                 .build()
 
             return retrofit.create(AuthService::class.java)
