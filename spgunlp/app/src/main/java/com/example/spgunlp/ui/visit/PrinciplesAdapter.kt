@@ -2,7 +2,9 @@ package com.example.spgunlp.ui.visit
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.spgunlp.R
 import com.example.spgunlp.model.AppVisitParameters.Principle
 import com.example.spgunlp.databinding.PrincipleItemBinding
 
@@ -29,8 +31,14 @@ class PrinciplesAdapter(private val principles: List<Principle>, private val sta
         fun bind(principle: Principle, cumple: Boolean) {
 
             if (cumple){
+                val color = ContextCompat.getColor(cardCellBinding.cardView.context, R.color.green)
+                cardCellBinding.cardView.setStrokeColor(color)
+                cardCellBinding.stateBar.setBackgroundColor(color)
                 cardCellBinding.principleState.text = "Cumplido"
             }else {
+                val color = ContextCompat.getColor(cardCellBinding.cardView.context, R.color.red)
+                cardCellBinding.cardView.setStrokeColor(color)
+                cardCellBinding.stateBar.setBackgroundColor(color)
                 cardCellBinding.principleState.text = "Incumplido"
             }
 
