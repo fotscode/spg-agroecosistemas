@@ -25,6 +25,7 @@ class VisitActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityVisitBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        getSupportActionBar()?.hide()
 
         supportFragmentManager.beginTransaction()
             .add(active_visit, VisitFragment())
