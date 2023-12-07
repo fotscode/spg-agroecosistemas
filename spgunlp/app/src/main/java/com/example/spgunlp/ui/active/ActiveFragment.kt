@@ -19,6 +19,9 @@ import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.getPreferences
+import com.example.spgunlp.util.updatePreferences
+import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
@@ -38,12 +41,12 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         val activeViewModel =
-                ViewModelProvider(this).get(ActiveViewModel::class.java)
+            ViewModelProvider(this).get(ActiveViewModel::class.java)
 
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -53,7 +56,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         //    textView.text = it
         //}
 
-        binding.btnVisita.setOnClickListener(){
+        binding.btnVisita.setOnClickListener() {
             val intent = Intent(requireActivity(), VisitActivity::class.java)
             startActivity(intent)
         }
@@ -69,14 +72,17 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                val filteredList=visitList.filter { visit ->
+                val filteredList = visitList.filter { visit ->
                     val searchQuery = newText?.lowercase() ?: ""
-                    val quinta=visit.quintaResponse
-                    val quintaName=quinta?.organizacion?.lowercase()
-                    val quintaProductor=quinta?.nombreProductor?.lowercase()
+                    val quinta = visit.quintaResponse
+                    val quintaName = quinta?.organizacion?.lowercase()
+                    val quintaProductor = quinta?.nombreProductor?.lowercase()
                     quintaName?.contains(searchQuery)!! || quintaProductor?.contains(searchQuery)!!
                 }
-                updateRecycler(filteredList)
+                updateRecycler(
+                    binding.activeList, filteredList,
+                    activity, this@ActiveFragment
+                )
                 return true
             }
         })
@@ -96,15 +102,19 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
                 cancel()
-            val header="Bearer $jwt"
-            val visits=getVisits(header)
+            val header = "Bearer $jwt"
+            val visits = getVisits(header)
             activeVisits(visits)
-            updateRecycler(visitList)
+            updateRecycler(
+                binding.activeList, visitList,
+                activity, this@ActiveFragment
+            )
         }
     }
+
     private fun activeVisits(visits: List<AppVisit>) {
-        val preferences =PreferenceHelper.defaultPrefs(requireContext())
-        val email=preferences["email", ""]
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val email = preferences["email", ""]
         val filteredVisits = visits.filter { visit ->
             visit.estadoVisita == "ABIERTA" && visit.integrantes!!.filter { integrante ->
                 integrante.email == email
@@ -113,65 +123,41 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         visitList.addAll(filteredVisits)
     }
 
-    private fun updatePreferences(visits: List<AppVisit>){
-        val currentDate= Date().time
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        val gson= Gson()
-        val visitsGson=gson.toJson(visits)
-        preferences["LIST_VISITS"] = visitsGson
-        preferences["LAST_UPDATE"] = currentDate
-    }
 
-    private fun getPreferences(): List<AppVisit>{
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        val gson= Gson()
-        val visitsGson=preferences["LIST_VISITS", ""]
-        if (visitsGson=="")
-            return emptyList()
-        val type = object : TypeToken<List<AppVisit>>() {}.type
-        return gson.fromJson(visitsGson, type)
-    }
 
-    private suspend fun getVisits(header:String):List<AppVisit>{
-        var visits:List<AppVisit> = emptyList()
-        val lastUpdate=PreferenceHelper.defaultPrefs(requireContext())["LAST_UPDATE", 0L]
-        val currentDate= Date().time
+    private suspend fun getVisits(header: String): List<AppVisit> {
+        var visits: List<AppVisit> = emptyList()
+        val lastUpdate = PreferenceHelper.defaultPrefs(requireContext())["LAST_UPDATE", 0L]
+        val currentDate = Date().time
 
-        if (currentDate-lastUpdate<300000){// 5mins
+        if (currentDate - lastUpdate < 300000) {// 5mins
             Log.i("SPGUNLP_TAG", "getVisits: last update less than 5 mins")
-            visits=getPreferences()
+            visits = getPreferences(requireContext())
             return visits
         }
 
-        try{
+        try {
             val response = visitService.getVisits(header)
-            val body=response.body()
-            if (response.isSuccessful && body!=null){
+            val body = response.body()
+            if (response.isSuccessful && body != null) {
                 visits = body
-                updatePreferences(visits)
+                updatePreferences(visits,requireContext())
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
-            } else if(response.code()==401 || response.code()==403){
-                visits=getPreferences()
+            } else if (response.code() == 401 || response.code() == 403) {
+                visits = getPreferences(requireContext())
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
-            visits=getPreferences()
+            visits = getPreferences(requireContext())
         }
         return visits
     }
 
 
-    private fun updateRecycler(list: List<AppVisit>){
-        binding.activeList.apply{
-            layoutManager= LinearLayoutManager(activity)
-            adapter = VisitAdapter(list,this@ActiveFragment)
-        }
-    }
-
     override fun onClick(visit: AppVisit) {
         val intent = Intent(requireActivity(), VisitActivity::class.java)
-        val gson= Gson()
-        val visitGson=gson.toJson(visit)
+        val gson = Gson()
+        val visitGson = gson.toJson(visit)
         intent.putExtra(VISIT_ITEM, visitGson)
         startActivity(intent)
     }
