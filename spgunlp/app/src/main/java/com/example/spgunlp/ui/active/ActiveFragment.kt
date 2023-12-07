@@ -20,6 +20,7 @@ import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.getPreferences
+import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updatePreferences
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
@@ -103,7 +104,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = getVisits(header)
+            val visits = getVisits(header, requireContext(), visitService)
             activeVisits(visits)
             updateRecycler(
                 binding.activeList, visitList,
@@ -122,37 +123,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         }
         visitList.addAll(filteredVisits)
     }
-
-
-
-    private suspend fun getVisits(header: String): List<AppVisit> {
-        var visits: List<AppVisit> = emptyList()
-        val lastUpdate = PreferenceHelper.defaultPrefs(requireContext())["LAST_UPDATE", 0L]
-        val currentDate = Date().time
-
-        if (currentDate - lastUpdate < 300000) {// 5mins
-            Log.i("SPGUNLP_TAG", "getVisits: last update less than 5 mins")
-            visits = getPreferences(requireContext())
-            return visits
-        }
-
-        try {
-            val response = visitService.getVisits(header)
-            val body = response.body()
-            if (response.isSuccessful && body != null) {
-                visits = body
-                updatePreferences(visits,requireContext())
-                Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
-            } else if (response.code() == 401 || response.code() == 403) {
-                visits = getPreferences(requireContext())
-            }
-        } catch (e: Exception) {
-            Log.e("SPGUNLP_TAG", e.message.toString())
-            visits = getPreferences(requireContext())
-        }
-        return visits
-    }
-
 
     override fun onClick(visit: AppVisit) {
         val intent = Intent(requireActivity(), VisitActivity::class.java)
