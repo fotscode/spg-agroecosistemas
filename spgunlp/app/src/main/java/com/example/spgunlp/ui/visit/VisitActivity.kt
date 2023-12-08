@@ -3,14 +3,22 @@ package com.example.spgunlp.ui.visit
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.R.id.active_visit
 import com.example.spgunlp.databinding.ActivityVisitBinding
+import com.example.spgunlp.io.VisitService
+import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.model.VISIT_ITEM
 import com.google.gson.Gson
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class VisitActivity : AppCompatActivity() {
@@ -44,6 +52,10 @@ class VisitActivity : AppCompatActivity() {
         visitViewModel.setMembers(members)
         visitViewModel.setSurfaceAgro(visit.quintaResponse?.superficieAgroecologiaCampo)
         visitViewModel.setSurfaceCountry(visit.quintaResponse?.superficieTotalCampo)
+        visitViewModel.setId(visit.id)
+        visitViewModel.setCountryId(visit.quintaResponse?.id)
+        visitViewModel.setMembersList(visit.integrantes)
+        visitViewModel.setUnformattedVisitDate(visit.fechaVisita)
 
         // viewModel for Parameters
         val parameterValues = visit.visitaParametrosResponse?.map { it }

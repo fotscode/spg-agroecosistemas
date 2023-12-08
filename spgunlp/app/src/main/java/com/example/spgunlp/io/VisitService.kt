@@ -1,15 +1,21 @@
 package com.example.spgunlp.io
 
 import com.example.spgunlp.BuildConfig
+import com.example.spgunlp.io.response.LoginResponse
 import com.example.spgunlp.io.response.VisitByIdResponse
+import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.model.AppVisitUpdate
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface VisitService {
@@ -28,6 +34,10 @@ interface VisitService {
     @Headers("Accept: */*")
     @GET("parametros/habilitados")
     suspend fun getParameters(@Header("Authorization") token: String): Response<List<AppVisitParameters>>
+
+    @Headers("Accept: */*")
+    @PUT("visitas/{id}")
+    suspend fun updateVisitById(@Header("Authorization") token: String, @Path("id") visitId: Int, @Body visit: AppVisitUpdate): Response<AppVisit>
 
     companion object Factory {
         fun create(): VisitService {

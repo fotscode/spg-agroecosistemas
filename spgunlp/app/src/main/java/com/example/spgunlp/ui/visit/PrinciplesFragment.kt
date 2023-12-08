@@ -37,6 +37,8 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         savedInstanceState: Bundle?
     ): View {
 
+        Log.d("PAR",parametersViewModel.parameters.toString())
+
         _binding = FragmentPrinciplesBinding.inflate(inflater, container, false)
 
         return binding.root
@@ -92,8 +94,9 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     }
 
     override fun onClick(principle: AppVisitParameters.Principle) {
+        val name = principle.nombre?: "Unamed"
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, ParametersFragment())
+            .replace(this.id, ParametersFragment(name))
             .commit()
     }
 }

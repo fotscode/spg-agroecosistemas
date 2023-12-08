@@ -1,5 +1,6 @@
 package com.example.spgunlp.ui.visit
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,7 +9,7 @@ import com.example.spgunlp.model.AppVisitParameters
 
 class ParametersAdapter(private val parameters: List<AppVisitParameters>, private val clickListener: ParameterClickListener):
     RecyclerView.Adapter<ParametersAdapter.ParametersViewHolder>() {
-
+    private val checkedMap = HashMap<Int, Boolean>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ParametersViewHolder {
         val from = LayoutInflater.from(parent.context)
@@ -20,15 +21,26 @@ class ParametersAdapter(private val parameters: List<AppVisitParameters>, privat
 
         val item = parameters[position]
         if (item != null) {
-            viewHolder.bind(item)
+            viewHolder.bind(item, position)
         }
     }
 
     override fun getItemCount() = parameters.size
 
+    fun getCheckedMap(): HashMap<Int, Boolean> { return this.checkedMap }
+
     inner class ParametersViewHolder(private val cardCellBinding: ParameterItemBinding, private val clickListener: ParameterClickListener) : RecyclerView.ViewHolder(cardCellBinding.root) {
-        fun bind(parameter: AppVisitParameters) {
-            cardCellBinding.parameterTitle.text = parameter.nombre
+        fun bind(parameter: AppVisitParameters, position: Int) {
+
+            cardCellBinding.checkbox.text = parameter.nombre
+            if (parameter.cumple == true){
+                cardCellBinding.checkbox.isChecked = true
+            }
+
+            cardCellBinding.checkbox.isChecked = checkedMap[position] ?: false
+            cardCellBinding.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                checkedMap[position] = isChecked
+            }
         }
     }
 
