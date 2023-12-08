@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.spgunlp.R
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.ui.active.VisitAdapter
@@ -83,14 +84,15 @@ suspend fun getVisits(header: String, context: Context, visitService:VisitServic
 fun calendar(parentFragmentManager: FragmentManager, visitList:List<AppVisit>,listener: VisitClickListener,recyler: RecyclerView,activity: FragmentActivity?): View.OnClickListener {
     return View.OnClickListener {
 
-        val dateRangePicker =
+        val picker =
             MaterialDatePicker.Builder.dateRangePicker()
+                .setTheme(R.style.ThemeMaterialCalendar)
                 .setTitleText("Seleccionar fechas")
                 .build()
 
-        dateRangePicker.show(parentFragmentManager, "DATE_RANGE_PICKER")
+        picker.show(parentFragmentManager, "DATE_RANGE_PICKER")
 
-        dateRangePicker.addOnPositiveButtonClickListener {
+        picker.addOnPositiveButtonClickListener {
             val startDate = Date(it.first!!)
             val endDate = Date(it.second!!)
             val filteredList = visitList.filter { visit ->

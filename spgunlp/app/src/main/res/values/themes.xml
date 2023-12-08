@@ -17,4 +17,8 @@
         <item name="checklist">@drawable/checklist_light</item>
         <item name="done">@drawable/done_light</item>
     </style>
+
+    <style name="ThemeMaterialCalendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="android:windowFullscreen">false</item>
+    </style>
 </resources>
