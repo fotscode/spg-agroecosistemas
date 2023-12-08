@@ -9,11 +9,12 @@
 
     <ScrollView
         android:layout_width="match_parent"
+        android:fillViewport="true"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
 
             <TextView
@@ -54,8 +55,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
-                    android:text="Filtros"
+                    android:text="Mostrar todas las visitas"
                     android:textAllCaps="false"
+                    android:visibility="gone"
                     android:textColor="?attr/colorPrimary"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -78,11 +80,10 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/active_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
-                android:nestedScrollingEnabled="false"
+                android:nestedScrollingEnabled="true"
                 android:scrollbars="none"
-                app:layoutManager="LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:layout_constraintTop_toBottomOf="@id/extra_btn_container" />
 

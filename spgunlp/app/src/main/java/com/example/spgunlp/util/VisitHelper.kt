@@ -1,8 +1,12 @@
 package com.example.spgunlp.util
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.io.VisitService
@@ -11,8 +15,10 @@ import com.example.spgunlp.ui.active.VisitAdapter
 import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.time.ZonedDateTime
 import java.util.Date
 
 fun updateRecycler(
@@ -71,4 +77,30 @@ suspend fun getVisits(header: String, context: Context, visitService:VisitServic
         visits = getPreferences(context)
     }
     return visits
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun calendar(parentFragmentManager: FragmentManager, visitList:List<AppVisit>,listener: VisitClickListener,recyler: RecyclerView,activity: FragmentActivity?): View.OnClickListener {
+    return View.OnClickListener {
+
+        val dateRangePicker =
+            MaterialDatePicker.Builder.dateRangePicker()
+                .setTitleText("Seleccionar fechas")
+                .build()
+
+        dateRangePicker.show(parentFragmentManager, "DATE_RANGE_PICKER")
+
+        dateRangePicker.addOnPositiveButtonClickListener {
+            val startDate = Date(it.first!!)
+            val endDate = Date(it.second!!)
+            val filteredList = visitList.filter { visit ->
+                val date = Date.from(ZonedDateTime.parse(visit.fechaVisita).toInstant())
+                date.after(startDate) && date.before(endDate)
+            }
+            updateRecycler(
+                recyler, filteredList,
+                activity, listener
+            )
+        }
+    }
 }

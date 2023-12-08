@@ -1,16 +1,15 @@
 package com.example.spgunlp.ui.inactive
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.spgunlp.databinding.ActivityMainBinding
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.databinding.FragmentInactiveBinding
 import com.example.spgunlp.io.VisitService
@@ -22,6 +21,7 @@ import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
+import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
@@ -32,6 +32,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     private val visitService: VisitService by lazy {
         VisitService.create()
     }
+    private var showAll: Boolean = false
 
     val visitList = mutableListOf<AppVisit>()
 
@@ -42,6 +43,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     private val binding get() = _binding!!
     private lateinit var visitLayout: FragmentActiveBinding
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,16 +51,16 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     ): View {
         val inactiveViewModel =
             ViewModelProvider(this).get(InactiveViewModel::class.java)
+        showAll=inactiveViewModel.showAll
 
         _binding = FragmentInactiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         //val textView: TextView = binding.textInactive
-        //inactiveViewModel.text.observe(viewLifecycleOwner) {
-        //    textView.text = it
-        //}
         visitLayout = binding.layoutVisits
         visitLayout.titleActive.text = "Historial de visitas"
+        visitLayout.btnFiltro.text =
+            if (inactiveViewModel.showAll) "Mostrar mis visitas" else "Mostrar todas las visitas"
 
         populateVisits()
 
@@ -84,6 +86,26 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
                 return true
             }
         })
+
+        visitLayout.btnCalendario.setOnClickListener() {
+            calendar(
+                parentFragmentManager,
+                visitList,
+                this@InactiveFragment,
+                visitLayout.activeList,
+                requireActivity()
+            ).onClick(it)
+        }
+        visitLayout.btnFiltro.visibility=View.VISIBLE
+
+        visitLayout.btnFiltro.setOnClickListener() {
+            visitLayout.btnFiltro.text =
+                if (!inactiveViewModel.showAll) "Mostrar mis visitas" else "Mostrar todas las visitas"
+            inactiveViewModel.showAll = !inactiveViewModel.showAll
+            showAll=inactiveViewModel.showAll
+            visitList.clear()
+            populateVisits()
+        }
         return root
     }
 
@@ -106,9 +128,16 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val email = preferences["email", ""]
         val filteredVisits = visits.filter { visit ->
-            visit.estadoVisita == "CERRADA"
+            visit.estadoVisita == "CERRADA" && (isUserIn(email, visit) || showAll)
         }
         visitList.addAll(filteredVisits)
+    }
+
+    private fun isUserIn(user: String, visit: AppVisit): Boolean {
+        return visit.integrantes!!.filter { integrante ->
+            integrante.email == user
+        }.isNotEmpty()
+
     }
 
     override fun onClick(visit: AppVisit) {
