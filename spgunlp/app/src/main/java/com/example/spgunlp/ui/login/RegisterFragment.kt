@@ -26,7 +26,12 @@ import kotlinx.coroutines.launch
 
 class RegisterFragment : BaseFragment() {
 
-    val mapItemInteger = mapOf("Consumidor" to 1, "Equipo tecnico" to 2, "Productor/a" to 3, "Representante de organizacion" to 4)
+    val mapItemInteger = mapOf(
+        "Consumidor" to 1,
+        "Equipo tecnico" to 2,
+        "Productor/a" to 3,
+        "Representante de organizacion" to 4
+    )
 
     private val authService: AuthService by lazy {
         AuthService.create()
@@ -49,20 +54,20 @@ class RegisterFragment : BaseFragment() {
         val root: View = binding.root
 
 
-        val items=mapItemInteger.keys.toList()
+        val items = mapItemInteger.keys.toList()
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         binding.autoCompleteTextView.setAdapter(adapter)
 
 
-        binding.btnInicioSesion.setOnClickListener(){
+        binding.btnInicioSesion.setOnClickListener() {
             goToLoginFragment()
         }
 
-        binding.btnRegistrar.setOnClickListener(){
+        binding.btnRegistrar.setOnClickListener() {
             performRegister()
         }
 
-        binding.autoCompleteTextView.setOnClickListener(){
+        binding.autoCompleteTextView.setOnClickListener() {
             val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
@@ -70,7 +75,7 @@ class RegisterFragment : BaseFragment() {
         return root
     }
 
-    private fun goToLoginFragment(){
+    private fun goToLoginFragment() {
         val transaction = parentFragmentManager.beginTransaction()
         val newFragment = LoginFragment()
         transaction.add(R.id.nav_host_fragment_activity_main, newFragment)
@@ -78,24 +83,30 @@ class RegisterFragment : BaseFragment() {
         transaction.commit()
     }
 
-    private fun performRegister(){
-        val editMail=binding.editMail.text.toString()
-        val editPassword=binding.editPassword.text.toString()
-        val editName=binding.editName.text.toString()
-        val editCellphone=binding.editCellphone.text.toString()
-        val editOrganization=binding.editOrganization.text.toString()
-        val position=mapItemInteger[binding.autoCompleteTextView.text.toString()]
+    private fun performRegister() {
+        val editMail = binding.editMail.text.toString()
+        val editPassword = binding.editPassword.text.toString()
+        val editName = binding.editName.text.toString()
+        val editCellphone = binding.editCellphone.text.toString()
+        val editOrganization = binding.editOrganization.text.toString()
+        val position = mapItemInteger[binding.autoCompleteTextView.text.toString()]
 
         // make the call to the remote API with coroutines
         lifecycleScope.launch {
-            val user= AppUser(editMail, editPassword, editCellphone, editName, editOrganization, position,null)
+            val user =
+                AppUser(editMail, editPassword, editCellphone, editName, editOrganization, position!!)
             val response = authService.registro(user)
 
             if (response.isSuccessful) {
-                Toast.makeText(context, "Se ha creado el usuario correctamente, se encuentra a la espera de autorizacion", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Se ha creado el usuario correctamente, se encuentra a la espera de autorizacion",
+                    Toast.LENGTH_SHORT
+                ).show()
                 goToLoginFragment()
             } else {
-                Toast.makeText(context, "El mail ya se encuentra registrado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "El mail ya se encuentra registrado", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 
