@@ -5,6 +5,7 @@ import com.example.spgunlp.io.response.VisitByIdResponse
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -40,23 +41,11 @@ interface VisitService {
 
     companion object Factory {
 
-        // DEBUGGING
-        val interceptor : HttpLoggingInterceptor
-            get() = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
-
-        val client : OkHttpClient
-            get() = OkHttpClient.Builder().apply {
-                addInterceptor(interceptor)
-            }.build()
-
         fun create(): VisitService {
             val baseUrl= BuildConfig.BASE_URL
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl("$baseUrl/tesina/")
-                .client(client)
                 .build()
 
             return retrofit.create(VisitService::class.java)

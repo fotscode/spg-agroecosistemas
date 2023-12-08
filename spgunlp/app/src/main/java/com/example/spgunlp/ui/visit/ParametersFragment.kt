@@ -60,11 +60,8 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
                 .setPositiveButton("Aceptar") { _, _ ->
 
                     updateParameterList()
-                    updateVisitParameters()
+                    updateVisitParameters(this.id)
 
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(this.id, PrinciplesFragment())
-                        .commit()
                 }
                 .show()
 
@@ -105,7 +102,7 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
         parametersList.addAll(newParameters)
     }
 
-    private fun updateVisitParameters(){
+    private fun updateVisitParameters(id: Int){
         lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
@@ -113,6 +110,10 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
                 cancel()
             val header = "Bearer $jwt"
             getVisitParametersUpdated(header)
+
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(id, PrinciplesFragment())
+                .commit()
         }
     }
 
@@ -126,7 +127,7 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
                     it.aspiracionesFamiliares,
                     it.comentarios,
                     it.cumple,
-                    it.id,
+                    it.parametro?.id,
                     it.sugerencias
                 )
             )
