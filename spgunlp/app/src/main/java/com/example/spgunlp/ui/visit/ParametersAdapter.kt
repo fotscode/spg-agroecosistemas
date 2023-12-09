@@ -34,7 +34,6 @@ class ParametersAdapter(private val parameters: List<AppVisitParameters>, privat
 
             cardCellBinding.checkbox.text = parameter.nombre
             if (parameter.cumple == true){
-                Log.d("parameter", parameter.toString())
                 cardCellBinding.checkbox.isChecked = true
                 checkedMap[position] = true
             } else {

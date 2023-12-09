@@ -61,10 +61,21 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
                 }
                 .setPositiveButton("Aceptar") { _, _ ->
                     updateParameterList()
-                    updateVisitParameters(this.id)
+                    updateVisitParameters()
                 }
                 .show()
+        }
 
+        binding.btnCancel.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(binding.btnCancel.text)
+                .setMessage("¿Está seguro que desea volver atrás? Los cambios realizados no serán guardados")
+                .setNegativeButton("Cancelar") { _, _ ->
+                }
+                .setPositiveButton("Aceptar") { _, _ ->
+                    goToPrincipleFragment()
+                }
+                .show()
         }
     }
 
@@ -102,7 +113,7 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
         parametersList.addAll(newParameters)
     }
 
-    private fun updateVisitParameters(id: Int){
+    private fun updateVisitParameters(){
         lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
@@ -127,9 +138,7 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(id, PrinciplesFragment())
-                .commit()
+            goToPrincipleFragment()
         }
     }
 
@@ -163,6 +172,12 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
         val visitId = visitViewModel.id.value ?: 0
 
         return visitService.updateVisitById(header, visitId, visitToUpdate)
+    }
+
+    fun goToPrincipleFragment(){
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(this.id, PrinciplesFragment())
+            .commit()
     }
 
     override fun onClick(parameter: AppVisitParameters) {
