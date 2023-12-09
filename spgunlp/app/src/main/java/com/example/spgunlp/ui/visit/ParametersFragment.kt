@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentParametersBinding
 import com.example.spgunlp.io.VisitService
+import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.ui.BaseFragment
@@ -19,6 +20,7 @@ import com.example.spgunlp.util.PreferenceHelper.get
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 class ParametersFragment(private val principleName: String): BaseFragment(), ParameterClickListener {
     private val visitService: VisitService by lazy {
@@ -58,10 +60,8 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
                 .setNegativeButton("Cancelar") { _, _ ->
                 }
                 .setPositiveButton("Aceptar") { _, _ ->
-
                     updateParameterList()
                     updateVisitParameters(this.id)
-
                 }
                 .show()
 
@@ -109,15 +109,31 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            getVisitParametersUpdated(header)
+            val response = getVisitParametersUpdated(header)
 
+            val body = response.body()
+
+            if (response.isSuccessful && body != null) {
+                Toast.makeText(
+                    requireContext(),
+                    "Los cambios han sido guardados con éxito",
+                    Toast.LENGTH_SHORT
+                ).show()
+                (activity as VisitActivity).updateVisit(body)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Error: los cambios no fueron guardados",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(id, PrinciplesFragment())
                 .commit()
         }
     }
 
-    private suspend fun getVisitParametersUpdated(header: String){
+    private suspend fun getVisitParametersUpdated(header: String): Response<AppVisit> {
 
         val parametersUpdate = mutableListOf<AppVisitUpdate.ParametersUpdate>()
 
@@ -146,26 +162,7 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
 
         val visitId = visitViewModel.id.value ?: 0
 
-        try {
-            val response = visitService.updateVisitById(header, visitId, visitToUpdate)
-            val body = response.body()
-
-            if (response.isSuccessful && body != null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Los cambios han sido guardados con éxito",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Error: los cambios no fueron guardados",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }catch (e: Exception){
-            Log.d("ERROR API", e.toString() )
-        }
+        return visitService.updateVisitById(header, visitId, visitToUpdate)
     }
 
     override fun onClick(parameter: AppVisitParameters) {

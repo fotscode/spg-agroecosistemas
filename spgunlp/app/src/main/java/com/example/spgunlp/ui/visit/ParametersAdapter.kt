@@ -34,12 +34,16 @@ class ParametersAdapter(private val parameters: List<AppVisitParameters>, privat
 
             cardCellBinding.checkbox.text = parameter.nombre
             if (parameter.cumple == true){
+                Log.d("parameter", parameter.toString())
                 cardCellBinding.checkbox.isChecked = true
+                checkedMap[position] = true
+            } else {
+                cardCellBinding.checkbox.isChecked = false
+                checkedMap[position] = false
             }
 
-            cardCellBinding.checkbox.isChecked = checkedMap[position] ?: false
-            cardCellBinding.checkbox.setOnCheckedChangeListener { _, isChecked ->
-                checkedMap[position] = isChecked
+            cardCellBinding.checkbox.setOnCheckedChangeListener { _, _->
+                checkedMap[position] = !checkedMap[position]!!
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.spgunlp.ui.visit
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -39,9 +40,24 @@ class VisitActivity : AppCompatActivity() {
             .add(active_visit, VisitFragment())
             .commit()
 
-        // viewModel for visit
         val visitGson= intent.getStringExtra(VISIT_ITEM)
         visit = Gson().fromJson(visitGson, AppVisit::class.java)
+
+        updateVisitViewModel()
+        updateParametersViewModel()
+
+
+        //Logger.getGlobal().log(Level.SEVERE,visit.quintaResponse?.nombreProductor) TODO(remove)
+    }
+
+    fun updateVisit(visit: AppVisit){
+        this.visit = visit
+        updateVisitViewModel()
+        updateParametersViewModel()
+    }
+
+    @SuppressLint("NewApi")
+    fun updateVisitViewModel(){
         val memberValues = visit.integrantes?.map { it.nombre }
         val members= memberValues?.joinToString(separator=",")
         val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
@@ -56,14 +72,12 @@ class VisitActivity : AppCompatActivity() {
         visitViewModel.setCountryId(visit.quintaResponse?.id)
         visitViewModel.setMembersList(visit.integrantes)
         visitViewModel.setUnformattedVisitDate(visit.fechaVisita)
-
-        // viewModel for Parameters
+    }
+    fun updateParametersViewModel(){
         val parameterValues = visit.visitaParametrosResponse?.map { it }
         val parametersFiltered = parameterValues?.filter { it?.parametro?.habilitado == true }
         parametersViewModel.setParameters(parametersFiltered)
-
-
-        //Logger.getGlobal().log(Level.SEVERE,visit.quintaResponse?.nombreProductor) TODO(remove)
     }
+
 
 }

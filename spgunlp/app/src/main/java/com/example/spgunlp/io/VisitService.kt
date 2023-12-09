@@ -5,9 +5,6 @@ import com.example.spgunlp.io.response.VisitByIdResponse
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body

@@ -37,8 +37,6 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         savedInstanceState: Bundle?
     ): View {
 
-        Log.d("PAR",parametersViewModel.parameters.toString())
-
         _binding = FragmentPrinciplesBinding.inflate(inflater, container, false)
 
         return binding.root
