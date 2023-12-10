@@ -3,7 +3,9 @@ package com.example.spgunlp.ui.visit
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.marginTop
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.databinding.ObsMeItemBinding
 import com.example.spgunlp.databinding.ObsOtherItemBinding
@@ -42,6 +44,10 @@ class ObservationsAdapter(private val messages: List<AppMessage>, private val em
         @SuppressLint("NewApi")
         fun bind(message: AppMessage, position: Int) {
 
+            if(position != 0 && !messages[position - 1].date.equals(message.date)) {
+                cardCellBinding.chatDate.visibility = View.VISIBLE
+            }
+
             val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
             val date = LocalDateTime.parse(message.date, formatter)
             val hour = "%02d".format(date.hour)
@@ -49,9 +55,18 @@ class ObservationsAdapter(private val messages: List<AppMessage>, private val em
             val timestamp = "${hour}:${minute}"
             val dateFormatted = "${date.dayOfMonth}/${date.monthValue}/${date.year}"
 
-            cardCellBinding.textGchatMessageMe.text = message.data
-            cardCellBinding.textGchatDateMe.text = dateFormatted
-            cardCellBinding.textGchatTimestampMe.text = timestamp
+            if (position != 0) {
+                val previousDate = LocalDateTime.parse(messages[position - 1].date, formatter)
+                if (previousDate.year != date.year || previousDate.monthValue != date.monthValue || previousDate.dayOfMonth != date.dayOfMonth) {
+                    cardCellBinding.chatDate.visibility = View.VISIBLE
+                }
+            } else {
+                cardCellBinding.chatDate.visibility = View.VISIBLE
+            }
+
+            cardCellBinding.textChat.text = message.data
+            cardCellBinding.chatDate.text = dateFormatted
+            cardCellBinding.chatTimestamp.text = timestamp
         }
     }
 
@@ -59,15 +74,35 @@ class ObservationsAdapter(private val messages: List<AppMessage>, private val em
         @SuppressLint("NewApi")
         fun bind(message: AppMessage, position: Int) {
 
+
             val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
             val date = LocalDateTime.parse(message.date, formatter)
-            val timestamp = "${date.hour}:${date.second}"
+            val hour = "%02d".format(date.hour)
+            val minute = "%02d".format(date.minute)
+            val timestamp = "${hour}:${minute}"
             val dateFormatted = "${date.dayOfMonth}/${date.monthValue}/${date.year}"
-            cardCellBinding.textGchatDateOther.text = dateFormatted
-            cardCellBinding.textGchatTimestampOther.text = timestamp
-            cardCellBinding.textGchatUserOther.text = message.sender?.nombre
-            //cardCellBinding.textGchatMessageOther.text = message.content
+
+            if (position != 0) {
+                val previousDate = LocalDateTime.parse(messages[position - 1].date, formatter)
+                if (previousDate.year != date.year || previousDate.monthValue != date.monthValue || previousDate.dayOfMonth != date.dayOfMonth) {
+                    cardCellBinding.chatDate.visibility = View.VISIBLE
+                }
+
+                if (messages[position - 1].sender?.email != message.sender?.email) {
+                    cardCellBinding.chatUsername.visibility = View.VISIBLE
+                } else {
+                    (cardCellBinding.messageLayout.layoutParams as RecyclerView.LayoutParams).setMargins(0,0,0,0)
+                }
+            } else {
+                cardCellBinding.chatDate.visibility = View.VISIBLE
+                cardCellBinding.chatUsername.visibility = View.VISIBLE
+            }
+
+            cardCellBinding.textChat.text = message.data
             //cardCellBinding.imageGchatProfileOther.context = message.sender
+            cardCellBinding.chatDate.text = dateFormatted
+            cardCellBinding.chatTimestamp.text = timestamp
+            cardCellBinding.chatUsername.text = message.sender?.nombre
 
         }
     }
