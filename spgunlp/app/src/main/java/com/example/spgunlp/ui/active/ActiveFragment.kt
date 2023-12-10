@@ -76,6 +76,10 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         visitList.clear()
         _binding = null
     }
+    override fun onResume() {
+        super.onResume()
+        populateVisits()
+    }
 
     private fun populateVisits() {
         lifecycleScope.launch {
@@ -97,7 +101,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 integrante.email == email
             }.isNotEmpty()
         }
-        visitList.addAll(filteredVisits)
+        visitList.clear()
+        visitList.addAll(filteredVisits.sortedBy { it.fechaVisita })
     }
 
     private fun updatePreferences(visits: List<AppVisit>){

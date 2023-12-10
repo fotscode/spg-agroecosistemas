@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.TimeZone
 
@@ -64,6 +65,16 @@ class VisitActivity : AppCompatActivity() {
         this.visit = visit
         updateVisitViewModel()
         updateParametersViewModel()
+
+        val preferences = PreferenceHelper.defaultPrefs(this)
+        val visitsGson = preferences["LIST_VISITS", ""]
+        val type = object : TypeToken<List<AppVisit>>() {}.type
+        val visits = Gson().fromJson<List<AppVisit>>(visitsGson, type)
+        val visitsFiltered = visits.filter { it.id != visit.id }.toMutableList()
+        visitsFiltered.add(visit)
+        val visitsJson = Gson().toJson(visitsFiltered.toList())
+        preferences["LIST_VISITS"] = visitsJson
+        preferences["LAST_UPDATE"] = Date().time
     }
 
     @SuppressLint("NewApi")
@@ -72,7 +83,7 @@ class VisitActivity : AppCompatActivity() {
         val members= memberValues?.joinToString(separator=",")
         val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
         val date = LocalDateTime.parse(visit.fechaVisita, formatter)
-        val dateFormatted = "${date.dayOfMonth}/${date.monthValue}/${date.year}"
+        val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
         visitViewModel.setNameProducer(visit.quintaResponse?.nombreProductor)
         visitViewModel.setVisitDate(dateFormatted)
         visitViewModel.setMembers(members)
@@ -115,15 +126,6 @@ class VisitActivity : AppCompatActivity() {
     }
 
     private fun updateMessagesStored(message: AppMessage, principleId: Int){
-        /*
-        messagesViewModel.messages.observe(this) { newMessages ->
-            val preferences = PreferenceHelper.defaultPrefs(this)
-            val jsonMessages = Gson().toJson(newMessages)
-            preferences["${MESSAGES}:${visit.id}:${principleId}"] = jsonMessages
-
-        }
-        */
-
         val preferences = PreferenceHelper.defaultPrefs(this)
         try{
             val messagesString = preferences["${MESSAGES}:${visit.id}:${principleId}", ""]

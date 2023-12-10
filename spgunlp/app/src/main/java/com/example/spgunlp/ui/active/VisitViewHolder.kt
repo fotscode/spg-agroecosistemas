@@ -9,6 +9,7 @@ import com.example.spgunlp.R
 import com.example.spgunlp.databinding.ListVisitElementBinding
 import com.example.spgunlp.model.AppVisit
 import java.sql.Time
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -28,9 +29,11 @@ class VisitViewHolder(private val cardCellBinding:ListVisitElementBinding,privat
         }
         val title="${visit.quintaResponse?.organizacion} | ${visit.quintaResponse?.nombreProductor}"
         cardCellBinding.visitName.text = title
-        val date=ZonedDateTime.parse(visit.fechaVisita)
+
+        val date=ZonedDateTime.parse(visit.fechaActualizacion)
         val res=date.withZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-        val dateString="Ultima modificación: $res"
+
+        val dateString="Última modificación: $res"
         cardCellBinding.visitDateModif.text = dateString
 
         cardCellBinding.cardView.setOnClickListener(){

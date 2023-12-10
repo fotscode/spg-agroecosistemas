@@ -11,6 +11,7 @@ import com.example.spgunlp.databinding.ObsMeItemBinding
 import com.example.spgunlp.databinding.ObsOtherItemBinding
 import com.example.spgunlp.model.AppMessage
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class ObservationsAdapter(private val messages: List<AppMessage>, private val email: String, private val clickListener: MessageClickListener):
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -44,16 +45,10 @@ class ObservationsAdapter(private val messages: List<AppMessage>, private val em
         @SuppressLint("NewApi")
         fun bind(message: AppMessage, position: Int) {
 
-            if(position != 0 && !messages[position - 1].date.equals(message.date)) {
-                cardCellBinding.chatDate.visibility = View.VISIBLE
-            }
-
             val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
             val date = LocalDateTime.parse(message.date, formatter)
-            val hour = "%02d".format(date.hour)
-            val minute = "%02d".format(date.minute)
-            val timestamp = "${hour}:${minute}"
-            val dateFormatted = "${date.dayOfMonth}/${date.monthValue}/${date.year}"
+            val timestamp = date.format(DateTimeFormatter.ofPattern("HH:mm"))
+            val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
             if (position != 0) {
                 val previousDate = LocalDateTime.parse(messages[position - 1].date, formatter)
@@ -77,10 +72,8 @@ class ObservationsAdapter(private val messages: List<AppMessage>, private val em
 
             val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
             val date = LocalDateTime.parse(message.date, formatter)
-            val hour = "%02d".format(date.hour)
-            val minute = "%02d".format(date.minute)
-            val timestamp = "${hour}:${minute}"
-            val dateFormatted = "${date.dayOfMonth}/${date.monthValue}/${date.year}"
+            val timestamp = date.format(DateTimeFormatter.ofPattern("HH:mm"))
+            val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
             if (position != 0) {
                 val previousDate = LocalDateTime.parse(messages[position - 1].date, formatter)

@@ -34,7 +34,6 @@ class ObservationsFragment(private val principleId: Int, private val principleNa
         return binding.root
     }
 
-    @SuppressLint("NewApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
