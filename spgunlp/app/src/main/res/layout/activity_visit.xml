@@ -47,20 +47,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/separator"
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:layout="@layout/fragment_visit" />
-            <!--
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/active_visit"
-                android:name="com.example.spgunlp.ui.visit.ObservationsFragment"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/separator"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:layout="@layout/fragment_obs" />
-                -->
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
