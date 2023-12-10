@@ -37,7 +37,6 @@ interface VisitService {
 
 
     companion object Factory {
-
         fun create(): VisitService {
             val baseUrl= BuildConfig.BASE_URL
             val retrofit = Retrofit.Builder()
