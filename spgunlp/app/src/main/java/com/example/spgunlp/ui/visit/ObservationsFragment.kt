@@ -1,5 +1,6 @@
 package com.example.spgunlp.ui.visit
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,33 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.spgunlp.databinding.FragmentParametersBinding
-import com.example.spgunlp.io.VisitService
-import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.model.AppVisitUpdate
+import com.example.spgunlp.databinding.FragmentObsBinding
+import com.example.spgunlp.model.AppMessage
+import com.example.spgunlp.model.CONTENT_TYPE
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.util.PreferenceHelper
-import com.example.spgunlp.util.PreferenceHelper.get
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import retrofit2.Response
 
-class ObservationsFragment(private val principleName: String): BaseFragment(), ParameterClickListener {
-    private val visitService: VisitService by lazy {
-        VisitService.create()
-    }
+class ObservationsFragment(private val principleId: Int, private val principleName: String, private val email: String): BaseFragment(), MessageClickListener {
 
-    private val parameterViewModel: ParametersViewModel by activityViewModels()
-    private val visitViewModel: VisitViewModel by activityViewModels()
+    private val messagesViewModel: MessagesViewModel by activityViewModels()
 
-    private var _binding: FragmentParametersBinding? = null
+    private var _binding: FragmentObsBinding? = null
 
     private val binding get() = _binding!!
-    private val parametersList = mutableListOf<AppVisitParameters>()
+    private val messagesList = mutableListOf<AppMessage>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,41 +29,27 @@ class ObservationsFragment(private val principleName: String): BaseFragment(), P
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentParametersBinding.inflate(inflater, container, false)
+        _binding = FragmentObsBinding.inflate(inflater, container, false)
 
         return binding.root
     }
 
+    @SuppressLint("NewApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.detailTitle.text = principleName
+        // binding.detailTitle.text = principleName
 
-        populateParameters()
+        populateMessages()
 
-        binding.btnSave.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(binding.btnSave.text)
-                .setMessage("¿Está seguro que desea guardar los cambios realizados?")
-                .setNegativeButton("Cancelar") { _, _ ->
-                }
-                .setPositiveButton("Aceptar") { _, _ ->
-                    updateParameterList()
-                    updateVisitParameters()
-                }
-                .show()
-        }
+        binding.btnSend.setOnClickListener {
 
-        binding.btnCancel.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(binding.btnCancel.text)
-                .setMessage("¿Está seguro que desea volver atrás? Los cambios realizados no serán guardados")
-                .setNegativeButton("Cancelar") { _, _ ->
-                }
-                .setPositiveButton("Aceptar") { _, _ ->
-                    goToPrincipleFragment()
-                }
-                .show()
+            val data = binding.inputMsg.text.toString()
+            binding.inputMsg.setText("")
+            (activity as VisitActivity).sendNewMessage(CONTENT_TYPE.TEXT, data, principleId) //TODO send real type and data
+
+            // update recycler with new message
+            updateMessagesList()
         }
     }
 
@@ -84,103 +58,41 @@ class ObservationsFragment(private val principleName: String): BaseFragment(), P
         _binding = null
     }
 
-    private fun populateParameters() {
+    private fun populateMessages() {
 
-        parameterViewModel.parameters.observe(viewLifecycleOwner) { value ->
+        messagesViewModel.messages.observe(viewLifecycleOwner) { value ->
+            this.messagesList.clear()
             value?.forEach {
                 if (it != null) {
-                    this.parametersList.add(it)
+                    this.messagesList.add(it)
                 }
             }
         }
 
-        updateRecycler(parametersList)
+        updateRecycler()
     }
 
-    private fun updateRecycler(list: List<AppVisitParameters>){
-        binding.parametersList.apply{
+    private fun updateRecycler(){
+
+        binding.messagesList.apply{
             layoutManager = LinearLayoutManager(activity)
-            adapter = ParametersAdapter(list, this@ObservationsFragment)
+            adapter = ObservationsAdapter(messagesList, email, this@ObservationsFragment)
         }
     }
 
-    private fun updateParameterList(){
+    private fun updateMessagesList(){
 
-        val adapter = binding.parametersList.adapter as ParametersAdapter
-        val newParameters = parametersList.mapIndexed { index, par -> par.copy(cumple = adapter.getCheckedMap()[index]?:false) }
+        val adapter = binding.messagesList.adapter as ObservationsAdapter
+        adapter.notifyItemInserted(adapter.itemCount - 1)
 
-        parametersList.clear()
-        parametersList.addAll(newParameters)
     }
-
-    private fun updateVisitParameters(){
-        lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
-            val jwt = preferences["jwt", ""]
-            if (!jwt.contains("."))
-                cancel()
-            val header = "Bearer $jwt"
-            val response = getVisitParametersUpdated(header)
-
-            val body = response.body()
-
-            if (response.isSuccessful && body != null) {
-                Toast.makeText(
-                    requireContext(),
-                    "Los cambios han sido guardados con éxito",
-                    Toast.LENGTH_SHORT
-                ).show()
-                (activity as VisitActivity).updateVisit(body)
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Error: los cambios no fueron guardados",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            goToPrincipleFragment()
-        }
-    }
-
-    private suspend fun getVisitParametersUpdated(header: String): Response<AppVisit> {
-
-        val parametersUpdate = mutableListOf<AppVisitUpdate.ParametersUpdate>()
-
-        parametersList.forEach {
-            parametersUpdate.add(
-                AppVisitUpdate.ParametersUpdate(
-                    it.aspiracionesFamiliares,
-                    it.comentarios,
-                    it.cumple,
-                    it.parametro?.id,
-                    it.sugerencias
-                )
-            )
-        }
-
-        val idMembers = visitViewModel.membersList.value?.map {
-            it.id ?: 0
-        }
-
-        val visitToUpdate = AppVisitUpdate(
-            visitViewModel.unformattedVisitDate.value,
-            idMembers,
-            parametersUpdate,
-            visitViewModel.countryId.value
-        )
-
-        val visitId = visitViewModel.id.value ?: 0
-
-        return visitService.updateVisitById(header, visitId, visitToUpdate)
-    }
-
-    fun goToPrincipleFragment(){
+    fun goToVisitFragment(){
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, PrinciplesFragment())
+            .replace(this.id, VisitFragment())
             .commit()
     }
 
-    override fun onClick(parameter: AppVisitParameters) {
-
+    override fun onClick(message: AppMessage) {
+        //TODO open if message is image or audio
     }
 }

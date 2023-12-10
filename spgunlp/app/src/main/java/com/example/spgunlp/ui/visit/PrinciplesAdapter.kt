@@ -45,7 +45,11 @@ class PrinciplesAdapter(private val principles: List<Principle>, private val sta
             cardCellBinding.principleTitle.text = principle.nombre
 
             cardCellBinding.btnChecklist.setOnClickListener(){
-                clickListener.onClick(principle)
+                clickListener.onClickChecklist(principle)
+            }
+
+            cardCellBinding.btnObservations.setOnClickListener(){
+                clickListener.onClickObservations(principle)
             }
         }
 

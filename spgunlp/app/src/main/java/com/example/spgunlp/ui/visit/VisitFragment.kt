@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
 import com.example.spgunlp.ui.BaseFragment
+import com.example.spgunlp.util.PreferenceHelper
 
 class VisitFragment : BaseFragment() {
 
@@ -54,6 +55,7 @@ class VisitFragment : BaseFragment() {
                 .replace(this.id, PrinciplesFragment())
                 .commit()
         }
+
     }
 
     override fun onDestroyView() {

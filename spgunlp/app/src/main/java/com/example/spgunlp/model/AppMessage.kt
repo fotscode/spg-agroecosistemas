@@ -7,13 +7,15 @@ enum class CONTENT_TYPE {
 }
 
 data class AppMessage (
-    val content: CONTENT_TYPE?, // TEXT, AUDIO, IMAGE
+    val content_type: CONTENT_TYPE?, // TEXT, AUDIO, IMAGE
+    val data: String?,
     val date: String?,
     val sender: ChatUser?,
     val visitId: Int?,
+    val principleId: Int?
 ) {
     data class ChatUser (
-        val id: Int?,
+        val email: String?,
         val nombre: String?
     )
 }

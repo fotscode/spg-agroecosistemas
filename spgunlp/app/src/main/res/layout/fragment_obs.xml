@@ -7,6 +7,7 @@
     android:layout_height="match_parent">
 
 
+    <!--
     <TextView
         android:id="@+id/detailTitle"
         android:layout_width="match_parent"
@@ -17,6 +18,7 @@
         android:text="@string/observaciones"
         android:textAppearance="?attr/textAppearanceHeadline3"
         android:textSize="16sp" />
+       -->
 
 
     <com.google.android.material.appbar.AppBarLayout
@@ -39,7 +41,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_gchat"
+        android:id="@+id/messages_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="16dp"
@@ -72,20 +74,20 @@
 
 
         <EditText
-            android:id="@+id/edit_gchat_message"
+            android:id="@+id/input_msg"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48sp"
             android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
-            android:layout_toStartOf="@+id/button_gchat_send"
+            android:layout_toStartOf="@+id/btn_send"
             android:background="@android:color/transparent"
-            android:hint="Enter Message"
+            android:hint="Ingrese un mensaje"
             android:inputType="text"
             android:maxLines="6"
             tools:ignore="Autofill" />
 
         <Button
-            android:id="@+id/button_gchat_send"
+            android:id="@+id/btn_send"
             android:layout_width="64dp"
             android:layout_height="48dp"
             android:layout_alignParentEnd="true"

@@ -91,10 +91,20 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         }
     }
 
-    override fun onClick(principle: AppVisitParameters.Principle) {
+    override fun onClickChecklist(principle: AppVisitParameters.Principle) {
         val name = principle.nombre?: "Unamed"
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ParametersFragment(name))
+            .commit()
+    }
+
+    override fun onClickObservations(principle: AppVisitParameters.Principle) {
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val name = principle.nombre ?: "Unamed"
+        val id = principle.id ?: 0
+        (activity as VisitActivity).updateMessagesViewModel(id)
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(this.id, ObservationsFragment(id,name,preferences["email"]))
             .commit()
     }
 }
