@@ -4,49 +4,51 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
-import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.ui.BaseFragment
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import com.example.spgunlp.util.PreferenceHelper
 
 class VisitFragment : BaseFragment() {
 
     private var _binding: FragmentVisitBinding? = null
+    private val visitViewModel: VisitViewModel by activityViewModels()
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-        val visitViewModel =
-                ViewModelProvider(this).get(VisitViewModel::class.java)
-
         _binding = FragmentVisitBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
-        visitViewModel.nameProducer.observe(viewLifecycleOwner){
-            binding.nameProducer.text = it
-        }
-        visitViewModel.members.observe(viewLifecycleOwner){
-            binding.members.text = it
-        }
-        visitViewModel.visitDate.observe(viewLifecycleOwner){
-            binding.visitDate.text = it
-        }
-        visitViewModel.surfaceCountry.observe(viewLifecycleOwner){
-            binding.surfaceCountry.text = it
-        }
-        visitViewModel.surfaceAgro.observe(viewLifecycleOwner){
-            binding.surfaceAgro.text = it
-        }
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        visitViewModel.nameProducer.observe(viewLifecycleOwner, Observer { value ->
+            binding.nameProducer.text = value
+        })
+
+        visitViewModel.members.observe(viewLifecycleOwner, Observer { value ->
+            binding.members.text = value
+        })
+
+        visitViewModel.visitDate.observe(viewLifecycleOwner, Observer { value ->
+            binding.visitDate.text = value
+        })
+
+        visitViewModel.surfaceCountry.observe(viewLifecycleOwner, Observer { value ->
+            binding.surfaceCountry.text = value.toString()
+        })
+
+        visitViewModel.surfaceAgro.observe(viewLifecycleOwner, Observer { value ->
+            binding.surfaceAgro.text = value.toString()
+        })
 
         binding.btnPrinciples.setOnClickListener(){
             requireActivity().supportFragmentManager.beginTransaction()
@@ -54,7 +56,6 @@ class VisitFragment : BaseFragment() {
                 .commit()
         }
 
-        return root
     }
 
     override fun onDestroyView() {

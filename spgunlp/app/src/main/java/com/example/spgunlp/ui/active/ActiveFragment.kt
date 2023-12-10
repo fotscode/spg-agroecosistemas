@@ -3,6 +3,7 @@ package com.example.spgunlp.ui.active
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
@@ -22,8 +24,10 @@ import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class ActiveFragment : BaseFragment(), VisitClickListener {
     private val visitService: VisitService by lazy {
@@ -33,8 +37,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     val visitList = mutableListOf<AppVisit>()
     private var _binding: FragmentActiveBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -49,16 +51,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        //val textView: TextView = binding.textActive
-        //activeViewModel.text.observe(viewLifecycleOwner) {
-        //    textView.text = it
-        //}
-
-        binding.btnVisita.setOnClickListener() {
-            val intent = Intent(requireActivity(), VisitActivity::class.java)
-            startActivity(intent)
-        }
-
         binding.searchView.clearFocus()
 
         binding.btnCalendario.setOnClickListener() {
@@ -72,7 +64,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         }
 
         populateVisits()
-
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -103,6 +94,10 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         visitList.clear()
         _binding = null
     }
+    override fun onResume() {
+        super.onResume()
+        populateVisits()
+    }
 
     private fun populateVisits() {
         lifecycleScope.launch {
@@ -128,7 +123,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 integrante.email == email
             }.isNotEmpty()
         }
-        visitList.addAll(filteredVisits)
+        visitList.clear()
+        visitList.addAll(filteredVisits.sortedBy { it.fechaVisita })
     }
 
     override fun onClick(visit: AppVisit) {

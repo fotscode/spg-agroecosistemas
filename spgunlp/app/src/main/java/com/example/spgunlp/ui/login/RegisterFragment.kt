@@ -93,8 +93,7 @@ class RegisterFragment : BaseFragment() {
 
         // make the call to the remote API with coroutines
         lifecycleScope.launch {
-            val user =
-                AppUser(editMail, editPassword, editCellphone, editName, editOrganization, position!!)
+            val user = AppUser(editMail, editPassword, editCellphone, editName, editOrganization, position!!)
             val response = authService.registro(user)
 
             if (response.isSuccessful) {
