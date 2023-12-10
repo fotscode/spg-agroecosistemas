@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.ScrollView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.R.id.active_visit
 import com.example.spgunlp.databinding.ActivityVisitBinding
@@ -161,6 +163,8 @@ class VisitActivity : AppCompatActivity() {
             messagesViewModel.addMessage(message)
             updateMessagesStored(message, principleId)
             fragment.updateMessagesList()
+            val recyclerView = fragment.requireView().findViewById<RecyclerView>(R.id.messages_list)
+            recyclerView.scrollToPosition(recyclerView.adapter?.itemCount?.minus(1) ?: 0)
         }
     }
 
