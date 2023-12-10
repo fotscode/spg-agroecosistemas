@@ -10,8 +10,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
+import com.example.spgunlp.R
 import com.example.spgunlp.R.id.active_visit
 import com.example.spgunlp.databinding.ActivityVisitBinding
+import com.example.spgunlp.io.UserService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppMessage
 import com.example.spgunlp.model.AppUser
@@ -19,6 +21,7 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.model.CONTENT_TYPE
+import com.example.spgunlp.model.PROFILE
 import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
@@ -27,6 +30,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -37,11 +42,16 @@ import java.util.TimeZone
 val MESSAGES = "MESSAGES"
 class VisitActivity : AppCompatActivity() {
 
+    private val userService: UserService by lazy {
+        UserService.create()
+    }
+
     private lateinit var binding: ActivityVisitBinding
     private lateinit var visit: AppVisit
     private val visitViewModel: VisitViewModel by viewModels()
     private val parametersViewModel: ParametersViewModel by viewModels()
     private val messagesViewModel: MessagesViewModel by viewModels()
+    private lateinit var sender:AppMessage.ChatUser
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,16 +123,45 @@ class VisitActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("NewApi")
-    fun sendNewMessage(contentType: CONTENT_TYPE, data: String, principleId: Int): AppMessage{
-        val preferences = PreferenceHelper.defaultPrefs(this)
-        val sender = AppMessage.ChatUser(preferences["email"], "USR NAME")
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-        val isoDateTimeString = sdf.format(Date())
-        val message = AppMessage(contentType, data, isoDateTimeString, sender, visit.id, principleId)
-        messagesViewModel.addMessage(message)
-        updateMessagesStored(message, principleId)
-        return message
+    private suspend fun setUserChat(header: String) {
+        val preferences = PreferenceHelper.defaultPrefs(baseContext)
+        val email: String = preferences["email"]
+        val usrName: String
+        if (preferences[PROFILE, ""] != "") {
+            val type = object : TypeToken<AppUser>() {}.type
+            val user = Gson().fromJson<AppUser>(preferences[PROFILE, ""], type)
+            usrName = user.nombre.toString()
+        } else {
+            val response = userService.getUsers(header)
+            if (response.isSuccessful && response.body() != null) {
+                val member = response.body()!!.firstOrNull { it.email.equals(preferences["email"]) }
+                usrName = member?.nombre.toString()
+            } else {
+                usrName = "NAME"
+            }
+        }
+        sender = AppMessage.ChatUser(email, usrName)
+    }
+
+    @SuppressLint("NewApi", "SimpleDateFormat")
+    fun sendNewMessage(contentType: CONTENT_TYPE, data: String, principleId: Int, fragment: ObservationsFragment) {
+        lifecycleScope.launch{
+            val preferences = PreferenceHelper.defaultPrefs(baseContext)
+            val jwt = preferences["jwt", ""]
+            if (!jwt.contains("."))
+                cancel()
+            val header = "Bearer $jwt"
+            if (!::sender.isInitialized) {
+                setUserChat(header)
+            }
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            val isoDateTimeString = sdf.format(Date())
+            val message =
+                AppMessage(contentType, data, isoDateTimeString, sender, visit.id, principleId)
+            messagesViewModel.addMessage(message)
+            updateMessagesStored(message, principleId)
+            fragment.updateMessagesList()
+        }
     }
 
     private fun updateMessagesStored(message: AppMessage, principleId: Int){

@@ -45,10 +45,7 @@ class ObservationsFragment(private val principleId: Int, private val principleNa
 
             val data = binding.inputMsg.text.toString()
             binding.inputMsg.setText("")
-            (activity as VisitActivity).sendNewMessage(CONTENT_TYPE.TEXT, data, principleId) //TODO send real type and data
-
-            // update recycler with new message
-            updateMessagesList()
+            (activity as VisitActivity).sendNewMessage(CONTENT_TYPE.TEXT, data, principleId, this) //TODO send real type and data
         }
     }
 
@@ -79,7 +76,7 @@ class ObservationsFragment(private val principleId: Int, private val principleNa
         }
     }
 
-    private fun updateMessagesList(){
+    fun updateMessagesList(){
 
         val adapter = binding.messagesList.adapter as ObservationsAdapter
         adapter.notifyItemInserted(adapter.itemCount - 1)
