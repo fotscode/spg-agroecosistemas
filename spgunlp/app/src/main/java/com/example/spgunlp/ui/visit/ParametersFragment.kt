@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentParametersBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
@@ -24,12 +23,15 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class ParametersFragment(private val principleName: String): BaseFragment(), ParameterClickListener {
+    constructor(): this("Principio")
+
     private val visitService: VisitService by lazy {
         VisitService.create()
     }
 
     private val parameterViewModel: ParametersViewModel by activityViewModels()
     private val visitViewModel: VisitViewModel by activityViewModels()
+    private val bundleViewModel: BundleViewModel by activityViewModels()
 
     private var _binding: FragmentParametersBinding? = null
 
@@ -50,7 +52,11 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.detailTitle.text = principleName
+        if (bundleViewModel.isParametersStateEmpty()) {
+            binding.detailTitle.text = principleName
+        } else {
+            binding.detailTitle.text = bundleViewModel.getPrincipleName()
+        }
 
         populateParameters()
 
@@ -78,6 +84,11 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
                 }
                 .show()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        bundleViewModel.saveParametersState(principleName)
     }
 
     override fun onDestroyView() {
@@ -176,6 +187,7 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
     }
 
     private fun goToPrincipleFragment(){
+        bundleViewModel.clearParametersState()
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, PrinciplesFragment())
             .commit()

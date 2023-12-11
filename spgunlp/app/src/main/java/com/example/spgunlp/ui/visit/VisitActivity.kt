@@ -53,6 +53,7 @@ class VisitActivity : AppCompatActivity() {
     private val visitViewModel: VisitViewModel by viewModels()
     private val parametersViewModel: ParametersViewModel by viewModels()
     private val messagesViewModel: MessagesViewModel by viewModels()
+    private val bundleViewModel: BundleViewModel by viewModels()
     private lateinit var sender:AppMessage.ChatUser
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -75,6 +76,9 @@ class VisitActivity : AppCompatActivity() {
         this.visit = visit
         updateVisitViewModel()
         updateParametersViewModel()
+
+        val visitGson = Gson().toJson(visit)
+        intent.putExtra(VISIT_ITEM, visitGson)
 
         val preferences = PreferenceHelper.defaultPrefs(this)
         val visitsGson = preferences["LIST_VISITS", ""]

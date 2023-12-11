@@ -46,34 +46,30 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (savedInstanceState == null){ //TODO fix
+        if (bundleViewModel.isPrinciplesStateEmpty()) {
             populatePrinciples()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (principlesList.isNotEmpty()) {
+            bundleViewModel.savePrinciplesState(principlesList, statesList)
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            bundleViewModel.getPrinciplesList()?.let { principlesList.addAll(it) }
+            bundleViewModel.getStatesList()?.let { statesList.addAll(it) }
+            updateRecycler(principlesList, statesList)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        // Save your variables or data here
-        Log.d("observations", "guarda")
-        bundleViewModel.savePrinciplesList(principlesList)
-        bundleViewModel.saveStatesList(statesList)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            // Restore your variables or data here
-            Log.d("observations", "lee")
-            bundleViewModel.getPrinciplesList()?.let { principlesList.addAll(it) }
-            bundleViewModel.getStatesList()?.let { statesList.addAll(it) }
-            Log.d("observations", principlesList.toString())
-            Log.d("observations", statesList.toString())
-        }
     }
 
     private fun populatePrinciples() {
@@ -115,7 +111,7 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     }
 
     override fun onClickChecklist(principle: AppVisitParameters.Principle) {
-        bundleViewModel.clearState() //TODO remove
+        bundleViewModel.clearPrinciplesState()
         val name = principle.nombre?: "Unamed"
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ParametersFragment(name))
@@ -124,7 +120,6 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     }
 
     override fun onClickObservations(principle: AppVisitParameters.Principle) {
-        bundleViewModel.clearState() //TODO remove
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val name = principle.nombre ?: "Unamed"
         val id = principle.id ?: 0
