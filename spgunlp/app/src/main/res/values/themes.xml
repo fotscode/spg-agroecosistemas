@@ -17,7 +17,7 @@
         <item name="checklist">@drawable/checklist_light</item>
         <item name="done">@drawable/done_light</item>
         <!-- Observations view icons. -->
-        <item name="btn_send">@drawable/send_btn</item>
+        <item name="btn_send">@drawable/send_btn_light</item>
     </style>
 
     <style name="ThemeMaterialCalendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">

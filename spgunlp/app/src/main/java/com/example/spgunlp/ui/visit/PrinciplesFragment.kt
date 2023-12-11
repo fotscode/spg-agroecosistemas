@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisitParameters
@@ -30,13 +31,13 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     private val principlesList = mutableListOf<AppVisitParameters.Principle>()
     private val statesList = mutableListOf<Boolean>()
     private val parametersViewModel: ParametersViewModel by activityViewModels()
+    private val bundleViewModel: BundleViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentPrinciplesBinding.inflate(inflater, container, false)
 
         return binding.root
@@ -45,8 +46,9 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        populatePrinciples()
-
+        if (savedInstanceState == null){ //TODO fix
+            populatePrinciples()
+        }
     }
 
     override fun onDestroyView() {
@@ -54,11 +56,31 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         _binding = null
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Save your variables or data here
+        Log.d("observations", "guarda")
+        bundleViewModel.savePrinciplesList(principlesList)
+        bundleViewModel.saveStatesList(statesList)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            // Restore your variables or data here
+            Log.d("observations", "lee")
+            bundleViewModel.getPrinciplesList()?.let { principlesList.addAll(it) }
+            bundleViewModel.getStatesList()?.let { statesList.addAll(it) }
+            Log.d("observations", principlesList.toString())
+            Log.d("observations", statesList.toString())
+        }
+    }
+
     private fun populatePrinciples() {
         lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
-            val header="Bearer $jwt"
+            val header = "Bearer $jwt"
             val response = visitService.getPrinciples(header)
             Logger.getGlobal().log(Level.INFO, "Response: $response")
             val principles = response.body()
@@ -67,9 +89,10 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
                 activePrinciples(principles)
             }
             parametersViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
-                val parametersMap = value?.groupBy{ it?.parametro?.principioAgroecologico?.id }
-                principlesList?.forEach{ principle ->
-                    statesList.add(parametersMap?.get(principle.id)?.all {it?.cumple == true} ?: true)
+                val parametersMap = value?.groupBy { it?.parametro?.principioAgroecologico?.id }
+                principlesList?.forEach { principle ->
+                    statesList.add(parametersMap?.get(principle.id)?.all { it?.cumple == true }
+                        ?: true)
                 }
             })
 
@@ -92,19 +115,23 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     }
 
     override fun onClickChecklist(principle: AppVisitParameters.Principle) {
+        bundleViewModel.clearState() //TODO remove
         val name = principle.nombre?: "Unamed"
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ParametersFragment(name))
+            .addToBackStack(null)
             .commit()
     }
 
     override fun onClickObservations(principle: AppVisitParameters.Principle) {
+        bundleViewModel.clearState() //TODO remove
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val name = principle.nombre ?: "Unamed"
         val id = principle.id ?: 0
         (activity as VisitActivity).updateMessagesViewModel(id)
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ObservationsFragment(id,name,preferences["email"]))
+            .addToBackStack(null)
             .commit()
     }
 }

@@ -62,9 +62,7 @@ class VisitActivity : AppCompatActivity() {
         setContentView(binding.root)
         getSupportActionBar()?.hide()
 
-        supportFragmentManager.beginTransaction()
-            .add(active_visit, VisitFragment())
-            .commit()
+        supportFragmentManager.findFragmentById(active_visit);
 
         val visitGson= intent.getStringExtra(VISIT_ITEM)
         visit = Gson().fromJson(visitGson, AppVisit::class.java)

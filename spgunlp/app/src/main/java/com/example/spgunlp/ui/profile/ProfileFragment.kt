@@ -53,16 +53,9 @@ class ProfileFragment : BaseFragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        val profileViewModel =
-                ViewModelProvider(this).get(ProfileViewModel::class.java)
-
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        //val textView: TextView = binding.textProfile
-        //profileViewModel.text.observe(viewLifecycleOwner) {
-        //    textView.text = it
-        //}
         populateProfile()
 
         binding.btnCerrarSesion.setOnClickListener(){

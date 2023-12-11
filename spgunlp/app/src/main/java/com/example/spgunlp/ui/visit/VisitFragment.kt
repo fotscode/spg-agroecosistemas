@@ -53,6 +53,7 @@ class VisitFragment : BaseFragment() {
         binding.btnPrinciples.setOnClickListener(){
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(this.id, PrinciplesFragment())
+                .addToBackStack(null)
                 .commit()
         }
 

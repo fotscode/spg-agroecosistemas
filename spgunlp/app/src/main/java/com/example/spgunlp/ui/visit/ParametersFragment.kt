@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentParametersBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
@@ -174,7 +175,7 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
         return visitService.updateVisitById(header, visitId, visitToUpdate)
     }
 
-    fun goToPrincipleFragment(){
+    private fun goToPrincipleFragment(){
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, PrinciplesFragment())
             .commit()
