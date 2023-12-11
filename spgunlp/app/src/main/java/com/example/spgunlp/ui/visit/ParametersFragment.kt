@@ -1,16 +1,16 @@
 package com.example.spgunlp.ui.visit
 
-import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentParametersBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
@@ -27,7 +27,6 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Response
-import java.util.Date
 
 class ParametersFragment(private val principleName: String) : BaseFragment(),
     ParameterClickListener {
@@ -117,7 +116,7 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
         val adapter = binding.parametersList.adapter as ParametersAdapter
         val newParameters = parametersList.mapIndexed { index, par ->
             par.copy(
-                cumple = adapter.getCheckedMap()[index] ?: false
+                cumple = adapter.getCheckedMap()[index] ?: false,
             )
         }
 
@@ -144,10 +143,11 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
                         Toast.LENGTH_SHORT
                     ).show()
                     (activity as VisitActivity).updateVisit(body)
-                    preferences["COLOR_FAB"] = Color.GREEN
+                    preferences["COLOR_FAB"] =
+                        ContextCompat.getColor(requireContext(), R.color.green)
                 } else {
                     updatePreferences()
-                    preferences["COLOR_FAB"] = Color.RED
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
                     Toast.makeText(
                         requireContext(),
                         "Error: los cambios no fueron guardados",
@@ -156,7 +156,7 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
                 }
             } catch (e: Exception) {
                 updatePreferences()
-                preferences["COLOR_FAB"] = Color.YELLOW
+                preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.yellow)
             }
 
             goToPrincipleFragment()
@@ -181,7 +181,7 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
                     it.aspiracionesFamiliares,
                     it.comentarios,
                     it.cumple,
-                    it.parametro?.id,
+                    it.id,
                     it.sugerencias
                 )
             )
@@ -210,7 +210,7 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
 
     }
 
-    fun updatePreferences() {
+    private fun updatePreferences() {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val visitId = visitViewModel.id.value ?: 0
         val visitToUpdate = getAppVisitUpdate()
@@ -218,7 +218,60 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
         val visitGson = gson.toJson(visitToUpdate)
         val label = visitId.toString() + "_" + MODIFIED_VISIT
         preferences[label] = visitGson
-        preferences["VISIT_IDS"] = visitId.toString()+","+preferences["VISIT_IDS",""]
+        preferences["VISIT_IDS"] = visitId.toString() + "," + preferences["VISIT_IDS", ""]
+        updateVisits(visitToUpdate)
+    }
+
+    private fun updateVisits(visitUpdate: AppVisitUpdate) {
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val visitsGson = preferences["LIST_VISITS", ""]
+        val type = object : TypeToken<List<AppVisit>>() {}.type
+        val visits = Gson().fromJson<List<AppVisit>>(visitsGson, type)
+        val visitId = visitViewModel.id.value ?: 0
+        val visitFind = visits.find { it.id == visitId }
+        if (visitFind != null) {
+            val newVisit = createVisit(visitFind, visitUpdate)
+            (activity as VisitActivity).updateVisit(newVisit)
+        }
+    }
+
+    private fun createVisit(visit:AppVisit,update: AppVisitUpdate): AppVisit {
+        val newParameters = mutableListOf<AppVisitParameters>()
+        val adapter = binding.parametersList.adapter as ParametersAdapter
+        if (visit.visitaParametrosResponse==null){
+            Log.i("visitaParametrosResponse","null")
+            return visit
+        }
+        visit.visitaParametrosResponse.forEach { param->
+            val parameterUpdate=update.parametros?.find { it.parametroId==param.id}
+            if (parameterUpdate!=null){
+                newParameters.add(
+                    AppVisitParameters(
+                        parameterUpdate.aspiracionesFamiliares,
+                        parameterUpdate.comentarios,
+                        parameterUpdate.cumple,
+                        param.id,
+                        param.nombre,
+                        param.parametro,
+                        parameterUpdate.sugerencias
+                    )
+                )
+            }
+        }
+
+        return AppVisit(
+            visit.comentarioImagenes,
+            visit.estadoVisita,
+            visit.fechaActualizacion,
+            visit.fechaCreacion,
+            update.fechaVisita,
+            visit.imagenes,
+            visit.integrantes,
+            visit.quintaResponse,
+            visit.usuarioOperacion,
+            newParameters,
+            visit.id
+        )
     }
 }
 

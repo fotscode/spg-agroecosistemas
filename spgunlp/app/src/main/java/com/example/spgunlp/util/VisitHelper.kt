@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.ui.active.VisitAdapter
 import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.util.PreferenceHelper.get
@@ -52,7 +53,12 @@ fun getPreferences(context: Context): List<AppVisit> {
     val type = object : TypeToken<List<AppVisit>>() {}.type
     return gson.fromJson(visitsGson, type)
 }
-suspend fun getVisits(header: String, context: Context, visitService:VisitService): List<AppVisit> {
+
+suspend fun getVisits(
+    header: String,
+    context: Context,
+    visitService: VisitService
+): List<AppVisit> {
     var visits: List<AppVisit> = emptyList()
     val lastUpdate = PreferenceHelper.defaultPrefs(context)["LAST_UPDATE", 0L]
     val currentDate = Date().time
@@ -68,7 +74,7 @@ suspend fun getVisits(header: String, context: Context, visitService:VisitServic
         val body = response.body()
         if (response.isSuccessful && body != null) {
             visits = body
-            updatePreferences(visits,context)
+            updatePreferences(visits, context)
             Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
         } else if (response.code() == 401 || response.code() == 403) {
             visits = getPreferences(context)
@@ -81,7 +87,13 @@ suspend fun getVisits(header: String, context: Context, visitService:VisitServic
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun calendar(parentFragmentManager: FragmentManager, visitList:List<AppVisit>,listener: VisitClickListener,recyler: RecyclerView,activity: FragmentActivity?): View.OnClickListener {
+fun calendar(
+    parentFragmentManager: FragmentManager,
+    visitList: List<AppVisit>,
+    listener: VisitClickListener,
+    recyler: RecyclerView,
+    activity: FragmentActivity?
+): View.OnClickListener {
     return View.OnClickListener {
 
         val picker =
@@ -105,4 +117,55 @@ fun calendar(parentFragmentManager: FragmentManager, visitList:List<AppVisit>,li
             )
         }
     }
+}
+
+fun updatePreferencesPrinciple(principles: List<AppVisitParameters.Principle>, context: Context) {
+    val currentDate = Date().time
+    val preferences = PreferenceHelper.defaultPrefs(context)
+    val gson = Gson()
+    val principlesGson = gson.toJson(principles)
+    preferences["PRINCIPLES"] = principlesGson
+    preferences["UPDATE_PRINCIPLES"] = currentDate
+}
+
+fun getPreferencesPrinciple(context: Context): List<AppVisitParameters.Principle> {
+    val preferences = PreferenceHelper.defaultPrefs(context)
+    val gson = Gson()
+    val principlesGson = preferences["PRINCIPLES", ""]
+    if (principlesGson == "")
+        return emptyList()
+    val type = object : TypeToken<List<AppVisitParameters.Principle>>() {}.type
+    return gson.fromJson(principlesGson, type)
+}
+
+suspend fun getPrinciples(
+    header: String,
+    context: Context,
+    visitService: VisitService,
+    useSaved:Boolean
+): List<AppVisitParameters.Principle> {
+    var principles: List<AppVisitParameters.Principle> = emptyList()
+    val lastUpdate = PreferenceHelper.defaultPrefs(context)["UPDATE_PRINCIPLES", 0L]
+    val currentDate = Date().time
+
+    if (currentDate - lastUpdate < 300000 && useSaved) {// 5mins
+        Log.i("SPGUNLP_TAG", "getPrinciples: last update less than 5 mins")
+        principles = getPreferencesPrinciple(context)
+        return principles
+    }
+    try {
+        val response = visitService.getPrinciples(header)
+        val body = response.body()
+        if (response.isSuccessful && body != null) {
+            principles = body
+            updatePreferencesPrinciple(principles, context)
+            Log.i("SPGUNLP_TAG", "getPrinciples: made api call and was successful")
+        } else if (response.code() == 401 || response.code() == 403) {
+            principles = getPreferencesPrinciple(context)
+        }
+    } catch (e: Exception) {
+        Log.e("SPGUNLP_TAG", e.message.toString())
+        principles = getPreferencesPrinciple(context)
+    }
+    return principles
 }
