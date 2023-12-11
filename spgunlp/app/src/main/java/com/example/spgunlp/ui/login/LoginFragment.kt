@@ -57,12 +57,14 @@ class LoginFragment : BaseFragment() {
             val editEmail = binding.editMail.text.toString()
             val editPassword = binding.editPassword.text.toString()
             lifecycleScope.launch {
-                if (performLogin(editEmail, editPassword, requireContext(), authService))
+                if (performLogin(editEmail, editPassword, requireContext(), authService)){
                     Toast.makeText(
                         context,
                         "Se ha iniciado sesión correctamente",
                         Toast.LENGTH_SHORT
                     ).show()
+                    goToActiveFragment()
+                }
             }
         }
 
