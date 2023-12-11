@@ -90,128 +90,135 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/profile_name" />
 
-                <LinearLayout
+                <androidx.cardview.widget.CardView
                     android:id="@+id/profile_data"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="24dp"
                     android:layout_marginTop="24dp"
                     android:layout_marginEnd="24dp"
-                    android:background="@drawable/data_profile_bg"
-                    android:elevation="20dp"
-                    android:orientation="vertical"
+                    android:animateLayoutChanges="true"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="4dp"
+                    app:cardUseCompatPadding="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/profile_position">
 
-                    <GridLayout
-
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_margin="20dp"
-                        android:columnCount="2"
-                        android:orientation="horizontal"
-                        android:useDefaultMargins="true">
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/label_email"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Email:"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                        <GridLayout
 
-                        <TextView
-                            android:id="@+id/profile_email"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:ellipsize="none"
-                            android:maxLines="100"
-                            android:scrollHorizontally="false"
-                            android:text="grupo7@consumidor.com"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp" />
-
-                        <ImageView
                             android:layout_width="match_parent"
-                            android:layout_height="2dp"
-                            android:layout_columnSpan="2"
-                            android:src="@drawable/separator_profile" />
+                            android:layout_height="match_parent"
+                            android:layout_margin="20dp"
+                            android:columnCount="2"
+                            android:orientation="horizontal"
+                            android:useDefaultMargins="true">
+
+                            <TextView
+                                android:id="@+id/label_email"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Email:"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/profile_email"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:ellipsize="none"
+                                android:maxLines="100"
+                                android:scrollHorizontally="false"
+                                android:text="grupo7@consumidor.com"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp" />
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="2dp"
+                                android:layout_columnSpan="2"
+                                android:src="@drawable/separator_profile" />
 
 
-                        <TextView
-                            android:id="@+id/label_cellphone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Celular:"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/label_cellphone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Celular:"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/profile_cellphone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:text="22100000000"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp" />
+                            <TextView
+                                android:id="@+id/profile_cellphone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:text="22100000000"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp" />
 
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="2dp"
-                            android:layout_columnSpan="2"
-                            android:src="@drawable/separator_profile" />
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="2dp"
+                                android:layout_columnSpan="2"
+                                android:src="@drawable/separator_profile" />
 
-                        <TextView
-                            android:id="@+id/label_organization"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Org. :"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/label_organization"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Org. :"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/profile_organization"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:text="Organizacion"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp" />
+                            <TextView
+                                android:id="@+id/profile_organization"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:text="Organizacion"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp" />
 
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="2dp"
-                            android:layout_columnSpan="2"
-                            android:src="@drawable/separator_profile" />
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="2dp"
+                                android:layout_columnSpan="2"
+                                android:src="@drawable/separator_profile" />
 
-                        <TextView
-                            android:id="@+id/label_role"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Rol:"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/label_role"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rol:"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/profile_role"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:text="Rol"
-                            android:textColor="?attr/colorBW"
-                            android:textSize="18sp" />
-
-
-                    </GridLayout>
+                            <TextView
+                                android:id="@+id/profile_role"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:text="Rol"
+                                android:textColor="?attr/colorBW"
+                                android:textSize="18sp" />
 
 
-                </LinearLayout>
+                        </GridLayout>
+
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
                 <Button
                     android:id="@+id/btn_cerrar_sesion"
