@@ -11,9 +11,9 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.makeText
-import androidx.appcompat.app.AlertDialog
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -24,15 +24,15 @@ import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
+import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.getPrinciples
 import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.dialog.MaterialDialogs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private val authService: AuthService by lazy {
@@ -76,13 +76,17 @@ class MainActivity : AppCompatActivity() {
             }
             lifecycleScope.launch {
                 binding.fabSync.animate().rotationBy(360f).setDuration(1000).start()
-                if (performSync(this@MainActivity))
-                    Toast.makeText(
+                val colorRed= ContextCompat.getColor(applicationContext,R.color.red)
+                if (performSync(this@MainActivity)){
+                    makeText(
                         this@MainActivity,
                         "Sincronización exitosa",
                         Toast.LENGTH_SHORT
                     ).show()
-                else if (preferences["COLOR_FAB", -1] == Color.RED) {
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(applicationContext,R.color.green)
+                    updateColorFab()
+                }
+                else if (preferences["COLOR_FAB", -1] == colorRed) {
                     val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
                     val inflater = LayoutInflater.from(this@MainActivity)
                     val view = inflater.inflate(R.layout.fragment_login, null)
@@ -108,7 +112,9 @@ class MainActivity : AppCompatActivity() {
                                     "Se ha sincronizado correctamente",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                getVisits(preferences["jwt", ""], this@MainActivity, visitService)
+                                val header = "Bearer ${preferences["jwt", ""]}"
+                                getVisits(header, this@MainActivity, visitService)
+                                getPrinciples(header, this@MainActivity, visitService,true)
                                 dialog.dismiss()
                             } else {
                                 makeText(
@@ -166,9 +172,9 @@ class MainActivity : AppCompatActivity() {
         if (color != -1) {
             binding.fabSync.backgroundTintList = ColorStateList.valueOf(color)
         } else if (ids == "") {
-            binding.fabSync.backgroundTintList = ColorStateList.valueOf(Color.GREEN)
+            binding.fabSync.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.green))
         } else {
-            binding.fabSync.backgroundTintList = ColorStateList.valueOf(Color.YELLOW)
+            binding.fabSync.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.yellow))
         }
 
         Log.i("MainActivity", "updateColorFab: ${preferences["COLOR_FAB", -1]}")

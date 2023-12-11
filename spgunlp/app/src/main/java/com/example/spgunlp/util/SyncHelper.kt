@@ -1,10 +1,10 @@
 package com.example.spgunlp.util;
 
 import android.content.Context
-import android.graphics.Color
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
+import androidx.core.content.ContextCompat
+import com.example.spgunlp.R
 import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppUser
@@ -14,8 +14,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 
 suspend fun performSync(context: Context): Boolean {
     val preferences = context?.let { PreferenceHelper.defaultPrefs(it) }
@@ -45,12 +43,12 @@ suspend fun performSync(context: Context): Boolean {
                             stringToDelete += "$id,"
                         } else {
                             result = false
-                            preferences["COLOR_FAB"] = Color.RED
+                            preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
                             Log.i("ALARM_RECEIVER", "Error actualizando: $id")
                         }
                     } catch (e: Exception) {
                         result = false
-                        preferences["COLOR_FAB"] = Color.YELLOW
+                        preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
                         Log.i("ALARM_RECEIVER", "onReceive: $e")
                     }
                 }
@@ -63,7 +61,7 @@ suspend fun performSync(context: Context): Boolean {
     }
     val ids = preferences?.get("VISIT_IDS", "")
     if (ids == "")
-        preferences["COLOR_FAB"] = Color.GREEN
+        preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
 
     return result
 }
