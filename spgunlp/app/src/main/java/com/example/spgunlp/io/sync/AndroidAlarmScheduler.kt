@@ -13,7 +13,7 @@ class AndroidAlarmScheduler(private val context: Context) : AlarmScheduler {
         val intent = Intent(context, AlarmReceiver::class.java)
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP, 0
-            , 1000 * 10 * 1, // 1min,
+            , 1000 * 60 * 30, // 30min,
             PendingIntent.getBroadcast(
                 context,
                 0,
