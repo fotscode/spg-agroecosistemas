@@ -14,9 +14,10 @@ import com.example.spgunlp.model.AppMessage
 import com.example.spgunlp.model.CONTENT_TYPE
 import com.example.spgunlp.ui.BaseFragment
 
-class ObservationsFragment(private val principleId: Int, private val principleName: String, private val email: String): BaseFragment(), MessageClickListener {
-
+class ObservationsFragment(private var principleId: Int, private var principleName: String, private var email: String): BaseFragment(), MessageClickListener {
+    constructor(): this(0, "Principio", "user@mail.com")
     private val messagesViewModel: MessagesViewModel by activityViewModels()
+    private val bundleViewModel: BundleViewModel by activityViewModels()
 
     private var _binding: FragmentObsBinding? = null
 
@@ -37,7 +38,9 @@ class ObservationsFragment(private val principleId: Int, private val principleNa
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // binding.detailTitle.text = principleName
+        if (bundleViewModel.isObservationsStateEmpty()) {
+            binding.detailTitle.text = principleName
+        }
 
         populateMessages()
 
@@ -46,6 +49,21 @@ class ObservationsFragment(private val principleId: Int, private val principleNa
             val data = binding.inputMsg.text.toString()
             binding.inputMsg.setText("")
             (activity as VisitActivity).sendNewMessage(CONTENT_TYPE.TEXT, data, principleId, this) //TODO send real type and data
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        bundleViewModel.saveObservationsState(principleId, principleName, email)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            principleName = bundleViewModel.getPrincipleObsName().toString()
+            principleId = bundleViewModel.getPrincipleId()?:0
+            email = bundleViewModel.getEmail().toString()
+            binding.detailTitle.text = principleName
         }
     }
 

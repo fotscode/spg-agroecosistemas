@@ -44,4 +44,32 @@ class BundleViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
     fun clearParametersState() {
         savedStateHandle.remove<String>("principleName")
     }
+
+    fun saveObservationsState(principleId: Int, principleName: String, email: String) {
+        savedStateHandle["principleId"] = principleId
+        savedStateHandle["principleObsName"] = principleName
+        savedStateHandle["email"] = email
+    }
+
+    fun getPrincipleId(): Int? {
+        return this.savedStateHandle["principleId"]
+    }
+
+    fun getPrincipleObsName(): String? {
+        return this.savedStateHandle["principleObsName"]
+    }
+
+    fun getEmail(): String? {
+        return this.savedStateHandle["email"]
+    }
+
+    fun isObservationsStateEmpty(): Boolean {
+        return !savedStateHandle.contains("principleId") && !savedStateHandle.contains("principleObsName") && !savedStateHandle.contains("email")
+    }
+
+    fun clearObservationsState() {
+        savedStateHandle.remove<Int>("principleId")
+        savedStateHandle.remove<String>("principleObsName")
+        savedStateHandle.remove<String>("email")
+    }
 }

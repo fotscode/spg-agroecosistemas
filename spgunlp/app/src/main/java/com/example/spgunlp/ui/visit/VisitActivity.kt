@@ -53,7 +53,6 @@ class VisitActivity : AppCompatActivity() {
     private val visitViewModel: VisitViewModel by viewModels()
     private val parametersViewModel: ParametersViewModel by viewModels()
     private val messagesViewModel: MessagesViewModel by viewModels()
-    private val bundleViewModel: BundleViewModel by viewModels()
     private lateinit var sender:AppMessage.ChatUser
 
     @RequiresApi(Build.VERSION_CODES.O)
