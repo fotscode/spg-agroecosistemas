@@ -40,12 +40,10 @@ class ObservationsFragment(private var principleId: Int, private var principleNa
 
         if (bundleViewModel.isObservationsStateEmpty()) {
             binding.detailTitle.text = principleName
+            populateMessages()
         }
 
-        populateMessages()
-
         binding.btnSend.setOnClickListener {
-
             val data = binding.inputMsg.text.toString()
             binding.inputMsg.setText("")
             (activity as VisitActivity).sendNewMessage(CONTENT_TYPE.TEXT, data, principleId, this) //TODO send real type and data
@@ -64,6 +62,7 @@ class ObservationsFragment(private var principleId: Int, private var principleNa
             principleId = bundleViewModel.getPrincipleId()?:0
             email = bundleViewModel.getEmail().toString()
             binding.detailTitle.text = principleName
+            populateMessages()
         }
     }
 
