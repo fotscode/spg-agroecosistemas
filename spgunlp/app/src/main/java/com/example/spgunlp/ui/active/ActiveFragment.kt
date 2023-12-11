@@ -3,7 +3,6 @@ package com.example.spgunlp.ui.active
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +19,7 @@ import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.calendar
+import com.example.spgunlp.util.getPrinciples
 import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
@@ -104,6 +104,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 cancel()
             val header = "Bearer $jwt"
             val visits = getVisits(header, requireContext(), visitService)
+            getPrinciples(header,requireContext(),visitService,true)
             activeVisits(visits)
             updateRecycler(
                 binding.activeList, visitList,

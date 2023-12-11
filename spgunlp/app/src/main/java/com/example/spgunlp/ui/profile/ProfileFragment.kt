@@ -107,6 +107,8 @@ class ProfileFragment : BaseFragment() {
         preferences["LAST_UPDATE"] = 0L
         preferences[PROFILE] = ""
         preferences[LAST_UPDATE_PROFILE] = 0L
+        preferences["PRINCIPLES"] = ""
+        preferences["UPDATE_PRINCIPLES"] = 0L
         goToLoginFragment()
     }
 
