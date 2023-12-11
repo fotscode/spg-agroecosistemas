@@ -11,7 +11,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
@@ -24,10 +23,8 @@ import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.util.Date
 
 class ActiveFragment : BaseFragment(), VisitClickListener {
     private val visitService: VisitService by lazy {

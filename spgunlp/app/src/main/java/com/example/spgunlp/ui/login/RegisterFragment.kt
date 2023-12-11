@@ -93,19 +93,34 @@ class RegisterFragment : BaseFragment() {
 
         // make the call to the remote API with coroutines
         lifecycleScope.launch {
-            val user = AppUser(editMail, editPassword, editCellphone, editName, editOrganization, position!!)
-            val response = authService.registro(user)
+            val user = AppUser(
+                editMail,
+                editPassword,
+                editCellphone,
+                editName,
+                editOrganization,
+                position!!
+            )
+            try {
+                val response = authService.registro(user)
 
-            if (response.isSuccessful) {
-                Toast.makeText(
-                    context,
-                    "Se ha creado el usuario correctamente, se encuentra a la espera de autorizacion",
-                    Toast.LENGTH_SHORT
-                ).show()
-                goToLoginFragment()
-            } else {
-                Toast.makeText(context, "El mail ya se encuentra registrado", Toast.LENGTH_SHORT)
-                    .show()
+                if (response.isSuccessful) {
+                    Toast.makeText(
+                        context,
+                        "Se ha creado el usuario correctamente, se encuentra a la espera de autorizacion",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    goToLoginFragment()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "El mail ya se encuentra registrado",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()
             }
         }
 

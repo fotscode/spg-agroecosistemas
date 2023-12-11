@@ -2,6 +2,7 @@ package com.example.spgunlp.model
 
 val VISIT_ITEM="VISIT_ITEM"
 val IS_ACTIVE="IS_ACTIVE"
+val MODIFIED_VISIT="MODIFIED_VISIT"
 
 data class AppVisit(
     val comentarioImagenes: String?,

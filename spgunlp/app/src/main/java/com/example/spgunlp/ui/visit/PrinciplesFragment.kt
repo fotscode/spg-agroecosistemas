@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
+class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
     private val visitService: VisitService by lazy {
         VisitService.create()
     }
@@ -58,20 +58,33 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
-            val header="Bearer $jwt"
-            val response = visitService.getPrinciples(header)
-            Logger.getGlobal().log(Level.INFO, "Response: $response")
-            val principles = response.body()
-            Logger.getGlobal().log(Level.SEVERE, principles.toString())
-            if (principles != null) {
-                activePrinciples(principles)
-            }
-            parametersViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
-                val parametersMap = value?.groupBy{ it?.parametro?.principioAgroecologico?.id }
-                principlesList?.forEach{ principle ->
-                    statesList.add(parametersMap?.get(principle.id)?.all {it?.cumple == true} ?: true)
+            val header = "Bearer $jwt"
+            try {
+
+                val response = visitService.getPrinciples(header)
+                if (response.isSuccessful) {
+                    Logger.getGlobal().log(Level.INFO, "Response: $response")
+                    val principles = response.body()
+                    Logger.getGlobal().log(Level.SEVERE, principles.toString())
+                    if (principles != null) {
+                        activePrinciples(principles)
+                        // TODO(SAVE PRINCIPLES)
+                    }
+                    parametersViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
+                        val parametersMap =
+                            value?.groupBy { it?.parametro?.principioAgroecologico?.id }
+                        principlesList?.forEach { principle ->
+                            statesList.add(
+                                parametersMap?.get(principle.id)?.all { it?.cumple == true }
+                                    ?: true)
+                        }
+                    })
+                }else{
+                    // TODO(get PRINCIPLES)
                 }
-            })
+            } catch (e: Exception) {
+                // TODO(get PRINCIPLES)
+            }
 
             updateRecycler(principlesList, statesList)
         }
@@ -84,15 +97,18 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         principlesList.addAll(filteredPrinciples)
     }
 
-    private fun updateRecycler(principles: List<AppVisitParameters.Principle>, states: List<Boolean>){
-        binding.principlesList.apply{
+    private fun updateRecycler(
+        principles: List<AppVisitParameters.Principle>,
+        states: List<Boolean>
+    ) {
+        binding.principlesList.apply {
             layoutManager = LinearLayoutManager(activity)
-            adapter = PrinciplesAdapter(principles,states, this@PrinciplesFragment)
+            adapter = PrinciplesAdapter(principles, states, this@PrinciplesFragment)
         }
     }
 
     override fun onClickChecklist(principle: AppVisitParameters.Principle) {
-        val name = principle.nombre?: "Unamed"
+        val name = principle.nombre ?: "Unamed"
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ParametersFragment(name))
             .commit()
@@ -104,7 +120,7 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
         val id = principle.id ?: 0
         (activity as VisitActivity).updateMessagesViewModel(id)
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, ObservationsFragment(id,name,preferences["email"]))
+            .replace(this.id, ObservationsFragment(id, name, preferences["email"]))
             .commit()
     }
 }

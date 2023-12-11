@@ -19,6 +19,7 @@ import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.LAST_UPDATE_PROFILE
+import com.example.spgunlp.model.MODIFIED_VISIT
 import com.example.spgunlp.model.PROFILE
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.active.ActiveFragment
@@ -40,7 +41,7 @@ class ProfileFragment : BaseFragment() {
         UserService.create()
     }
 
-    private lateinit var user:AppUser
+    private lateinit var user: AppUser
 
     private var _binding: FragmentProfileBinding? = null
 
@@ -49,12 +50,12 @@ class ProfileFragment : BaseFragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         val profileViewModel =
-                ViewModelProvider(this).get(ProfileViewModel::class.java)
+            ViewModelProvider(this).get(ProfileViewModel::class.java)
 
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -65,38 +66,40 @@ class ProfileFragment : BaseFragment() {
         //}
         populateProfile()
 
-        binding.btnCerrarSesion.setOnClickListener(){
+        binding.btnCerrarSesion.setOnClickListener() {
             performLogout()
         }
 
         return root
     }
-    private fun populateProfile(){
+
+    private fun populateProfile() {
         lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            user=getProfile(header)
+            user = getProfile(header)
             Log.i("ProfileFragment", "populateProfile: $user")
-            binding.profileName.text=user.nombre
-            binding.profilePosition.text=user.posicionResponse!!.nombre
-            binding.profileEmail.text=user.email
-            binding.profileCellphone.text=user.celular
-            binding.profileOrganization.text=user.organizacion
-            val role=user.roles!![0].nombre
-            binding.profileRole.text=if (role=="ROLE_ADMIN") "Administrador" else "Usuario"
+            binding.profileName.text = if (user.nombre?.isBlank() == false) user.nombre else "Sin nombre"
+            binding.profilePosition.text =
+                if (user.posicionResponse?.nombre?.isBlank()==false) user.posicionResponse?.nombre else "Sin posicion"
+            binding.profileEmail.text = if (user.email?.isBlank()==false) user.email else "Sin email"
+            binding.profileCellphone.text =if (user.celular?.isBlank()==false) user.celular else "Sin celular"
+            binding.profileOrganization.text = if (user.organizacion?.isBlank()==false) user.organizacion else "Sin organizacion"
+            if (user.roles == null || user.roles!!.isEmpty())
+                cancel()
+            val role = user.roles?.get(0)?.nombre
+            binding.profileRole.text = if (role == "ROLE_ADMIN") "Administrador" else "Usuario"
         }
-
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
-    private fun performLogout(){
+    private fun performLogout() {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         preferences["jwt"] = ""
         preferences["email"] = ""
@@ -107,8 +110,9 @@ class ProfileFragment : BaseFragment() {
         goToLoginFragment()
     }
 
-    private fun goToLoginFragment(){
-        val bottomNavigationView: BottomNavigationView = requireActivity().findViewById(R.id.nav_view)
+    private fun goToLoginFragment() {
+        val bottomNavigationView: BottomNavigationView =
+            requireActivity().findViewById(R.id.nav_view)
         bottomNavigationView.selectedItemId = R.id.navigation_active
         val newFragment = LoginFragment()
         val transaction = parentFragmentManager.beginTransaction()
@@ -129,11 +133,14 @@ class ProfileFragment : BaseFragment() {
         val preferences = PreferenceHelper.defaultPrefs(context)
         val gson = Gson()
         val userGson = preferences[PROFILE, ""]
-        if (userGson == "")
-            return AppUser(null,null,null,null,null,null,null,null,null,null)
+        if (userGson == ""){
+            binding.profileData.visibility = View.GONE
+            return AppUser(null, "", "", "", "", "", 1, null, null, null)
+        }
         val type = object : TypeToken<AppUser>() {}.type
         return gson.fromJson(userGson, type)
     }
+
     suspend fun getProfile(header: String): AppUser {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val lastUpdate = PreferenceHelper.defaultPrefs(requireContext())[LAST_UPDATE_PROFILE, 0L]
@@ -149,8 +156,8 @@ class ProfileFragment : BaseFragment() {
             val response = userService.getUsers(header)
             val body = response.body()
             if (response.isSuccessful && body != null) {
-                val email=preferences["email", ""]
-                user=body!!.filter { it.email==email }[0]
+                val email = preferences["email", ""]
+                user = body!!.filter { it.email == email }[0]
                 updatePreferences(user)
                 Log.i("ProfileFragment", "getUser: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
