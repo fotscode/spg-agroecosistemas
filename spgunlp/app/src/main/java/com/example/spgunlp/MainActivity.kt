@@ -76,17 +76,17 @@ class MainActivity : AppCompatActivity() {
             }
             lifecycleScope.launch {
                 binding.fabSync.animate().rotationBy(360f).setDuration(1000).start()
-                val colorRed= ContextCompat.getColor(applicationContext,R.color.red)
-                if (performSync(this@MainActivity)){
+                val colorRed = ContextCompat.getColor(applicationContext, R.color.red)
+                if (performSync(this@MainActivity)) {
                     makeText(
                         this@MainActivity,
                         "Sincronización exitosa",
                         Toast.LENGTH_SHORT
                     ).show()
-                    preferences["COLOR_FAB"] = ContextCompat.getColor(applicationContext,R.color.green)
+                    preferences["COLOR_FAB"] =
+                        ContextCompat.getColor(applicationContext, R.color.green)
                     updateColorFab()
-                }
-                else if (preferences["COLOR_FAB", -1] == colorRed) {
+                } else if (preferences["COLOR_FAB", -1] == colorRed) {
                     val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
                     val inflater = LayoutInflater.from(this@MainActivity)
                     val view = inflater.inflate(R.layout.fragment_login, null)
@@ -113,8 +113,8 @@ class MainActivity : AppCompatActivity() {
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 val header = "Bearer ${preferences["jwt", ""]}"
-                                getVisits(header, this@MainActivity, visitService)
-                                getPrinciples(header, this@MainActivity, visitService,true)
+                                getVisits(header, this@MainActivity, visitService, false)
+                                getPrinciples(header, this@MainActivity, visitService, false)
                                 dialog.dismiss()
                             } else {
                                 makeText(
@@ -172,9 +172,11 @@ class MainActivity : AppCompatActivity() {
         if (color != -1) {
             binding.fabSync.backgroundTintList = ColorStateList.valueOf(color)
         } else if (ids == "") {
-            binding.fabSync.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.green))
+            binding.fabSync.backgroundTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.green))
         } else {
-            binding.fabSync.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,R.color.yellow))
+            binding.fabSync.backgroundTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.yellow))
         }
 
         Log.i("MainActivity", "updateColorFab: ${preferences["COLOR_FAB", -1]}")

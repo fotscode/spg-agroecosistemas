@@ -57,13 +57,14 @@ fun getPreferences(context: Context): List<AppVisit> {
 suspend fun getVisits(
     header: String,
     context: Context,
-    visitService: VisitService
+    visitService: VisitService,
+    useSaved: Boolean
 ): List<AppVisit> {
     var visits: List<AppVisit> = emptyList()
     val lastUpdate = PreferenceHelper.defaultPrefs(context)["LAST_UPDATE", 0L]
     val currentDate = Date().time
 
-    if (currentDate - lastUpdate < 300000) {// 5mins
+    if (currentDate - lastUpdate < 300000 && useSaved) {// 5mins
         Log.i("SPGUNLP_TAG", "getVisits: last update less than 5 mins")
         visits = getPreferences(context)
         return visits

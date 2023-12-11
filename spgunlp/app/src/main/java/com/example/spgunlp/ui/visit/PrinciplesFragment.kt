@@ -57,7 +57,7 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
-            val principles = getPrinciples(header, requireContext(), visitService, false)
+            val principles = getPrinciples(header, requireContext(), visitService, true)
             activePrinciples(principles)
             parametersViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
                 val parametersMap =

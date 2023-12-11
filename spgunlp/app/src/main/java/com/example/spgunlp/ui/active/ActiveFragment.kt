@@ -91,6 +91,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         visitList.clear()
         _binding = null
     }
+
     override fun onResume() {
         super.onResume()
         populateVisits()
@@ -103,8 +104,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = getVisits(header, requireContext(), visitService)
-            getPrinciples(header,requireContext(),visitService,true)
+            val visits = getVisits(header, requireContext(), visitService, true)
+            getPrinciples(header, requireContext(), visitService, true)
             activeVisits(visits)
             updateRecycler(
                 binding.activeList, visitList,

@@ -116,7 +116,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = getVisits(header, requireContext(), visitService)
+            val visits = getVisits(header, requireContext(), visitService,true)
             inactiveVisits(visits)
             updateRecycler(
                 visitLayout.activeList, visitList, activity, this@InactiveFragment
