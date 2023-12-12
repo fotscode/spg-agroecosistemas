@@ -180,7 +180,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                     it.aspiracionesFamiliares,
                     it.comentarios,
                     it.cumple,
-                    it.id,
+                    it.parametro?.id,
                     it.sugerencias
                 )
             )
@@ -196,7 +196,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                             it.aspiracionesFamiliares,
                             it.comentarios,
                             it.cumple,
-                            it.id,
+                            it.parametro?.id,
                             it.sugerencias
                         )
                     )
@@ -254,7 +254,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
     private fun createVisit(visit:AppVisit,update: AppVisitUpdate): AppVisit {
         val newParameters = mutableListOf<AppVisitParameters>()
-        val adapter = binding.parametersList.adapter as ParametersAdapter
         if (visit.visitaParametrosResponse==null){
             Log.i("visitaParametrosResponse","null")
             return visit
