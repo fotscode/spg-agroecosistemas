@@ -129,18 +129,21 @@ class VisitActivity : AppCompatActivity() {
     private suspend fun setUserChat(header: String) {
         val preferences = PreferenceHelper.defaultPrefs(baseContext)
         val email: String = preferences["email"]
-        val usrName: String
+        var usrName: String = "NAME"
         if (preferences[PROFILE, ""] != "") {
             val type = object : TypeToken<AppUser>() {}.type
             val user = Gson().fromJson<AppUser>(preferences[PROFILE, ""], type)
             usrName = user.nombre.toString()
         } else {
-            val response = userService.getUsers(header)
-            if (response.isSuccessful && response.body() != null) {
-                val member = response.body()!!.firstOrNull { it.email.equals(preferences["email"]) }
-                usrName = member?.nombre.toString()
-            } else {
-                usrName = "NAME"
+            try {
+                val response = userService.getUsers(header)
+                if (response.isSuccessful && response.body() != null) {
+                    val member =
+                        response.body()!!.firstOrNull { it.email.equals(preferences["email"]) }
+                    usrName = member?.nombre.toString()
+                }
+            } catch (e: Exception){
+                Log.e("Visit activity", e.message.toString())
             }
         }
         sender = AppMessage.ChatUser(email, usrName)
