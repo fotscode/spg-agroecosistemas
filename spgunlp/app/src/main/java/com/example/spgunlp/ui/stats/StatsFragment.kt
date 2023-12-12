@@ -44,9 +44,6 @@ class StatsFragment : BaseFragment() {
             ).apply {
                 duration = 3000
                 start()
-                doOnEnd {
-                    reverse()
-                }
             }
         }
         return root
