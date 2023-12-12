@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -113,11 +114,26 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     override fun onClickChecklist(principle: AppVisitParameters.Principle) {
         bundleViewModel.clearPrinciplesState()
         bundleViewModel.clearParametersState()
-        val name = principle.nombre?: "Unamed"
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, ParametersFragment(name))
-            .addToBackStack(null)
-            .commit()
+
+        val parametersList = mutableListOf<AppVisitParameters>()
+        parametersViewModel.parameters.observe(viewLifecycleOwner) { value ->
+            value?.forEach {
+                if (it != null && it.parametro?.principioAgroecologico?.id == principle.id) {
+                    parametersList.add(it)
+                }
+            }
+        }
+        if (parametersList.isNotEmpty()) {
+            parametersViewModel.setParametersCurrentPrinciple(parametersList)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(this.id, ParametersFragment())
+                .addToBackStack(null)
+                .commit()
+        } else Toast.makeText(
+            requireContext(),
+            "El principio seleccionado no dispone de parámetros",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun onClickObservations(principle: AppVisitParameters.Principle) {

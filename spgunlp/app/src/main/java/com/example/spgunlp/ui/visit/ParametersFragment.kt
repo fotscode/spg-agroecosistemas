@@ -1,12 +1,12 @@
 package com.example.spgunlp.ui.visit
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentParametersBinding
@@ -22,8 +22,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
-class ParametersFragment(private var principleName: String): BaseFragment(), ParameterClickListener {
-    constructor(): this("Principio")
+class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
     private val visitService: VisitService by lazy {
         VisitService.create()
@@ -52,10 +51,7 @@ class ParametersFragment(private var principleName: String): BaseFragment(), Par
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (bundleViewModel.isParametersStateEmpty()) {
-            binding.detailTitle.text = principleName
-            populateParameters()
-        }
+        populateParameters()
 
         binding.btnSave.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
@@ -66,6 +62,7 @@ class ParametersFragment(private var principleName: String): BaseFragment(), Par
                 .setPositiveButton("Aceptar") { _, _ ->
                     updateParameterList()
                     updateVisitParameters()
+                    parameterViewModel.setParametersCurrentPrinciple(emptyList())
                 }
                 .show()
         }
@@ -83,36 +80,20 @@ class ParametersFragment(private var principleName: String): BaseFragment(), Par
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        bundleViewModel.saveParametersState(principleName)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            principleName = bundleViewModel.getPrincipleName().toString()
-            binding.detailTitle.text = principleName
-            populateParameters()
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     private fun populateParameters() {
-
-        parameterViewModel.parameters.observe(viewLifecycleOwner) { value ->
+        parameterViewModel.parametersCurrentPrinciple.observe(viewLifecycleOwner, Observer { value ->
             value?.forEach {
-                if (it != null) {
+                if (it != null)
                     this.parametersList.add(it)
-                }
             }
-        }
-
-        updateRecycler(parametersList)
+            binding.detailTitle.text = parametersList[0].parametro?.principioAgroecologico?.nombre.toString()
+            updateRecycler(parametersList)
+        })
     }
 
     private fun updateRecycler(list: List<AppVisitParameters>){
@@ -170,10 +151,28 @@ class ParametersFragment(private var principleName: String): BaseFragment(), Par
                     it.aspiracionesFamiliares,
                     it.comentarios,
                     it.cumple,
-                    it.parametro?.id,
+                    it.id,
                     it.sugerencias
                 )
             )
+        }
+
+        val idsLoaded = parametersList.map { it.id }
+
+        parameterViewModel.parameters.observe(viewLifecycleOwner) { value ->
+            value?.forEach {
+                if (it != null && !idsLoaded.contains(it.id)) {
+                    parametersUpdate.add(
+                        AppVisitUpdate.ParametersUpdate(
+                            it.aspiracionesFamiliares,
+                            it.comentarios,
+                            it.cumple,
+                            it.id,
+                            it.sugerencias
+                        )
+                    )
+                }
+            }
         }
 
         val idMembers = visitViewModel.membersList.value?.map {
@@ -193,7 +192,6 @@ class ParametersFragment(private var principleName: String): BaseFragment(), Par
     }
 
     private fun goToPrincipleFragment(){
-        bundleViewModel.clearParametersState()
         bundleViewModel.clearPrinciplesState()
 
         requireActivity().supportFragmentManager.popBackStack()
