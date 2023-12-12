@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="60dp"
+    android:fillViewport="true"
     tools:context=".ui.active.ActiveFragment">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:fillViewport="true"
-        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -80,21 +76,13 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/active_list"
                 android:layout_width="match_parent"
+                android:layout_marginBottom="?attr/actionBarSize"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
-                android:nestedScrollingEnabled="true"
+                android:nestedScrollingEnabled="false"
                 android:scrollbars="none"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:layout_constraintTop_toBottomOf="@id/extra_btn_container" />
-
-            <Button
-                android:id="@+id/btn_visita"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Visita"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
