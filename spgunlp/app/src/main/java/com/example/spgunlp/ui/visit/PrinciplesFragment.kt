@@ -47,15 +47,15 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         if (bundleViewModel.isPrinciplesStateEmpty()) {
+            principlesList.clear()
+            statesList.clear()
             populatePrinciples()
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (principlesList.isNotEmpty()) {
-            bundleViewModel.savePrinciplesState(principlesList, statesList)
-        }
+        bundleViewModel.savePrinciplesState(principlesList, statesList)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -69,8 +69,6 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        principlesList.clear()
-        statesList.clear()
         _binding = null
     }
 
