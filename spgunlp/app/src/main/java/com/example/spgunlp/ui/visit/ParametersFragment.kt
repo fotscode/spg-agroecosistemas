@@ -196,9 +196,7 @@ class ParametersFragment(private var principleName: String): BaseFragment(), Par
         bundleViewModel.clearParametersState()
         bundleViewModel.clearPrinciplesState()
 
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, PrinciplesFragment())
-            .commit()
+        requireActivity().supportFragmentManager.popBackStack()
     }
 
     override fun onClick(parameter: AppVisitParameters) {
