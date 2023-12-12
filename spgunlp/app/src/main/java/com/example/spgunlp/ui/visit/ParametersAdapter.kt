@@ -2,6 +2,7 @@ package com.example.spgunlp.ui.visit
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.databinding.ParameterItemBinding
@@ -44,6 +45,9 @@ class ParametersAdapter(private val parameters: List<AppVisitParameters>, privat
             cardCellBinding.checkbox.setOnCheckedChangeListener { _, _->
                 checkedMap[position] = !checkedMap[position]!!
             }
+
+            if (position == parameters.size - 1)
+                cardCellBinding.divider.visibility= View.GONE
         }
     }
 
