@@ -121,9 +121,9 @@
 
                             <TextView
                                 android:id="@+id/label_email"
+                                android:text="Email:"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Email:"
                                 android:textColor="?attr/colorBW"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -136,9 +136,9 @@
                                 android:ellipsize="none"
                                 android:maxLines="100"
                                 android:scrollHorizontally="false"
-                                android:text="grupo7@consumidor.com"
                                 android:textColor="?attr/colorBW"
-                                android:textSize="18sp" />
+                                android:textSize="18sp"
+                                android:text="grupo7@consumidor.com" />
 
                             <ImageView
                                 android:layout_width="match_parent"

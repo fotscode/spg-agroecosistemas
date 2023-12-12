@@ -123,7 +123,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             }.isNotEmpty()
         }
         visitList.clear()
-        visitList.addAll(filteredVisits.sortedBy { it.fechaVisita })
+        visitList.addAll(filteredVisits.sortedBy { it.fechaActualizacion }.reversed())
     }
 
     override fun onClick(visit: AppVisit) {

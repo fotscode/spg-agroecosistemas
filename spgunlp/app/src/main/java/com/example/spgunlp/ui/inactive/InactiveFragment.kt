@@ -130,7 +130,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         val filteredVisits = visits.filter { visit ->
             visit.estadoVisita == "CERRADA" && (isUserIn(email, visit) || showAll)
         }
-        visitList.addAll(filteredVisits)
+        visitList.addAll(filteredVisits.sortedBy { it.fechaActualizacion }.reversed())
     }
 
     private fun isUserIn(user: String, visit: AppVisit): Boolean {

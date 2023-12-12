@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
@@ -59,6 +60,17 @@ class VisitFragment : BaseFragment() {
                 .commit()
         }
 
+        binding.btnMap.setOnClickListener(){
+            Toast.makeText(requireContext(), "Proximamente...", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnDownloadCSV.setOnClickListener(){
+            Toast.makeText(requireContext(), "Proximamente...", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnDownloadPDF.setOnClickListener(){
+            Toast.makeText(requireContext(), "Proximamente...", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
