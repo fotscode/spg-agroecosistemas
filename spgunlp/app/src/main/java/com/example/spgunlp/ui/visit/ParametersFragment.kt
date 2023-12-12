@@ -145,15 +145,20 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                     preferences["COLOR_FAB"] =
                         ContextCompat.getColor(requireContext(), R.color.green)
                 } else {
-                    updatePreferences()
-                    preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
                     Toast.makeText(
                         requireContext(),
-                        "Error: los cambios no fueron guardados",
+                        "Los cambios fueron guardados pero no se pudo sincronizar con el servidor",
                         Toast.LENGTH_SHORT
                     ).show()
+                    updatePreferences()
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
                 }
             } catch (e: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    "Los cambios fueron guardados pero no se pudo sincronizar con el servidor",
+                    Toast.LENGTH_SHORT
+                ).show()
                 updatePreferences()
                 preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.yellow)
             }
@@ -259,14 +264,14 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
             return visit
         }
         visit.visitaParametrosResponse.forEach { param->
-            val parameterUpdate=update.parametros?.find { it.parametroId==param.id}
+            val parameterUpdate=update.parametros?.find { it.parametroId==param.parametro?.id}
             if (parameterUpdate!=null){
                 newParameters.add(
                     AppVisitParameters(
                         parameterUpdate.aspiracionesFamiliares,
                         parameterUpdate.comentarios,
                         parameterUpdate.cumple,
-                        param.id,
+                        param.parametro?.id,
                         param.nombre,
                         param.parametro,
                         parameterUpdate.sugerencias
