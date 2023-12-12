@@ -69,6 +69,8 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        principlesList.clear()
+        statesList.clear()
         _binding = null
     }
 
