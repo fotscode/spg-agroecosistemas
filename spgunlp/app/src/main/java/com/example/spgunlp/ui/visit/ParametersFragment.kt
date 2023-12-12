@@ -22,7 +22,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
-class ParametersFragment(private val principleName: String): BaseFragment(), ParameterClickListener {
+class ParametersFragment(private var principleName: String): BaseFragment(), ParameterClickListener {
     constructor(): this("Principio")
 
     private val visitService: VisitService by lazy {
@@ -54,11 +54,8 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
 
         if (bundleViewModel.isParametersStateEmpty()) {
             binding.detailTitle.text = principleName
-        } else {
-            binding.detailTitle.text = bundleViewModel.getPrincipleName()
+            populateParameters()
         }
-
-        populateParameters()
 
         binding.btnSave.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
@@ -89,6 +86,15 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         bundleViewModel.saveParametersState(principleName)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            principleName = bundleViewModel.getPrincipleName().toString()
+            binding.detailTitle.text = principleName
+            populateParameters()
+        }
     }
 
     override fun onDestroyView() {
@@ -188,6 +194,8 @@ class ParametersFragment(private val principleName: String): BaseFragment(), Par
 
     private fun goToPrincipleFragment(){
         bundleViewModel.clearParametersState()
+        bundleViewModel.clearPrinciplesState()
+
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, PrinciplesFragment())
             .commit()

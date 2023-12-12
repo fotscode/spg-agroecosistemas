@@ -112,6 +112,7 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
 
     override fun onClickChecklist(principle: AppVisitParameters.Principle) {
         bundleViewModel.clearPrinciplesState()
+        bundleViewModel.clearParametersState()
         val name = principle.nombre?: "Unamed"
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ParametersFragment(name))
@@ -120,6 +121,8 @@ class PrinciplesFragment: BaseFragment(), PrincipleClickListener {
     }
 
     override fun onClickObservations(principle: AppVisitParameters.Principle) {
+        bundleViewModel.clearPrinciplesState()
+        bundleViewModel.clearObservationsState()
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val name = principle.nombre ?: "Unamed"
         val id = principle.id ?: 0
