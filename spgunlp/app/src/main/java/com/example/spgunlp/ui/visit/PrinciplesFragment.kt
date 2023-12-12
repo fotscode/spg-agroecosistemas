@@ -1,13 +1,16 @@
 package com.example.spgunlp.ui.visit
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisitParameters
@@ -28,13 +31,13 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
     private val principlesList = mutableListOf<AppVisitParameters.Principle>()
     private val statesList = mutableListOf<Boolean>()
     private val parametersViewModel: ParametersViewModel by activityViewModels()
+    private val bundleViewModel: BundleViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentPrinciplesBinding.inflate(inflater, container, false)
 
         return binding.root
@@ -43,8 +46,25 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        populatePrinciples()
+        if (bundleViewModel.isPrinciplesStateEmpty()) {
+            populatePrinciples()
+        }
+    }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (principlesList.isNotEmpty()) {
+            bundleViewModel.savePrinciplesState(principlesList, statesList)
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            bundleViewModel.getPrinciplesList()?.let { principlesList.addAll(it) }
+            bundleViewModel.getStatesList()?.let { statesList.addAll(it) }
+            updateRecycler(principlesList, statesList)
+        }
     }
 
     override fun onDestroyView() {
@@ -90,19 +110,40 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
     }
 
     override fun onClickChecklist(principle: AppVisitParameters.Principle) {
-        val name = principle.nombre ?: "Unamed"
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, ParametersFragment(name))
-            .commit()
+        bundleViewModel.clearPrinciplesState()
+        bundleViewModel.clearParametersState()
+
+        val parametersList = mutableListOf<AppVisitParameters>()
+        parametersViewModel.parameters.observe(viewLifecycleOwner) { value ->
+            value?.forEach {
+                if (it != null && it.parametro?.principioAgroecologico?.id == principle.id) {
+                    parametersList.add(it)
+                }
+            }
+        }
+        if (parametersList.isNotEmpty()) {
+            parametersViewModel.setParametersCurrentPrinciple(parametersList)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(this.id, ParametersFragment())
+                .addToBackStack(null)
+                .commit()
+        } else Toast.makeText(
+            requireContext(),
+            "El principio seleccionado no dispone de parámetros",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun onClickObservations(principle: AppVisitParameters.Principle) {
+        bundleViewModel.clearPrinciplesState()
+        bundleViewModel.clearObservationsState()
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val name = principle.nombre ?: "Unamed"
         val id = principle.id ?: 0
         (activity as VisitActivity).updateMessagesViewModel(id)
         requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, ObservationsFragment(id, name, preferences["email"]))
+            .replace(this.id, ObservationsFragment(id,name,preferences["email"]))
+            .addToBackStack(null)
             .commit()
     }
 }

@@ -14,6 +14,7 @@ class VisitFragment : BaseFragment() {
 
     private var _binding: FragmentVisitBinding? = null
     private val visitViewModel: VisitViewModel by activityViewModels()
+    private val bundleViewModel: BundleViewModel by activityViewModels()
 
     private val binding get() = _binding!!
 
@@ -51,8 +52,10 @@ class VisitFragment : BaseFragment() {
         })
 
         binding.btnPrinciples.setOnClickListener(){
+            bundleViewModel.clearPrinciplesState()
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(this.id, PrinciplesFragment())
+                .addToBackStack(null)
                 .commit()
         }
 

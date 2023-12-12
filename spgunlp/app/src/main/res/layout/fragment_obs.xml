@@ -3,11 +3,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.visit.ObservationsFragment"
+    android:id="@+id/fragment_obs"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
-    <!--
     <TextView
         android:id="@+id/detailTitle"
         android:layout_width="match_parent"
@@ -18,36 +19,18 @@
         android:text="@string/observaciones"
         android:textAppearance="?attr/textAppearanceHeadline3"
         android:textSize="16sp" />
-       -->
 
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/layout_group_chat"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent">
-
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_gchannel"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:theme="@style/Widget.AppCompat.Toolbar"
-            app:popupTheme="@style/Theme.AppCompat.Light">
-
-        </androidx.appcompat.widget.Toolbar>
-    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messages_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="15sp"
+        android:layout_marginHorizontal="5sp"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@+id/text_gchat_indicator"
-        app:layout_constraintTop_toBottomOf="@+id/layout_group_chat" />
+        app:layout_constraintTop_toBottomOf="@+id/detailTitle" />
 
     <TextView
         android:id="@+id/text_gchat_indicator"
@@ -86,14 +69,13 @@
             android:maxLines="6"
             tools:ignore="Autofill" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_send"
-            android:layout_width="64dp"
-            android:layout_height="48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:background="?attr/selectableItemBackground"
-            android:text="Send"
-            android:textColor="@color/black"/>
+            android:contentDescription="Enviar"
+            android:src="?attr/btn_send" />
 
     </RelativeLayout>
 

@@ -28,14 +28,15 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
-class ParametersFragment(private val principleName: String) : BaseFragment(),
-    ParameterClickListener {
+class ParametersFragment(): BaseFragment(), ParameterClickListener {
+
     private val visitService: VisitService by lazy {
         VisitService.create()
     }
 
     private val parameterViewModel: ParametersViewModel by activityViewModels()
     private val visitViewModel: VisitViewModel by activityViewModels()
+    private val bundleViewModel: BundleViewModel by activityViewModels()
 
     private var _binding: FragmentParametersBinding? = null
 
@@ -56,8 +57,6 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.detailTitle.text = principleName
-
         populateParameters()
 
         binding.btnSave.setOnClickListener {
@@ -69,6 +68,7 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
                 .setPositiveButton("Aceptar") { _, _ ->
                     updateParameterList()
                     updateVisitParameters()
+                    parameterViewModel.setParametersCurrentPrinciple(emptyList())
                 }
                 .show()
         }
@@ -92,16 +92,14 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
     }
 
     private fun populateParameters() {
-
-        parameterViewModel.parameters.observe(viewLifecycleOwner) { value ->
+        parameterViewModel.parametersCurrentPrinciple.observe(viewLifecycleOwner, Observer { value ->
             value?.forEach {
-                if (it != null) {
+                if (it != null)
                     this.parametersList.add(it)
-                }
             }
-        }
-
-        updateRecycler(parametersList)
+            binding.detailTitle.text = parametersList[0].parametro?.principioAgroecologico?.nombre.toString()
+            updateRecycler(parametersList)
+        })
     }
 
     private fun updateRecycler(list: List<AppVisitParameters>) {
@@ -187,6 +185,24 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
             )
         }
 
+        val idsLoaded = parametersList.map { it.id }
+
+        parameterViewModel.parameters.observe(viewLifecycleOwner) { value ->
+            value?.forEach {
+                if (it != null && !idsLoaded.contains(it.id)) {
+                    parametersUpdate.add(
+                        AppVisitUpdate.ParametersUpdate(
+                            it.aspiracionesFamiliares,
+                            it.comentarios,
+                            it.cumple,
+                            it.id,
+                            it.sugerencias
+                        )
+                    )
+                }
+            }
+        }
+
         val idMembers = visitViewModel.membersList.value?.map {
             it.id ?: 0
         }
@@ -200,10 +216,10 @@ class ParametersFragment(private val principleName: String) : BaseFragment(),
         return visitToUpdate
     }
 
-    fun goToPrincipleFragment() {
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(this.id, PrinciplesFragment())
-            .commit()
+    private fun goToPrincipleFragment() {
+        bundleViewModel.clearPrinciplesState()
+
+        requireActivity().supportFragmentManager.popBackStack()
     }
 
     override fun onClick(parameter: AppVisitParameters) {

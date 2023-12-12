@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".ui.visit.VisitFragment">
+    <!--
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.visit.VisitFragment">
+    -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
 
     <TextView
@@ -130,38 +143,47 @@
 
     </TableLayout>
 
-    <Button
-        android:id="@+id/btn_principles"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24sp"
-        android:layout_marginHorizontal="24sp"
-        android:text="@string/ver_principios"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/informationTable" />
+        android:id="@+id/buttons"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="20sp"
+        app:layout_constraintTop_toBottomOf="@id/informationTable">
 
-    <Button
-        android:id="@+id/btn_downloadPDF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24sp"
-        android:text="Descargar PDF"
-        app:layout_constraintEnd_toStartOf="@+id/btn_downloadCSV"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_principles" />
+        <Button
+            android:id="@+id/btn_principles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24sp"
+            android:text="@string/ver_principios"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/informationTable" />
 
-    <Button
-        android:id="@+id/btn_downloadCSV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24sp"
-        android:text="Descargar CSV"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintStart_toEndOf="@+id/btn_downloadPDF"
-        app:layout_constraintTop_toBottomOf="@+id/btn_principles" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="2"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_downloadPDF"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10sp"
+                android:layout_weight="1"
+                android:text="Descargar PDF"/>
+
+            <Button
+                android:id="@+id/btn_downloadCSV"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Descargar CSV"/>
+        </LinearLayout>
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/locationName"
@@ -173,7 +195,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_downloadPDF" />
+        app:layout_constraintTop_toBottomOf="@+id/buttons" />
 
     <FrameLayout
         android:id="@+id/map"
@@ -183,3 +205,4 @@
         app:layout_constraintTop_toBottomOf="@+id/locationName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
