@@ -29,18 +29,6 @@ class BundleViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
         return !savedStateHandle.contains("principles") && !savedStateHandle.contains("states")
     }
 
-    fun saveParametersState(principleName: String) {
-        savedStateHandle["principleName"] = principleName
-    }
-
-    fun getPrincipleName(): String? {
-        return this.savedStateHandle["principleName"]
-    }
-
-    fun isParametersStateEmpty(): Boolean {
-        return !savedStateHandle.contains("principleName")
-    }
-
     fun clearParametersState() {
         savedStateHandle.remove<String>("principleName")
     }
