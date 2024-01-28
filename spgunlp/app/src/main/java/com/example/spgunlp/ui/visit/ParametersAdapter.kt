@@ -21,9 +21,7 @@ class ParametersAdapter(private val parameters: List<AppVisitParameters>, privat
     override fun onBindViewHolder(viewHolder: ParametersViewHolder, position: Int) {
 
         val item = parameters[position]
-        if (item != null) {
-            viewHolder.bind(item, position)
-        }
+        viewHolder.bind(item, position)
     }
 
     override fun getItemCount() = parameters.size
