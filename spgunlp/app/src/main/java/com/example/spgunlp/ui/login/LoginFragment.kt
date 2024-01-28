@@ -17,6 +17,7 @@ import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.performLogin
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -57,7 +58,7 @@ class LoginFragment : BaseFragment() {
             val editEmail = binding.editMail.text.toString()
             val editPassword = binding.editPassword.text.toString()
             lifecycleScope.launch {
-                if (performLogin(editEmail, editPassword, requireContext(), authService)){
+                if (performLogin(editEmail, editPassword, requireContext(), authService)) {
                     Toast.makeText(
                         context,
                         "Se ha iniciado sesión correctamente",
@@ -79,8 +80,6 @@ class LoginFragment : BaseFragment() {
         super.onDestroyView()
         _binding = null
     }
-
-
 
 
     private fun goToActiveFragment() {
