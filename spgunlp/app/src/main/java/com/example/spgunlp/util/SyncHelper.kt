@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import com.example.spgunlp.R
 import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
+import com.example.spgunlp.io.response.AuthErrorResponse
 import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.model.MODIFIED_VISIT
@@ -14,6 +15,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import okhttp3.ResponseBody
 
 suspend fun performSync(context: Context): Boolean {
     val preferences = context?.let { PreferenceHelper.defaultPrefs(it) }
@@ -84,13 +86,6 @@ suspend fun performLogin(
 
         val response = authService.login(user)
 
-        if (response.code() == 400 && (password.isNotEmpty() || mail.isNotEmpty())) {
-            Toast.makeText(
-                context,
-                "El usuario no se encuentra autorizado",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
         if (response.isSuccessful) {
             val loginResponse = response.body()
             if (loginResponse != null) {
@@ -99,7 +94,21 @@ suspend fun performLogin(
                 return true
             }
         } else {
-            Toast.makeText(context, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+            if (response.code() == 401) {
+                Toast.makeText(
+                    context,
+                    "Usuario o contraseña incorrectos",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return false
+            }
+            val errorBody = response.errorBody()!!.string()
+            val gson = Gson()
+            val type = object : TypeToken<AuthErrorResponse>() {}.type
+            val errorResponse: AuthErrorResponse? = gson.fromJson(errorBody, type)
+            if (errorResponse != null) {
+                Toast.makeText(context, errorResponse.detalleError, Toast.LENGTH_SHORT).show()
+            }
         }
     } catch (e: Exception) {
         Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()

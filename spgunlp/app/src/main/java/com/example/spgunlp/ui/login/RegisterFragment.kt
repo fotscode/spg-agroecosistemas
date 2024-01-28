@@ -17,10 +17,13 @@ import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentRegisterBinding
 import com.example.spgunlp.io.AuthService
+import com.example.spgunlp.io.response.AuthErrorResponse
 import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.login.LoginFragment
 import com.example.spgunlp.ui.login.RegisterViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -89,7 +92,10 @@ class RegisterFragment : BaseFragment() {
         val editName = binding.editName.text.toString()
         val editCellphone = binding.editCellphone.text.toString()
         val editOrganization = binding.editOrganization.text.toString()
-        val position = mapItemInteger[binding.autoCompleteTextView.text.toString()]
+        var position = mapItemInteger[binding.autoCompleteTextView.text.toString()]
+        if (position == null) {
+            position = 0
+        }
 
         // make the call to the remote API with coroutines
         lifecycleScope.launch {
@@ -99,7 +105,7 @@ class RegisterFragment : BaseFragment() {
                 editCellphone,
                 editName,
                 editOrganization,
-                position!!
+                position
             )
             try {
                 val response = authService.registro(user)
@@ -112,12 +118,14 @@ class RegisterFragment : BaseFragment() {
                     ).show()
                     goToLoginFragment()
                 } else {
-                    Toast.makeText(
-                        context,
-                        "El mail ya se encuentra registrado",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    val errorBody = response.errorBody()!!.string()
+                    val gson = Gson()
+                    val type = object : TypeToken<AuthErrorResponse>() {}.type
+                    val errorResponse: AuthErrorResponse? = gson.fromJson(errorBody, type)
+                    if (errorResponse != null) {
+                        Toast.makeText(context, errorResponse.detalleError, Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, "Error de conexión", Toast.LENGTH_SHORT).show()
