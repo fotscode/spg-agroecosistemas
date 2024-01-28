@@ -1,5 +1,6 @@
 package com.example.spgunlp.ui.visit
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
 import com.example.spgunlp.ui.BaseFragment
+import com.example.spgunlp.ui.maps.MapActivity
 import com.example.spgunlp.util.PreferenceHelper
 
 class VisitFragment : BaseFragment() {
@@ -61,7 +63,10 @@ class VisitFragment : BaseFragment() {
         }
 
         binding.btnMap.setOnClickListener(){
-            Toast.makeText(requireContext(), "Proximamente...", Toast.LENGTH_SHORT).show()
+            activity?.let{
+                val intent = Intent(it, MapActivity::class.java)
+                it.startActivity(intent)
+            }
         }
 
         binding.btnDownloadCSV.setOnClickListener(){
