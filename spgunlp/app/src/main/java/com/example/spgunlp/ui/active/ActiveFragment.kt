@@ -145,11 +145,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
     override fun onClick(visit: AppVisit) {
         val intent = Intent(requireActivity(), VisitActivity::class.java)
-        /*
-        val gson = Gson()
-        val visitGson = gson.toJson(visit)
-        intent.putExtra(VISIT_ITEM, visitGson)
-         */
         intent.putExtra(VISIT_ITEM, visit)
         startActivity(intent)
     }

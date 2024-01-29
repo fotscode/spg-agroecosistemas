@@ -83,9 +83,6 @@ fun calendar(
 fun updatePreferencesPrinciple(principles: List<AppVisitParameters.Principle>, context: Context) {
     val currentDate = Date().time
     val preferences = PreferenceHelper.defaultPrefs(context)
-    val gson = Gson()
-    val principlesGson = gson.toJson(principles)
-    preferences["PRINCIPLES"] = principlesGson
     preferences["UPDATE_PRINCIPLES"] = currentDate
 }
 
