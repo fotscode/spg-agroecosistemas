@@ -27,7 +27,6 @@ import com.example.spgunlp.ui.login.LoginFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson

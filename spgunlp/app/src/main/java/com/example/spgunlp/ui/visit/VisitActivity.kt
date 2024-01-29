@@ -64,8 +64,9 @@ class VisitActivity : AppCompatActivity() {
 
         supportFragmentManager.findFragmentById(active_visit);
 
-        val visitGson= intent.getStringExtra(VISIT_ITEM)
-        visit = Gson().fromJson(visitGson, AppVisit::class.java)
+        //val visitGson = intent.getStringExtra(VISIT_ITEM)
+        //visit = Gson().fromJson(visitGson, AppVisit::class.java)
+        visit = intent.getParcelableExtra<AppVisit>(VISIT_ITEM)!!
 
         updateVisitViewModel()
         updateParametersViewModel()

@@ -1,7 +1,11 @@
 package com.example.spgunlp.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 val PROFILE="PROFILE"
 val LAST_UPDATE_PROFILE="LAST_UPDATE_PROFILE"
+@Parcelize
 data class AppUser(
     val id: Int?,
     val email: String?,
@@ -13,7 +17,7 @@ data class AppUser(
     val posicionResponse: Posicion?,
     val roles: List<Rol>?,
     val estado: Boolean?
-) {
+): Parcelable {
     constructor(email: String, password: String) : this(null,
         email,
         password,
