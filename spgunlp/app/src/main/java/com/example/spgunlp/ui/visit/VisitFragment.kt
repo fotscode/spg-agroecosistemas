@@ -65,6 +65,7 @@ class VisitFragment : BaseFragment() {
         binding.btnMap.setOnClickListener(){
             activity?.let{
                 val intent = Intent(it, MapActivity::class.java)
+                intent.putExtra("ID_VISIT", visitViewModel.id.value!!.toLong())
                 it.startActivity(intent)
             }
         }
