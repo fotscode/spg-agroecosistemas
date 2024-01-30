@@ -139,11 +139,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
             binding.markBtn.visibility = android.view.View.GONE
             // save map polygons
             val poligono = Poligono(0, ID_VISIT, polygon.title, geoPoints.toString())
-            val id = mPoligonoViewModel.addPoligono(poligono)
-            id.observe(this, Observer {
-                polygon.setOnClickListener(onClickPolygon(it))
-            })
-
+            mPoligonoViewModel.addPoligono(poligono)
         }
     }
 
