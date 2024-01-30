@@ -58,7 +58,10 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        populateParameters()
+        if (bundleViewModel.isParametersStateEmpty()) {
+            parametersList.clear()
+            populateParameters()
+        }
 
         binding.btnSave.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
@@ -70,6 +73,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                     updateParameterList()
                     updateVisitParameters()
                     parameterViewModel.setParametersCurrentPrinciple(emptyList())
+                    bundleViewModel.clearParametersList()
                 }
                 .show()
         }
@@ -81,9 +85,29 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                 .setNegativeButton("Cancelar") { _, _ ->
                 }
                 .setPositiveButton("Aceptar") { _, _ ->
+                    bundleViewModel.clearParametersList()
                     goToPrincipleFragment()
                 }
                 .show()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val adapter = binding.parametersList.adapter as ParametersAdapter
+        val newParameters = parametersList.mapIndexed { index, par ->
+            par.copy(
+                cumple = adapter.getCheckedMap()[index] ?: false,
+            )
+        }
+        bundleViewModel.saveParametersState(newParameters)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            bundleViewModel.getParametersList()?.let { parametersList.addAll(it) }
+            updateRecycler(parametersList)
         }
     }
 
@@ -164,7 +188,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
             }
 
             goToPrincipleFragment()
-
         }
     }
 
@@ -241,7 +264,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         val label = visitId.toString() + "_" + MODIFIED_VISIT
         preferences[label] = visitGson
         preferences["VISIT_IDS"] = visitId.toString() + "," + preferences["VISIT_IDS", ""]
-        updateVisits(visitToUpdate)
+        //updateVisits(visitToUpdate) TODO store changes in DB
     }
 
     private fun updateVisits(visitUpdate: AppVisitUpdate) {

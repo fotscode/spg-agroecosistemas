@@ -4,24 +4,20 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.util.PrinciplesViewModel
 
-class BundleViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
+class BundleViewModel(private val savedStateHandle: SavedStateHandle) : PrinciplesViewModel(savedStateHandle) {
 
     fun savePrinciplesState(principles: List<AppVisitParameters.Principle>, states: List<Boolean>) {
-        savedStateHandle["principles"] = principles
+        super.updatePrinciplesList(principles)
         savedStateHandle["states"] = states
     }
-
-    fun getPrinciplesList(): List<AppVisitParameters.Principle>? {
-        return this.savedStateHandle["principles"]
-    }
-
     fun getStatesList(): List<Boolean>? {
         return this.savedStateHandle["states"]
     }
 
     fun clearPrinciplesState() {
-        savedStateHandle.remove<List<AppVisitParameters.Principle>>("principles")
+        super.clearPrinciplesList()
         savedStateHandle.remove<List<Boolean>>("states")
     }
 
@@ -52,12 +48,30 @@ class BundleViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
     }
 
     fun isObservationsStateEmpty(): Boolean {
-        return !savedStateHandle.contains("principleId") && !savedStateHandle.contains("principleObsName") && !savedStateHandle.contains("email")
+        return !savedStateHandle.contains("principleId") && !savedStateHandle.contains("principleObsName") && !savedStateHandle.contains(
+            "email"
+        )
     }
 
     fun clearObservationsState() {
         savedStateHandle.remove<Int>("principleId")
         savedStateHandle.remove<String>("principleObsName")
         savedStateHandle.remove<String>("email")
+    }
+
+    fun saveParametersState(parametersList: List<AppVisitParameters>) {
+        savedStateHandle["parametersList"] = parametersList
+    }
+
+    fun getParametersList(): List<AppVisitParameters>? {
+        return this.savedStateHandle["parametersList"]
+    }
+
+    fun clearParametersList() {
+        savedStateHandle.remove<String>("parametersList")
+    }
+
+    fun isParametersStateEmpty(): Boolean {
+        return !savedStateHandle.contains("parametersList")
     }
 }

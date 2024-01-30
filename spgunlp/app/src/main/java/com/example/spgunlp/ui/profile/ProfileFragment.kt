@@ -27,7 +27,6 @@ import com.example.spgunlp.ui.login.LoginFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
@@ -96,11 +95,11 @@ class ProfileFragment : BaseFragment() {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         preferences["jwt"] = ""
         preferences["email"] = ""
-        preferences["LIST_VISITS"] = ""
+        //preferences["LIST_VISITS"] = ""
         preferences["LAST_UPDATE"] = 0L
         preferences[PROFILE] = ""
         preferences[LAST_UPDATE_PROFILE] = 0L
-        preferences["PRINCIPLES"] = ""
+        //preferences["PRINCIPLES"] = ""
         preferences["UPDATE_PRINCIPLES"] = 0L
         goToLoginFragment()
     }

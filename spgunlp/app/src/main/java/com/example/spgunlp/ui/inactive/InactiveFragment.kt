@@ -8,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.spgunlp.MainActivity
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.databinding.FragmentInactiveBinding
 import com.example.spgunlp.io.VisitService
@@ -17,12 +19,12 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.IS_ACTIVE
 import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
+import com.example.spgunlp.ui.active.ActiveViewModel
 import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.calendar
-import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
 import kotlinx.coroutines.cancel
@@ -35,6 +37,8 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     private var showAll: Boolean = false
 
     val visitList = mutableListOf<AppVisit>()
+
+    private val inactiveViewModel: InactiveViewModel by activityViewModels()
 
     private var _binding: FragmentInactiveBinding? = null
 
@@ -49,20 +53,21 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val inactiveViewModel =
-            ViewModelProvider(this).get(InactiveViewModel::class.java)
+
         showAll=inactiveViewModel.showAll
 
         _binding = FragmentInactiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        //val textView: TextView = binding.textInactive
         visitLayout = binding.layoutVisits
         visitLayout.titleActive.text = "Historial de visitas"
         visitLayout.btnFiltro.text =
             if (inactiveViewModel.showAll) "Mostrar mis visitas" else "Mostrar todas las visitas"
 
-        populateVisits()
+        if (inactiveViewModel.isInactiveVisitListEmpty()){
+            visitList.clear()
+            populateVisits()
+        }
 
         visitLayout.searchView.clearFocus()
 
@@ -109,6 +114,22 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         return root
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        inactiveViewModel.saveInactiveVisits(this.visitList)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null){
+            inactiveViewModel.getInactiveVisits()?.let { this.visitList.addAll(it) }
+            updateRecycler(
+                visitLayout.activeList, visitList,
+                activity, this@InactiveFragment
+            )
+        }
+    }
+
     private fun populateVisits() {
         lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
@@ -116,7 +137,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = getVisits(header, requireContext(), visitService,true)
+            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
             inactiveVisits(visits)
             updateRecycler(
                 visitLayout.activeList, visitList, activity, this@InactiveFragment

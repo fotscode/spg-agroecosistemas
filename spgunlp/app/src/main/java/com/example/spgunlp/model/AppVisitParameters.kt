@@ -1,5 +1,9 @@
 package com.example.spgunlp.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class AppVisitParameters (
     val aspiracionesFamiliares: String?,
     val comentarios: String?,
@@ -8,14 +12,15 @@ data class AppVisitParameters (
     val nombre: String?,
     val parametro: Parameter?,
     val sugerencias: String?
-){
+): Parcelable {
+    @Parcelize
     data class Parameter(
         val habilitado: Boolean?,
         val id: Int?,
         val nombre: String?,
         val principioAgroecologico: Principle?,
         val situacionEsperable: String?
-    ){
+    ): Parcelable{
         constructor(
             habilitado: Boolean,
             id: Int,
@@ -31,11 +36,12 @@ data class AppVisitParameters (
         )
     }
 
+    @Parcelize
     data class Principle(
         val habilitado: Boolean?,
         val id: Int?,
         val nombre: String?
-    ){
+    ): Parcelable{
         constructor(
             habilitado: Boolean,
             id: Int,

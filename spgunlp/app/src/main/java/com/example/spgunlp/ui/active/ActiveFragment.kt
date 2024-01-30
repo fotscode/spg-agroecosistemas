@@ -3,13 +3,15 @@ package com.example.spgunlp.ui.active
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.spgunlp.MainActivity
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
@@ -18,9 +20,9 @@ import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
+import com.example.spgunlp.util.PrinciplesViewModel
 import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.getPrinciples
-import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
 import kotlinx.coroutines.cancel
@@ -31,9 +33,10 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         VisitService.create()
     }
 
-    val visitList = mutableListOf<AppVisit>()
     private var _binding: FragmentActiveBinding? = null
-
+    private val activeViewModel: ActiveViewModel by activityViewModels()
+    private val principlesViewModel: PrinciplesViewModel by activityViewModels()
+    val visitList = mutableListOf<AppVisit>()
     private val binding get() = _binding!!
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -42,9 +45,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val activeViewModel =
-            ViewModelProvider(this).get(ActiveViewModel::class.java)
-
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -60,7 +60,10 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             ).onClick(it)
         }
 
-        populateVisits()
+        if (activeViewModel.isActiveVisitListEmpty()) {
+            visitList.clear()
+            populateVisits()
+        }
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -86,6 +89,22 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         return root
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        activeViewModel.saveActiveVisits(this.visitList)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null){
+            activeViewModel.getActiveVisits()?.let { this.visitList.addAll(it) }
+            updateRecycler(
+                binding.activeList, visitList,
+                activity, this@ActiveFragment
+            )
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         visitList.clear()
@@ -104,8 +123,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = getVisits(header, requireContext(), visitService, true)
-            getPrinciples(header, requireContext(), visitService, true)
+            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
+            getPrinciples(header, requireContext(), visitService, true, principlesViewModel)
             activeVisits(visits)
             updateRecycler(
                 binding.activeList, visitList,
@@ -128,9 +147,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
     override fun onClick(visit: AppVisit) {
         val intent = Intent(requireActivity(), VisitActivity::class.java)
-        val gson = Gson()
-        val visitGson = gson.toJson(visit)
-        intent.putExtra(VISIT_ITEM, visitGson)
+        intent.putExtra(VISIT_ITEM, visit)
         startActivity(intent)
     }
 }

@@ -1,5 +1,6 @@
 package com.example.spgunlp
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.makeText
+import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -22,17 +24,21 @@ import com.example.spgunlp.databinding.ActivityMainBinding
 import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.io.sync.AndroidAlarmScheduler
+import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.PrinciplesViewModel
+import com.example.spgunlp.util.VisitsViewModel
 import com.example.spgunlp.util.getPrinciples
-import com.example.spgunlp.util.getVisits
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
+import com.example.spgunlp.util.updatePreferences
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private val authService: AuthService by lazy {
@@ -43,6 +49,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+
+    private val principlesViewModel: PrinciplesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                                 ).show()
                                 val header = "Bearer ${preferences["jwt", ""]}"
                                 getVisits(header, this@MainActivity, visitService, false)
-                                getPrinciples(header, this@MainActivity, visitService, false)
+                                getPrinciples(header, this@MainActivity, visitService, false, principlesViewModel)
                                 dialog.dismiss()
                             } else {
                                 makeText(
@@ -140,6 +148,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        val visitsViewModel: VisitsViewModel by viewModels()
+        visitsViewModel.clearVisitList()
+    }
     fun setBottomNavigationVisibility(visibility: Int) {
         binding.navView.visibility = visibility
         binding.fabSync.visibility = visibility
@@ -180,5 +193,41 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.i("MainActivity", "updateColorFab: ${preferences["COLOR_FAB", -1]}")
+    }
+
+    suspend fun getVisits(
+        header: String,
+        context: Context,
+        visitService: VisitService,
+        useSaved: Boolean,
+    ): List<AppVisit> {
+        var visits: List<AppVisit> = emptyList()
+        val lastUpdate = PreferenceHelper.defaultPrefs(context)["LAST_UPDATE", 0L]
+        val currentDate = Date().time
+
+        val visitsViewModel: VisitsViewModel by viewModels()
+
+        if (currentDate - lastUpdate < 300000 && useSaved && !visitsViewModel.isVisitListEmpty()) {// 5mins
+            Log.i("SPGUNLP_TAG", "getVisits: last update less than 5 mins")
+            visits = visitsViewModel.getVisits()!!
+            return visits
+        }
+
+        try {
+            val response = visitService.getVisits(header)
+            val body = response.body()
+            if (response.isSuccessful && body != null) {
+                visits = body
+                updatePreferences(context)
+                visitsViewModel.saveVisits(visits)
+                Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
+            } else if (response.code() == 401 || response.code() == 403) {
+                visits = visitsViewModel.getVisits()!!
+            }
+        } catch (e: Exception) {
+            Log.e("SPGUNLP_TAG", e.message.toString())
+            visits = visitsViewModel.getVisits()!!
+        }
+        return visits
     }
 }

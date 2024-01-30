@@ -2,12 +2,23 @@ package com.example.spgunlp.ui.active
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.util.VisitsViewModel
 
-class ActiveViewModel : ViewModel() {
+class ActiveViewModel(private val savedStateHandle: SavedStateHandle) : VisitsViewModel(savedStateHandle) {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is active Fragment"
+    fun saveActiveVisits(visits: List<AppVisit>){
+        savedStateHandle["active_visits"] = visits
     }
-    val text: LiveData<String> = _text
+
+    fun getActiveVisits(): List<AppVisit>?{
+        return this.savedStateHandle["active_visits"]
+    }
+
+    fun isActiveVisitListEmpty(): Boolean{
+        return this.savedStateHandle.contains("active_visits")
+    }
 }
