@@ -6,29 +6,22 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.Fragment
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigator
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentProfileBinding
-import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.UserService
-import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppUser
-import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.LAST_UPDATE_PROFILE
-import com.example.spgunlp.model.MODIFIED_VISIT
 import com.example.spgunlp.model.PROFILE
+import com.example.spgunlp.model.Perfil
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.active.ActiveFragment
 import com.example.spgunlp.ui.login.LoginFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import com.example.spgunlp.util.getVisits
-import com.example.spgunlp.util.updateRecycler
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -41,7 +34,7 @@ class ProfileFragment : BaseFragment() {
         UserService.create()
     }
 
-    private lateinit var user: AppUser
+    private lateinit var mProfileViewModel: ProfileViewModel
 
     private var _binding: FragmentProfileBinding? = null
 
@@ -57,6 +50,8 @@ class ProfileFragment : BaseFragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        mProfileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
+
         populateProfile()
 
         binding.btnCerrarSesion.setOnClickListener() {
@@ -67,24 +62,29 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun populateProfile() {
-        lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
-            val jwt = preferences["jwt", ""]
-            if (!jwt.contains("."))
-                cancel()
-            val header = "Bearer $jwt"
-            user = getProfile(header)
-            Log.i("ProfileFragment", "populateProfile: $user")
-            binding.profileName.text = if (user.nombre?.isBlank() == false) user.nombre else "Sin nombre"
-            binding.profilePosition.text =
-                if (user.posicionResponse?.nombre?.isBlank()==false) user.posicionResponse?.nombre else "Sin posicion"
-            binding.profileEmail.text = if (user.email?.isBlank()==false) user.email else "Sin email"
-            binding.profileCellphone.text =if (user.celular?.isBlank()==false) user.celular else "Sin celular"
-            binding.profileOrganization.text = if (user.organizacion?.isBlank()==false) user.organizacion else "Sin organizacion"
-            if (user.roles == null || user.roles!!.isEmpty())
-                cancel()
-            val role = user.roles?.get(0)?.nombre
-            binding.profileRole.text = if (role == "ROLE_ADMIN") "Administrador" else "Usuario"
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val email = preferences["email", ""]
+        mProfileViewModel.getPerfilByEmail(email).also { it ->
+            it.observe(viewLifecycleOwner) { perfil ->
+                if (perfil != null) {
+                    fillProfile(perfil)
+                } else {
+                    lifecycleScope.launch {
+                        val jwt = preferences["jwt", ""]
+                        if (!jwt.contains("."))
+                            cancel()
+                        val header = "Bearer $jwt"
+                        val perfil = getProfile(header, email)
+                        Log.i("ProfileFragment", "populateProfile: $perfil")
+                        if (perfil != null) {
+                            fillProfile(perfil)
+                            mProfileViewModel.addPerfil(perfil)
+                        }else{
+                            binding.profileData.visibility = View.GONE
+                        }
+                    }
+                }
+            }
         }
     }
     override fun onDestroyView() {
@@ -98,8 +98,6 @@ class ProfileFragment : BaseFragment() {
         preferences["email"] = ""
         preferences["LIST_VISITS"] = ""
         preferences["LAST_UPDATE"] = 0L
-        preferences[PROFILE] = ""
-        preferences[LAST_UPDATE_PROFILE] = 0L
         preferences["PRINCIPLES"] = ""
         preferences["UPDATE_PRINCIPLES"] = 0L
         goToLoginFragment()
@@ -114,54 +112,52 @@ class ProfileFragment : BaseFragment() {
         transaction.replace(R.id.nav_host_fragment_activity_main, newFragment)
         transaction.commit()
     }
-
-    private fun updatePreferences(user: AppUser) {
-        val currentDate = Date().time
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        val gson = Gson()
-        val userGson = gson.toJson(user)
-        preferences[PROFILE] = userGson
-        preferences[LAST_UPDATE_PROFILE] = currentDate
-    }
-
-    fun getPreferences(context: Context): AppUser {
-        val preferences = PreferenceHelper.defaultPrefs(context)
-        val gson = Gson()
-        val userGson = preferences[PROFILE, ""]
-        if (userGson == ""){
-            binding.profileData.visibility = View.GONE
-            return AppUser(null, "", "", "", "", "", 1, null, null, null)
-        }
-        val type = object : TypeToken<AppUser>() {}.type
-        return gson.fromJson(userGson, type)
-    }
-
-    suspend fun getProfile(header: String): AppUser {
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        val lastUpdate = PreferenceHelper.defaultPrefs(requireContext())[LAST_UPDATE_PROFILE, 0L]
-        val currentDate = Date().time
-
-        if (currentDate - lastUpdate < 600000) {// 10mins
-            Log.i("ProfileFragment", "getProfile: last update less than 10 mins")
-            user = getPreferences(requireContext())
-            return user
-        }
-
+    private suspend fun getProfile(header: String, email: String): Perfil? {
         try {
             val response = userService.getUsers(header)
             val body = response.body()
             if (response.isSuccessful && body != null) {
-                val email = preferences["email", ""]
-                user = body!!.filter { it.email == email }[0]
-                updatePreferences(user)
-                Log.i("ProfileFragment", "getUser: made api call and was successful")
-            } else if (response.code() == 401 || response.code() == 403) {
-                user = getPreferences(requireContext())
+                Log.i("ProfileFragment", "getProfile: made api call and was successful")
+                val user = body.filter { it.email == email }[0]
+                val nombre = user.nombre ?: "Sin Nombre"
+                val posicion = user.posicionResponse?.nombre ?: "Sin Posición"
+                val celular = user.celular ?: "Sin Celular"
+                val organizacion = user.organizacion ?: "Sin Organización"
+                val rol = user.roles?.get(0)?.nombre ?: ""
+                return Perfil(
+                    email,
+                    nombre,
+                    posicion,
+                    celular,
+                    organizacion,
+                    rol
+                )
+            } else if (response.code() == 401) {
+                Toast.makeText(
+                    requireContext(),
+                    "El token ha expirado, porfavor reiniciar sesión o sincronizar",
+                    Toast.LENGTH_SHORT
+                ).show()
+                // TODO: rehacer sincronizar, con los datos
+                return null
             }
         } catch (e: Exception) {
-            Log.e("ProfileFragment", e.message.toString())
-            user = getPreferences(requireContext())
+            Toast.makeText(
+                requireContext(),
+                "No se pudo obtener el perfil, verificar la conexión a internet",
+                Toast.LENGTH_SHORT
+            ).show()
         }
-        return user
+        Log.i("ProfileFragment", "getProfile: made api call and was not successful")
+        return null
+    }
+
+    private fun fillProfile(perfil: Perfil){
+        binding.profileName.text = perfil.nombre
+        binding.profilePosition.text = perfil.posicion
+        binding.profileEmail.text = perfil.email
+        binding.profileCellphone.text = perfil.celular
+        binding.profileOrganization.text = perfil.organizacion
+        binding.profileRole.text = if (perfil.rol == "ROLE_ADMIN") "Administrador" else "Usuario"
     }
 }
