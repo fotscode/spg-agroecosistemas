@@ -20,6 +20,7 @@ import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
+import com.example.spgunlp.util.PrinciplesViewModel
 import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.getPrinciples
 import com.example.spgunlp.util.updateRecycler
@@ -34,6 +35,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
     private var _binding: FragmentActiveBinding? = null
     private val activeViewModel: ActiveViewModel by activityViewModels()
+    private val principlesViewModel: PrinciplesViewModel by activityViewModels()
     val visitList = mutableListOf<AppVisit>()
     private val binding get() = _binding!!
 
@@ -122,7 +124,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 cancel()
             val header = "Bearer $jwt"
             val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
-            getPrinciples(header, requireContext(), visitService, true)
+            getPrinciples(header, requireContext(), visitService, true, principlesViewModel)
             activeVisits(visits)
             updateRecycler(
                 binding.activeList, visitList,

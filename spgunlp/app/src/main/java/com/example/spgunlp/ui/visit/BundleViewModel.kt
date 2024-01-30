@@ -4,24 +4,20 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.util.PrinciplesViewModel
 
-class BundleViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
+class BundleViewModel(private val savedStateHandle: SavedStateHandle) : PrinciplesViewModel(savedStateHandle) {
 
     fun savePrinciplesState(principles: List<AppVisitParameters.Principle>, states: List<Boolean>) {
-        savedStateHandle["principles"] = principles
+        super.updatePrinciplesList(principles)
         savedStateHandle["states"] = states
     }
-
-    fun getPrinciplesList(): List<AppVisitParameters.Principle>? {
-        return this.savedStateHandle["principles"]
-    }
-
     fun getStatesList(): List<Boolean>? {
         return this.savedStateHandle["states"]
     }
 
     fun clearPrinciplesState() {
-        savedStateHandle.remove<List<AppVisitParameters.Principle>>("principles")
+        super.clearPrinciplesList()
         savedStateHandle.remove<List<Boolean>>("states")
     }
 

@@ -188,7 +188,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
             }
 
             goToPrincipleFragment()
-
         }
     }
 
@@ -265,7 +264,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         val label = visitId.toString() + "_" + MODIFIED_VISIT
         preferences[label] = visitGson
         preferences["VISIT_IDS"] = visitId.toString() + "," + preferences["VISIT_IDS", ""]
-        updateVisits(visitToUpdate)
+        //updateVisits(visitToUpdate) TODO store changes in DB
     }
 
     private fun updateVisits(visitUpdate: AppVisitUpdate) {

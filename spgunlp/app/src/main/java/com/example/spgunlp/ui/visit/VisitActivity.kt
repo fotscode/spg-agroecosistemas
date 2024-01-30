@@ -65,6 +65,7 @@ class VisitActivity : AppCompatActivity() {
         supportFragmentManager.findFragmentById(active_visit);
 
         visit = intent.getParcelableExtra<AppVisit>(VISIT_ITEM)!!
+        this.intent.extras!!.remove(VISIT_ITEM)
 
         updateVisitViewModel()
         updateParametersViewModel()
@@ -75,10 +76,11 @@ class VisitActivity : AppCompatActivity() {
         updateVisitViewModel()
         updateParametersViewModel()
 
+        val preferences = PreferenceHelper.defaultPrefs(this)
+        /*
         val visitGson = Gson().toJson(visit)
         intent.putExtra(VISIT_ITEM, visitGson)
 
-        val preferences = PreferenceHelper.defaultPrefs(this)
         val visitsGson = preferences["LIST_VISITS", ""]
         val type = object : TypeToken<List<AppVisit>>() {}.type
         val visits = Gson().fromJson<List<AppVisit>>(visitsGson, type)
@@ -86,6 +88,8 @@ class VisitActivity : AppCompatActivity() {
         visitsFiltered.add(visit)
         val visitsJson = Gson().toJson(visitsFiltered.toList())
         preferences["LIST_VISITS"] = visitsJson
+
+         */
         preferences["LAST_UPDATE"] = Date().time
     }
 

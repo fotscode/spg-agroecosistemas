@@ -28,6 +28,7 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.PrinciplesViewModel
 import com.example.spgunlp.util.VisitsViewModel
 import com.example.spgunlp.util.getPrinciples
 import com.example.spgunlp.util.performLogin
@@ -48,6 +49,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+
+    private val principlesViewModel: PrinciplesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                                 ).show()
                                 val header = "Bearer ${preferences["jwt", ""]}"
                                 getVisits(header, this@MainActivity, visitService, false)
-                                getPrinciples(header, this@MainActivity, visitService, false)
+                                getPrinciples(header, this@MainActivity, visitService, false, principlesViewModel)
                                 dialog.dismiss()
                             } else {
                                 makeText(

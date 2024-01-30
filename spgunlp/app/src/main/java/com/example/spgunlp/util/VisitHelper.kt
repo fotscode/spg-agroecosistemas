@@ -80,35 +80,26 @@ fun calendar(
     }
 }
 
-fun updatePreferencesPrinciple(principles: List<AppVisitParameters.Principle>, context: Context) {
+fun updatePreferencesPrinciple(context: Context) {
     val currentDate = Date().time
     val preferences = PreferenceHelper.defaultPrefs(context)
     preferences["UPDATE_PRINCIPLES"] = currentDate
-}
-
-fun getPreferencesPrinciple(context: Context): List<AppVisitParameters.Principle> {
-    val preferences = PreferenceHelper.defaultPrefs(context)
-    val gson = Gson()
-    val principlesGson = preferences["PRINCIPLES", ""]
-    if (principlesGson == "")
-        return emptyList()
-    val type = object : TypeToken<List<AppVisitParameters.Principle>>() {}.type
-    return gson.fromJson(principlesGson, type)
 }
 
 suspend fun getPrinciples(
     header: String,
     context: Context,
     visitService: VisitService,
-    useSaved:Boolean
+    useSaved:Boolean,
+    viewModel: PrinciplesViewModel
 ): List<AppVisitParameters.Principle> {
     var principles: List<AppVisitParameters.Principle> = emptyList()
     val lastUpdate = PreferenceHelper.defaultPrefs(context)["UPDATE_PRINCIPLES", 0L]
     val currentDate = Date().time
 
-    if (currentDate - lastUpdate < 300000 && useSaved) {// 5mins
+    if (currentDate - lastUpdate < 300000 && useSaved && !viewModel.isPrinciplesListEmpty()) {// 5mins
         Log.i("SPGUNLP_TAG", "getPrinciples: last update less than 5 mins")
-        principles = getPreferencesPrinciple(context)
+        principles = viewModel.getPrinciplesList()!!
         return principles
     }
     try {
@@ -116,14 +107,15 @@ suspend fun getPrinciples(
         val body = response.body()
         if (response.isSuccessful && body != null) {
             principles = body
-            updatePreferencesPrinciple(principles, context)
+            viewModel.updatePrinciplesList(principles)
+            updatePreferencesPrinciple(context)
             Log.i("SPGUNLP_TAG", "getPrinciples: made api call and was successful")
         } else if (response.code() == 401 || response.code() == 403) {
-            principles = getPreferencesPrinciple(context)
+            principles = viewModel.getPrinciplesList()!!
         }
     } catch (e: Exception) {
         Log.e("SPGUNLP_TAG", e.message.toString())
-        principles = getPreferencesPrinciple(context)
+        principles = viewModel.getPrinciplesList()!!
     }
     return principles
 }
