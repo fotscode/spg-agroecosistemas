@@ -3,6 +3,7 @@ package com.example.spgunlp.ui.visit
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.util.PrinciplesViewModel
 
@@ -73,5 +74,16 @@ class BundleViewModel(private val savedStateHandle: SavedStateHandle) : Principl
 
     fun isParametersStateEmpty(): Boolean {
         return !savedStateHandle.contains("parametersList")
+    }
+
+    fun saveActivityState(visit: AppVisit) {
+        savedStateHandle["visit"] = visit
+    }
+
+    fun getVisit(): AppVisit? {
+        return this.savedStateHandle["visit"]
+    }
+    fun isActivityStateEmpty(): Boolean {
+        return !savedStateHandle.contains("visit")
     }
 }

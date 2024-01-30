@@ -16,7 +16,6 @@ open class PrinciplesViewModel(private val savedStateHandle: SavedStateHandle) :
     fun isPrinciplesListEmpty(): Boolean{
         return !savedStateHandle.contains("principles")
     }
-
     fun clearPrinciplesList() {
         savedStateHandle.remove<List<AppVisitParameters.Principle>>("principles")
     }

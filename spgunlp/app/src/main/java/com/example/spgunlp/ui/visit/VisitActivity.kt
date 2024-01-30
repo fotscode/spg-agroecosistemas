@@ -53,6 +53,7 @@ class VisitActivity : AppCompatActivity() {
     private val visitViewModel: VisitViewModel by viewModels()
     private val parametersViewModel: ParametersViewModel by viewModels()
     private val messagesViewModel: MessagesViewModel by viewModels()
+    private val bundleViewModel: BundleViewModel by viewModels()
     private lateinit var sender:AppMessage.ChatUser
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -64,13 +65,23 @@ class VisitActivity : AppCompatActivity() {
 
         supportFragmentManager.findFragmentById(active_visit);
 
-        visit = intent.getParcelableExtra<AppVisit>(VISIT_ITEM)!!
-        this.intent.extras!!.remove(VISIT_ITEM)
-
-        updateVisitViewModel()
-        updateParametersViewModel()
+        if (bundleViewModel.isActivityStateEmpty()) {
+            visit = intent.getParcelableExtra<AppVisit>(VISIT_ITEM)!!
+            intent.removeExtra(VISIT_ITEM)
+            updateVisitViewModel()
+            updateParametersViewModel()
+        }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        bundleViewModel.saveActivityState(visit)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        visit = bundleViewModel.getVisit()!!
+    }
     fun updateVisit(visit: AppVisit){
         this.visit = visit
         updateVisitViewModel()
