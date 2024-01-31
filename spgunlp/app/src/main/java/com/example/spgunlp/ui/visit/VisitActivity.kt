@@ -88,19 +88,6 @@ class VisitActivity : AppCompatActivity() {
         updateParametersViewModel()
 
         val preferences = PreferenceHelper.defaultPrefs(this)
-        /*
-        val visitGson = Gson().toJson(visit)
-        intent.putExtra(VISIT_ITEM, visitGson)
-
-        val visitsGson = preferences["LIST_VISITS", ""]
-        val type = object : TypeToken<List<AppVisit>>() {}.type
-        val visits = Gson().fromJson<List<AppVisit>>(visitsGson, type)
-        val visitsFiltered = visits.filter { it.id != visit.id }.toMutableList()
-        visitsFiltered.add(visit)
-        val visitsJson = Gson().toJson(visitsFiltered.toList())
-        preferences["LIST_VISITS"] = visitsJson
-
-         */
         preferences["LAST_UPDATE"] = Date().time
     }
 

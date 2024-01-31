@@ -10,14 +10,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
-import com.example.spgunlp.util.getPrinciples
 import kotlinx.coroutines.launch
 
 class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
@@ -77,7 +75,7 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
-            val principles = getPrinciples(header, requireContext(), visitService, true, bundleViewModel)
+            val principles = getPrinciples(header, visitService)
             activePrinciples(principles)
             parametersViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
                 val parametersMap =
@@ -90,6 +88,28 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
             })
             updateRecycler(principlesList, statesList)
         }
+    }
+
+    private suspend fun getPrinciples(
+        header: String,
+        visitService: VisitService,
+    ): List<AppVisitParameters.Principle> {
+        var principles: List<AppVisitParameters.Principle> = emptyList()
+        try {
+            val response = visitService.getPrinciples(header)
+            val body = response.body()
+            if (response.isSuccessful && body != null) {
+                principles = body
+                bundleViewModel.updatePrinciplesList(principles)
+                Log.i("SPGUNLP_TAG", "getPrinciples: made api call and was successful")
+            } else if (response.code() == 401 || response.code() == 403) {
+                principles = bundleViewModel.getPrinciplesList()!!
+            }
+        } catch (e: Exception) {
+            Log.e("SPGUNLP_TAG", e.message.toString())
+            principles = bundleViewModel.getPrinciplesList()!!
+        }
+        return principles
     }
 
     private fun activePrinciples(principles: List<AppVisitParameters.Principle>) {
