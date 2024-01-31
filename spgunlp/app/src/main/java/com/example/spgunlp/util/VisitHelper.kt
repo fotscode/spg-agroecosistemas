@@ -90,7 +90,7 @@ suspend fun getPrinciples(
     header: String,
     context: Context,
     visitService: VisitService,
-    useSaved:Boolean,
+    useSaved: Boolean,
     viewModel: PrinciplesViewModel
 ): List<AppVisitParameters.Principle> {
     var principles: List<AppVisitParameters.Principle> = emptyList()
@@ -99,7 +99,7 @@ suspend fun getPrinciples(
 
     if (currentDate - lastUpdate < 300000 && useSaved && !viewModel.isPrinciplesListEmpty()) {// 5mins
         Log.i("SPGUNLP_TAG", "getPrinciples: last update less than 5 mins")
-        principles = viewModel.getPrinciplesList()!!
+        principles = viewModel.getPrinciplesList() ?: emptyList()
         return principles
     }
     try {
@@ -111,11 +111,11 @@ suspend fun getPrinciples(
             updatePreferencesPrinciple(context)
             Log.i("SPGUNLP_TAG", "getPrinciples: made api call and was successful")
         } else if (response.code() == 401 || response.code() == 403) {
-            principles = viewModel.getPrinciplesList()!!
+            principles = viewModel.getPrinciplesList() ?: emptyList()
         }
     } catch (e: Exception) {
         Log.e("SPGUNLP_TAG", e.message.toString())
-        principles = viewModel.getPrinciplesList()!!
+        principles = viewModel.getPrinciplesList() ?: emptyList()
     }
     return principles
 }

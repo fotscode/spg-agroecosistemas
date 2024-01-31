@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity() {
 
         if (currentDate - lastUpdate < 300000 && useSaved && !visitsViewModel.isVisitListEmpty()) {// 5mins
             Log.i("SPGUNLP_TAG", "getVisits: last update less than 5 mins")
-            visits = visitsViewModel.getVisits()!!
+            visits = visitsViewModel.getVisits() ?: emptyList()
             return visits
         }
 
@@ -222,11 +222,11 @@ class MainActivity : AppCompatActivity() {
                 visitsViewModel.saveVisits(visits)
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
-                visits = visitsViewModel.getVisits()!!
+                visits = visitsViewModel.getVisits() ?: emptyList()
             }
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
-            visits = visitsViewModel.getVisits()!!
+            visits = visitsViewModel.getVisits() ?: emptyList()
         }
         return visits
     }
