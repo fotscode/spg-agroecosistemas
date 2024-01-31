@@ -1,23 +1,30 @@
 package com.example.spgunlp.ui.visit
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.util.PrinciplesViewModel
 
-class BundleViewModel(private val savedStateHandle: SavedStateHandle) : PrinciplesViewModel(savedStateHandle) {
+class BundleViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
     fun savePrinciplesState(principles: List<AppVisitParameters.Principle>, states: List<Boolean>) {
-        super.updatePrinciplesList(principles)
-        savedStateHandle["states"] = states
+        updatePrinciplesList(principles)
+        this.savedStateHandle["states"] = states
+    }
+
+    fun updatePrinciplesList(principles: List<AppVisitParameters.Principle>){
+        this.savedStateHandle["principles"] = principles
+    }
+
+    fun getPrinciplesList(): List<AppVisitParameters.Principle>?{
+        return savedStateHandle["principles"]
     }
     fun getStatesList(): List<Boolean>? {
         return this.savedStateHandle["states"]
     }
 
     fun clearPrinciplesState() {
-        super.clearPrinciplesList()
+        savedStateHandle.remove<List<AppVisitParameters.Principle>>("principles")
         savedStateHandle.remove<List<Boolean>>("states")
     }
 
@@ -73,5 +80,16 @@ class BundleViewModel(private val savedStateHandle: SavedStateHandle) : Principl
 
     fun isParametersStateEmpty(): Boolean {
         return !savedStateHandle.contains("parametersList")
+    }
+
+    fun saveActivityState(visit: AppVisit) {
+        savedStateHandle["visit"] = visit
+    }
+
+    fun getVisit(): AppVisit? {
+        return this.savedStateHandle["visit"]
+    }
+    fun isActivityStateEmpty(): Boolean {
+        return !savedStateHandle.contains("visit")
     }
 }

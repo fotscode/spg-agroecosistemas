@@ -73,6 +73,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                     updateParameterList()
                     updateVisitParameters()
                     parameterViewModel.setParametersCurrentPrinciple(emptyList())
+                    bundleViewModel.clearPrinciplesState()
                     bundleViewModel.clearParametersList()
                 }
                 .show()
