@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.MainActivity
 import com.example.spgunlp.databinding.FragmentActiveBinding
@@ -19,7 +18,6 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.IS_ACTIVE
 import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.active.ActiveViewModel
 import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
@@ -27,6 +25,7 @@ import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -46,6 +45,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var visitLayout: FragmentActiveBinding
+    private lateinit var jobToKill: Job
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -131,7 +131,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private fun populateVisits() {
-        lifecycleScope.launch {
+        jobToKill = lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
@@ -172,6 +172,8 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
         visitList.clear()
         _binding = null
     }

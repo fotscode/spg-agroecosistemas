@@ -3,15 +3,11 @@ package com.example.spgunlp.ui.login
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.text.InputType
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.R
@@ -20,11 +16,9 @@ import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.response.AuthErrorResponse
 import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.login.LoginFragment
-import com.example.spgunlp.ui.login.RegisterViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class RegisterFragment : BaseFragment() {
@@ -45,6 +39,8 @@ class RegisterFragment : BaseFragment() {
     private val binding get() = _binding!!
 
     private lateinit var viewModel: RegisterViewModel
+
+    private lateinit var jobToKill: Job
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -98,7 +94,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         // make the call to the remote API with coroutines
-        lifecycleScope.launch {
+        jobToKill = lifecycleScope.launch {
             val user = AppUser(
                 editMail,
                 editPassword,
@@ -134,4 +130,10 @@ class RegisterFragment : BaseFragment() {
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
+        _binding = null
+    }
 }

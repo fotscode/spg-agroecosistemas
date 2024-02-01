@@ -4,24 +4,18 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.ScrollView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.R.id.active_visit
 import com.example.spgunlp.databinding.ActivityVisitBinding
 import com.example.spgunlp.io.UserService
-import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppMessage
 import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.model.CONTENT_TYPE
 import com.example.spgunlp.model.PROFILE
 import com.example.spgunlp.model.VISIT_ITEM
@@ -30,16 +24,13 @@ import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.TimeZone
 
 val MESSAGES = "MESSAGES"
 class VisitActivity : AppCompatActivity() {
@@ -54,6 +45,8 @@ class VisitActivity : AppCompatActivity() {
     private val parametersViewModel: ParametersViewModel by viewModels()
     private val messagesViewModel: MessagesViewModel by viewModels()
     private lateinit var sender:AppMessage.ChatUser
+
+    private lateinit var jobToKill: Job
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,7 +147,7 @@ class VisitActivity : AppCompatActivity() {
 
     @SuppressLint("NewApi", "SimpleDateFormat")
     fun sendNewMessage(contentType: CONTENT_TYPE, data: String, principleId: Int, fragment: ObservationsFragment) {
-        lifecycleScope.launch{
+        jobToKill = lifecycleScope.launch{
             val preferences = PreferenceHelper.defaultPrefs(baseContext)
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
@@ -193,4 +186,9 @@ class VisitActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
+    }
 }

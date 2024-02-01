@@ -19,6 +19,7 @@ import com.example.spgunlp.ui.visit.BundleViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.getPrinciples
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class StatsFragment : BaseFragment() {
@@ -36,6 +37,7 @@ class StatsFragment : BaseFragment() {
     private var percentageList = mutableListOf<Float>()
     private var cumpleList = mutableListOf<Boolean>()
     private var approvedVisitsPercentage = 0f
+    private lateinit var jobToKill: Job
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +46,6 @@ class StatsFragment : BaseFragment() {
     ): View {
         _binding = FragmentStatsBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
         return root
     }
 
@@ -75,7 +76,7 @@ class StatsFragment : BaseFragment() {
     }
 
     private fun populatePrinciples() {
-        lifecycleScope.launch {
+        jobToKill = lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
@@ -124,6 +125,8 @@ class StatsFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
         _binding = null
     }
 

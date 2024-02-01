@@ -3,7 +3,6 @@ package com.example.spgunlp.ui.active
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +24,7 @@ import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.getPrinciples
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -37,6 +37,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     private val activeViewModel: ActiveViewModel by activityViewModels()
     private val principlesViewModel: PrinciplesViewModel by activityViewModels()
     val visitList = mutableListOf<AppVisit>()
+    private lateinit var jobToKill: Job
     private val binding get() = _binding!!
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -107,6 +108,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
         visitList.clear()
         _binding = null
     }
@@ -117,7 +120,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private fun populateVisits() {
-        lifecycleScope.launch {
+        jobToKill = lifecycleScope.launch {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
