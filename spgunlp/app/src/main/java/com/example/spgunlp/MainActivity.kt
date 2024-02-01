@@ -2,7 +2,6 @@ package com.example.spgunlp
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +15,8 @@ import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -30,7 +31,6 @@ import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.PrinciplesViewModel
 import com.example.spgunlp.util.VisitsViewModel
-import com.example.spgunlp.util.getPrinciples
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
 import com.example.spgunlp.util.updatePreferences
@@ -95,45 +95,7 @@ class MainActivity : AppCompatActivity() {
                         ContextCompat.getColor(applicationContext, R.color.green)
                     updateColorFab()
                 } else if (preferences["COLOR_FAB", -1] == colorRed) {
-                    val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
-                    val inflater = LayoutInflater.from(this@MainActivity)
-                    val view = inflater.inflate(R.layout.fragment_login, null)
-                    view.findViewById<TextView>(R.id.title_inicio).text =
-                        "Token expirado, inicie sesión nuevamente"
-                    view.findViewById<Button>(R.id.btn_crear_usuario).visibility = View.GONE
-                    val mail = view.findViewById<EditText>(R.id.edit_mail)
-                    mail.setText(preferences["email", ""])
-                    dialog.setView(view)
-                    val pwd = view.findViewById<EditText>(R.id.edit_password)
-                    view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
-                        lifecycleScope.launch {
-                            if (
-                                performLogin(
-                                    mail.text.toString(),
-                                    pwd.text.toString(),
-                                    this@MainActivity,
-                                    authService
-                                ) && performSync(this@MainActivity)
-                            ) {
-                                makeText(
-                                    this@MainActivity,
-                                    "Se ha sincronizado correctamente",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                val header = "Bearer ${preferences["jwt", ""]}"
-                                getVisits(header, this@MainActivity, visitService, false)
-                                getPrinciples(header, this@MainActivity, visitService, false, principlesViewModel)
-                                dialog.dismiss()
-                            } else {
-                                makeText(
-                                    this@MainActivity,
-                                    "Inicio de sesion fallido",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }
-                    dialog.show()
+                    makeLoginPopup()
                 } else
                     Toast.makeText(
                         this@MainActivity,
@@ -222,12 +184,62 @@ class MainActivity : AppCompatActivity() {
                 visitsViewModel.saveVisits(visits)
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
-                visits = visitsViewModel.getVisits() ?: emptyList()
+                //visits = visitsViewModel.getVisits() ?: emptyList()
+                makeLoginPopup().also {
+                    it.observe(this) { visits = it }
+                }
             }
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
             visits = visitsViewModel.getVisits() ?: emptyList()
         }
         return visits
+    }
+
+    private fun makeLoginPopup(): LiveData<List<AppVisit>>{
+        val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
+        val inflater = LayoutInflater.from(this@MainActivity)
+        val view = inflater.inflate(R.layout.fragment_login, null)
+        view.findViewById<TextView>(R.id.title_inicio).text =
+            "Token expirado, inicie sesión nuevamente"
+        view.findViewById<Button>(R.id.btn_crear_usuario).visibility = View.GONE
+        val mail = view.findViewById<EditText>(R.id.edit_mail)
+        val preferences = PreferenceHelper.defaultPrefs(this)
+        mail.setText(preferences["email", ""])
+        dialog.setView(view)
+        val pwd = view.findViewById<EditText>(R.id.edit_password)
+        val result = MutableLiveData<List<AppVisit>>()
+
+        view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
+            lifecycleScope.launch {
+                if (
+                    performLogin(
+                        mail.text.toString(),
+                        pwd.text.toString(),
+                        this@MainActivity,
+                        authService
+                    ) && performSync(this@MainActivity)
+                ) {
+                    makeText(
+                        this@MainActivity,
+                        "Se ha sincronizado correctamente",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val header = "Bearer ${preferences["jwt", ""]}"
+                    val visits = getVisits(header, this@MainActivity, visitService, false)
+                    result.postValue(visits)
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(this@MainActivity, R.color.green)
+                    dialog.dismiss()
+                } else {
+                    makeText(
+                        this@MainActivity,
+                        "Inicio de sesion fallido",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        dialog.show()
+        return result
     }
 }

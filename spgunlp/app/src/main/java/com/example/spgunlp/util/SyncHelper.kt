@@ -15,9 +15,9 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import okhttp3.ResponseBody
 
 suspend fun performSync(context: Context): Boolean {
+    val visitService = VisitService.create()
     val preferences = context?.let { PreferenceHelper.defaultPrefs(it) }
     val idVisits = preferences?.get("VISIT_IDS", "")?.split(",")
     Log.i("ALARM_RECEIVER", "onReceive, viendo si hay visitas")
@@ -28,7 +28,6 @@ suspend fun performSync(context: Context): Boolean {
         for (id in idVisits) {
             if (id != "") {
                 Log.i("ALARM_RECEIVER", "visita: $id")
-                val visitService = VisitService.create()
                 val tag = id + "_" + MODIFIED_VISIT
                 val visitGson = preferences[tag, ""]
                 val gson = Gson()
@@ -64,6 +63,17 @@ suspend fun performSync(context: Context): Boolean {
     val ids = preferences?.get("VISIT_IDS", "")
     if (ids == "")
         preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
+
+    try {
+        val res=visitService.getHome("Bearer "+jwt)
+        if (res.code()==401||res.code()==403) {
+            preferences!!["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
+            result=false
+            Log.i("ALARM_RECEIVER", "onReceive: 401 o 403")
+        }
+    }catch (e:Exception){
+
+    }
 
     return result
 }

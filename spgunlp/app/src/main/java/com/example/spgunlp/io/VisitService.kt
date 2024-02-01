@@ -35,6 +35,8 @@ interface VisitService {
     @PUT("visitas/{id}")
     suspend fun updateVisitById(@Header("Authorization") token: String, @Path("id") visitId: Int, @Body visit: AppVisitUpdate): Response<AppVisit>
 
+    @GET("home/")
+    suspend fun getHome(@Header("Authorization") token: String): Response<List<String>>
 
     companion object Factory {
         fun create(): VisitService {
