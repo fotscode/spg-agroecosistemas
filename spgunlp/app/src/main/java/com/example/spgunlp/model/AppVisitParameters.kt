@@ -1,17 +1,24 @@
 package com.example.spgunlp.model
 
 import android.os.Parcelable
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+@Entity(tableName = "parameters_table")
 @Parcelize
 data class AppVisitParameters (
     val aspiracionesFamiliares: String?,
     val comentarios: String?,
     val cumple: Boolean?,
+    @PrimaryKey
     val id: Int?,
     val nombre: String?,
+    @Embedded
     val parametro: Parameter?,
-    val sugerencias: String?
+    val sugerencias: String?,
+    val visitId: Int?,
 ): Parcelable {
     @Parcelize
     data class Parameter(

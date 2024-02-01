@@ -4,23 +4,37 @@ import android.content.Context
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.spgunlp.daos.PerfilDao
 import com.example.spgunlp.daos.PoligonoDao
+import com.example.spgunlp.daos.VisitUpdateDao
+import com.example.spgunlp.daos.VisitsDao
+import com.example.spgunlp.model.AppImage
+import com.example.spgunlp.model.AppUser
+import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.Perfil
 import com.example.spgunlp.model.Poligono
+import com.example.spgunlp.model.VisitUpdate
 
 @Database(
-    entities = [Poligono::class, Perfil::class],
-    version = 3,
+    entities = [Poligono::class, Perfil::class, AppVisit::class, VisitUpdate::class, AppImage::class, AppUser::class, AppVisitParameters::class],
+    version = 4,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = 3)
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4)
     ]
+)
+@TypeConverters(
+    Converter::class,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun poligonoDao(): PoligonoDao
     abstract fun perfilDao(): PerfilDao
+    abstract fun visitsDao(): VisitsDao
+    abstract fun visitUpdatesDao(): VisitUpdateDao
 
     companion object {
         @Volatile

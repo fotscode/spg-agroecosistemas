@@ -2,7 +2,6 @@ package com.example.spgunlp
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +15,7 @@ import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -28,6 +28,7 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.VisitsDBViewModel
 import com.example.spgunlp.util.VisitsViewModel
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
@@ -48,11 +49,16 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    private lateinit var visitsDBViewModel: VisitsDBViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val scheduler = AndroidAlarmScheduler(this)
         scheduler.schedule()
+
+        // init viewmodel
+        visitsDBViewModel = ViewModelProvider(this).get(VisitsDBViewModel::class.java)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -214,6 +220,8 @@ class MainActivity : AppCompatActivity() {
             if (response.isSuccessful && body != null) {
                 visits = body
                 updatePreferences(context)
+                visitsDBViewModel.insertVisits(visits)
+                visitsDBViewModel.updateVisits(visits)
                 visitsViewModel.saveVisits(visits)
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {

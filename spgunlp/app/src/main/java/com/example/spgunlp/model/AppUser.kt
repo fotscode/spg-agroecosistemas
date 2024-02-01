@@ -1,18 +1,24 @@
 package com.example.spgunlp.model
 
 import android.os.Parcelable
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
 val PROFILE="PROFILE"
-val LAST_UPDATE_PROFILE="LAST_UPDATE_PROFILE"
+@Entity(tableName = "users_table")
 @Parcelize
 data class AppUser(
+    @PrimaryKey
     val id: Int?,
     val email: String?,
+    @Ignore
     val password: String?,
     val celular: String?,
     val nombre: String?,
     val organizacion: String?,
+    @Ignore
     val posicion: Int?,
     val posicionResponse: Posicion?,
     val roles: List<Rol>?,

@@ -15,7 +15,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import okhttp3.ResponseBody
 
 suspend fun performSync(context: Context): Boolean {
     val preferences = context?.let { PreferenceHelper.defaultPrefs(it) }

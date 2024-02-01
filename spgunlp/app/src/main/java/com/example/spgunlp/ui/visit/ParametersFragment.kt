@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.R
@@ -19,9 +20,12 @@ import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.model.MODIFIED_VISIT
 import com.example.spgunlp.ui.BaseFragment
+import com.example.spgunlp.ui.maps.PoligonoViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.VisitChangesDBViewModel
+import com.example.spgunlp.util.VisitsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -38,6 +42,9 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     private val parameterViewModel: ParametersViewModel by activityViewModels()
     private val visitViewModel: VisitViewModel by activityViewModels()
     private val bundleViewModel: BundleViewModel by activityViewModels()
+    private val visitsViewModel: VisitsViewModel by activityViewModels()
+
+    private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
 
     private var _binding: FragmentParametersBinding? = null
 
@@ -57,6 +64,9 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // init viewmodel
+        visitUpdateViewModel = ViewModelProvider(this).get(VisitChangesDBViewModel::class.java)
 
         if (bundleViewModel.isParametersStateEmpty()) {
             parametersList.clear()
@@ -175,7 +185,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                         "Los cambios fueron guardados pero no se pudo sincronizar con el servidor",
                         Toast.LENGTH_SHORT
                     ).show()
-                    updatePreferences()
+                    saveUserChanges()
                     preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
                 }
             } catch (e: Exception) {
@@ -184,7 +194,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                     "Los cambios fueron guardados pero no se pudo sincronizar con el servidor",
                     Toast.LENGTH_SHORT
                 ).show()
-                updatePreferences()
+                saveUserChanges()
                 preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.yellow)
             }
 
@@ -256,27 +266,17 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
     }
 
-    private fun updatePreferences() {
+    private fun saveUserChanges() {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        val visitId = visitViewModel.id.value ?: 0
         val visitToUpdate = getAppVisitUpdate()
-        val gson = Gson()
-        val visitGson = gson.toJson(visitToUpdate)
-        val label = visitId.toString() + "_" + MODIFIED_VISIT
-        preferences[label] = visitGson
-        preferences["VISIT_IDS"] = visitId.toString() + "," + preferences["VISIT_IDS", ""]
-        //updateVisits(visitToUpdate) TODO store changes in DB
-    }
+        val email: String = preferences["email"]
 
-    private fun updateVisits(visitUpdate: AppVisitUpdate) {
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        val visitsGson = preferences["LIST_VISITS", ""]
-        val type = object : TypeToken<List<AppVisit>>() {}.type
-        val visits = Gson().fromJson<List<AppVisit>>(visitsGson, type)
+        visitUpdateViewModel.addVisit(visitToUpdate, email)
+        val visits = visitsViewModel.getVisits()
         val visitId = visitViewModel.id.value ?: 0
-        val visitFind = visits.find { it.id == visitId }
+        val visitFind = visits?.find { it.id == visitId }
         if (visitFind != null) {
-            val newVisit = createVisit(visitFind, visitUpdate)
+            val newVisit = createVisit(visitFind, visitToUpdate)
             (activity as VisitActivity).updateVisit(newVisit)
         }
     }
@@ -305,6 +305,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         }
 
         return AppVisit(
+            visit.id,
             visit.comentarioImagenes,
             visit.estadoVisita,
             visit.fechaActualizacion,
@@ -315,7 +316,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
             visit.quintaResponse,
             visit.usuarioOperacion,
             newParameters,
-            visit.id
         )
     }
 }

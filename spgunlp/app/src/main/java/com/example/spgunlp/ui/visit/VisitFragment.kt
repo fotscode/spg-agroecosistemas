@@ -11,7 +11,6 @@ import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.maps.MapActivity
-import com.example.spgunlp.util.PreferenceHelper
 
 class VisitFragment : BaseFragment() {
 

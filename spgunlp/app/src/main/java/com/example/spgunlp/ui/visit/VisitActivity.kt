@@ -28,6 +28,7 @@ import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.VisitsDBViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
@@ -54,6 +55,7 @@ class VisitActivity : AppCompatActivity() {
     private val parametersViewModel: ParametersViewModel by viewModels()
     private val messagesViewModel: MessagesViewModel by viewModels()
     private val bundleViewModel: BundleViewModel by viewModels()
+    private lateinit var visitsDBViewModel: VisitsDBViewModel
     private lateinit var sender:AppMessage.ChatUser
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -86,6 +88,7 @@ class VisitActivity : AppCompatActivity() {
         this.visit = visit
         updateVisitViewModel()
         updateParametersViewModel()
+        visitsDBViewModel.updateVisit(this.visit)
 
         val preferences = PreferenceHelper.defaultPrefs(this)
         preferences["LAST_UPDATE"] = Date().time
@@ -113,6 +116,7 @@ class VisitActivity : AppCompatActivity() {
         val parametersFiltered = parameterValues?.filter { it?.parametro?.habilitado == true }
         parametersViewModel.setParameters(parametersFiltered)
     }
+
 
     fun updateMessagesViewModel(principleId: Int){
         try{
