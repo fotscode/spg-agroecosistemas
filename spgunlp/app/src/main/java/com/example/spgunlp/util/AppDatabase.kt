@@ -16,9 +16,10 @@ import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.Perfil
 import com.example.spgunlp.model.Poligono
 import com.example.spgunlp.model.VisitUpdate
+import com.example.spgunlp.model.VisitUserJoin
 
 @Database(
-    entities = [Poligono::class, Perfil::class, AppVisit::class, VisitUpdate::class, AppImage::class, AppUser::class, AppVisitParameters::class],
+    entities = [Poligono::class, Perfil::class, AppVisit::class, VisitUpdate::class, AppImage::class, AppUser::class, AppVisitParameters::class, VisitUserJoin::class],
     version = 4,
     exportSchema = true,
     autoMigrations = [

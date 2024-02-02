@@ -21,6 +21,7 @@ import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.ui.active.ActiveViewModel
 import com.example.spgunlp.ui.active.VisitAdapter
 import com.example.spgunlp.ui.active.VisitClickListener
+import com.example.spgunlp.ui.visit.BundleViewModel
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -78,4 +79,26 @@ fun calendar(
             )
         }
     }
+}
+suspend fun getPrinciples(
+    header: String,
+    visitService: VisitService,
+    viewModel: BundleViewModel
+): List<AppVisitParameters.Principle> {
+    var principles: List<AppVisitParameters.Principle> = emptyList()
+    try {
+        val response = visitService.getPrinciples(header)
+        val body = response.body()
+        if (response.isSuccessful && body != null) {
+            principles = body
+            viewModel.updatePrinciplesList(principles)
+            Log.i("SPGUNLP_TAG", "getPrinciples: made api call and was successful")
+        } else if (response.code() == 401 || response.code() == 403) {
+            principles = viewModel.getPrinciplesList()!!
+        }
+    } catch (e: Exception) {
+        Log.e("SPGUNLP_TAG", e.message.toString())
+        principles = viewModel.getPrinciplesList()!!
+    }
+    return principles
 }

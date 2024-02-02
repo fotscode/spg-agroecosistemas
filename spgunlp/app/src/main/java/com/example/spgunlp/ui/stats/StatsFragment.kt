@@ -80,7 +80,7 @@ class StatsFragment : BaseFragment() {
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
             val principles =
-                getPrinciples(header, requireContext(), visitService, false, bundleViewModel)
+                getPrinciples(header, visitService, bundleViewModel)
 
             activePrinciples(principles)
             percentageList = MutableList(principlesList.size) { 0f }

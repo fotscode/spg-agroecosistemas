@@ -46,4 +46,17 @@ data class AppUser(
         null,
         null,
         null)
+
+    constructor(id: Int, email: String, celular: String, nombre: String, organizacion: String, posicionResponse: Posicion, roles: List<Rol>, estado: Boolean) : this(
+        id,
+        email,
+        null,
+        celular,
+        nombre,
+        organizacion,
+        null,
+        posicionResponse,
+        roles,
+        estado
+    )
 }

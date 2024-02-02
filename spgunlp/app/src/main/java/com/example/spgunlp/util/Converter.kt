@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import com.example.spgunlp.model.AppImage
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
+import com.example.spgunlp.model.Posicion
 import com.example.spgunlp.model.Rol
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -19,6 +20,17 @@ class Converter {
     fun toImagesList(images: String): List<AppImage>{
         val listType = object : TypeToken<List<AppImage>>() {}.type
         return Gson().fromJson(images, listType)
+    }
+
+    @TypeConverter
+    fun fromPosicion(posicion: Posicion): String {
+        return Gson().toJson(posicion)
+    }
+
+    @TypeConverter
+    fun toPosicion(posicion: String): Posicion{
+        val type = object : TypeToken<Posicion>() {}.type
+        return Gson().fromJson(posicion, type)
     }
 
     @TypeConverter

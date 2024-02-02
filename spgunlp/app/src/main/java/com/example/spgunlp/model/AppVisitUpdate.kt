@@ -1,5 +1,6 @@
 package com.example.spgunlp.model
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -20,7 +21,7 @@ data class AppVisitUpdate(
 
 @Entity(tableName = "changes_table")
 data class VisitUpdate(
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey
     val email: String,
     val visit: AppVisitUpdate
 ){}

@@ -10,18 +10,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class VisitsDBViewModel(application: Application):AndroidViewModel(application) {
-    private val getVisits: LiveData<List<AppVisit>>
+    //private val getVisits: LiveData<List<AppVisit>>
     private val repository: VisitsRepository
 
     init {
         val visitsDao = AppDatabase.getDatabase(application).visitsDao()
         repository = VisitsRepository(visitsDao)
-        getVisits = repository.getAllVisits()
+        //getVisits = repository.getAllVisits()
     }
 
-    fun addVisit(visit: AppVisit){
+    fun insertVisit(visit: AppVisit){
         viewModelScope.launch(Dispatchers.IO){
-            repository.addVisit(visit)
+            repository.insertVisit(visit)
         }
     }
 
@@ -52,7 +52,7 @@ class VisitsDBViewModel(application: Application):AndroidViewModel(application) 
     fun getAllVisits(): LiveData<List<AppVisit>>{
         return repository.getAllVisits()
     }
-    fun getVisitById(id: Int): LiveData<AppVisit?>{
+    fun getVisitById(id: Int): LiveData<AppVisit>{
         return repository.getVisitById(id)
     }
 

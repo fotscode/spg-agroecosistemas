@@ -29,12 +29,26 @@ data class AppVisit(
     val imagenes: List<AppImage>?,
     @Ignore
     val integrantes: List<AppUser>?,
-    @Embedded
+    @Embedded(prefix = "quinta_")
     val quintaResponse: AppQuinta?,
     val usuarioOperacion: String?,
     @Ignore
     val visitaParametrosResponse: List<AppVisitParameters>?,
 ): Parcelable {
+    constructor(id:Int,comentarioImagenes: String,estadoVisita: String,fechaActualizacion: String,fechaCreacion: String,fechaVisita: String,quintaResponse: AppQuinta,usuarioOperacion: String):
+            this(
+                id,
+                comentarioImagenes,
+                estadoVisita,
+                fechaActualizacion,
+                fechaCreacion,
+                fechaVisita,
+                null,
+                null,
+                quintaResponse,
+                usuarioOperacion,
+                null
+            )
 }
 @Parcelize
 data class AppQuinta (
@@ -55,17 +69,45 @@ data class AppQuinta (
 ): Parcelable {
 }
 
-@Entity(tableName = "visit_user_join",
-    primaryKeys = ["visitId", "userId"],
-    foreignKeys = [
-        ForeignKey(entity = AppVisit::class, parentColumns = ["id"], childColumns = ["visitId"]),
-        ForeignKey(entity = AppUser::class, parentColumns = ["id"], childColumns = ["userId"])
-    ]
-)
+@Entity(tableName = "visit_user_join", primaryKeys = ["visitId", "userId"],)
 data class VisitUserJoin(
     val visitId: Int,
     val userId: Int
 )
+
+
+/*
+data class VisitWithMembers(
+    @Embedded
+    val visit: AppVisit,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(VisitUserJoin::class, parentColumn = "visitId", entityColumn = "userId")
+    )
+    val integrantes: List<AppUser>,
+)
+
+data class VisitWithMembersAndImages(
+   @Embedded
+   val visit: VisitWithMembers,
+   @Relation(
+       parentColumn = "id",
+       entityColumn = "visitId"
+   )
+   val imagenes: List<AppImage>,
+)
+
+data class VisitWithImagesMembersAndParameters(
+    @Embedded
+    val visit: VisitWithMembersAndImages,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "visitId"
+    )
+    val parameters: List<AppVisitParameters>
+)
+*/
 
 data class VisitWithImagesMembersAndParameters(
     @Embedded
@@ -78,7 +120,7 @@ data class VisitWithImagesMembersAndParameters(
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(VisitUserJoin::class)
+        associateBy = Junction(VisitUserJoin::class, parentColumn = "visitId", entityColumn = "userId")
     )
     val integrantes: List<AppUser>,
     @Relation(
@@ -88,4 +130,3 @@ data class VisitWithImagesMembersAndParameters(
     val parameters: List<AppVisitParameters>
 ){
 }
-

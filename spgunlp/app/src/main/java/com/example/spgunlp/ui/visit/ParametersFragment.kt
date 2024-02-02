@@ -298,7 +298,8 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                         param.parametro?.id,
                         param.nombre,
                         param.parametro,
-                        parameterUpdate.sugerencias
+                        parameterUpdate.sugerencias,
+                        visit.id
                     )
                 )
             }

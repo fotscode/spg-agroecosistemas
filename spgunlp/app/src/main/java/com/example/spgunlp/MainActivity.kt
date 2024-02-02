@@ -220,6 +220,7 @@ class MainActivity : AppCompatActivity() {
             if (response.isSuccessful && body != null) {
                 visits = body
                 updatePreferences(context)
+                //TODO manage DB updates
                 visitsDBViewModel.insertVisits(visits)
                 visitsDBViewModel.updateVisits(visits)
                 visitsViewModel.saveVisits(visits)

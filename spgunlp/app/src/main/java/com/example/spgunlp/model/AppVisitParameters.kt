@@ -15,10 +15,10 @@ data class AppVisitParameters (
     @PrimaryKey
     val id: Int?,
     val nombre: String?,
-    @Embedded
+    @Embedded(prefix = "parameter_")
     val parametro: Parameter?,
     val sugerencias: String?,
-    val visitId: Int?,
+    var visitId: Int?,
 ): Parcelable {
     @Parcelize
     data class Parameter(

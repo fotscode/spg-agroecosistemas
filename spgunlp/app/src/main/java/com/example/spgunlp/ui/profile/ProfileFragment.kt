@@ -1,21 +1,16 @@
 package com.example.spgunlp.ui.profile
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentProfileBinding
 import com.example.spgunlp.io.UserService
-import com.example.spgunlp.model.AppUser
-import com.example.spgunlp.model.LAST_UPDATE_PROFILE
-import com.example.spgunlp.model.PROFILE
 import com.example.spgunlp.model.Perfil
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.login.LoginFragment
@@ -23,11 +18,8 @@ import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.util.Date
 
 class ProfileFragment : BaseFragment() {
     private val userService: UserService by lazy {
