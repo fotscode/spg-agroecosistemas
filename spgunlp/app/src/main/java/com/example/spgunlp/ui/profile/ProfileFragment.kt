@@ -57,9 +57,10 @@ class ProfileFragment : BaseFragment() {
 
         populateProfile()
 
-        binding.btnCerrarSesion.setOnClickListener() {
-            performLogout()
-        }
+        if (_binding!=null)
+            binding.btnCerrarSesion.setOnClickListener() {
+                performLogout()
+            }
 
         return root
     }
@@ -83,7 +84,8 @@ class ProfileFragment : BaseFragment() {
                             fillProfile(perfil)
                             mProfileViewModel.addPerfil(perfil)
                         }else{
-                            binding.profileData.visibility = View.GONE
+                            if (_binding!=null)
+                                binding.profileData.visibility = View.GONE
                         }
                     }
                 }
@@ -154,13 +156,15 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun fillProfile(perfil: Perfil){
-        binding.profileName.text = perfil.nombre
-        binding.profilePosition.text = perfil.posicion
-        binding.profileEmail.text = perfil.email
-        binding.profileCellphone.text = perfil.celular
-        binding.profileOrganization.text = perfil.organizacion
-        binding.profileRole.text = if (perfil.rol == "ROLE_ADMIN") "Administrador" else "Usuario"
-        binding.profileData.visibility = View.VISIBLE
+        if (_binding!=null){
+            binding.profileName.text = perfil.nombre
+            binding.profilePosition.text = perfil.posicion
+            binding.profileEmail.text = perfil.email
+            binding.profileCellphone.text = perfil.celular
+            binding.profileOrganization.text = perfil.organizacion
+            binding.profileRole.text = if (perfil.rol == "ROLE_ADMIN") "Administrador" else "Usuario"
+            binding.profileData.visibility = View.VISIBLE
+        }
     }
     private fun makeLoginPopup(){
 

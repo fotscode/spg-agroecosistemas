@@ -139,9 +139,10 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
             val header = "Bearer $jwt"
             val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
             inactiveVisits(visits)
-            updateRecycler(
-                visitLayout.activeList, visitList, activity, this@InactiveFragment
-            )
+            if (_binding != null)
+                updateRecycler(
+                    visitLayout.activeList, visitList, activity, this@InactiveFragment
+                )
         }
     }
 

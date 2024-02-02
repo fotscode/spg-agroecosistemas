@@ -54,17 +54,18 @@ class StatsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (_binding != null) {
+            binding.approvedVisitsCard.setOnClickListener() {
+                onClickCardView(binding.approvedVisitsCard)
+            }
 
-        binding.approvedVisitsCard.setOnClickListener() {
-            onClickCardView(binding.approvedVisitsCard)
-        }
+            binding.approvedPrinciplesCard.setOnClickListener() {
+                onClickCardView(binding.approvedPrinciplesCard)
+            }
 
-        binding.approvedPrinciplesCard.setOnClickListener(){
-            onClickCardView(binding.approvedPrinciplesCard)
-        }
-
-        binding.approvedPrinciplesGrid.setOnClickListener(){
-            onClickCardView(binding.approvedPrinciplesCard)
+            binding.approvedPrinciplesGrid.setOnClickListener() {
+                onClickCardView(binding.approvedPrinciplesCard)
+            }
         }
 
         // observes the jwt changes
@@ -102,18 +103,23 @@ class StatsFragment : BaseFragment() {
                 (activity as MainActivity).getVisits(header, requireContext(), visitService, false)
             visits.forEach {
                 cumpleList = MutableList(principlesList.size) { true }
-                if (it.visitaParametrosResponse != null){
-                    it.visitaParametrosResponse.forEach{
-                        cumpleList[it.parametro?.principioAgroecologico?.id!!-1] = cumpleList[it.parametro?.principioAgroecologico?.id!!-1] && it.cumple!!
+                if (it.visitaParametrosResponse != null) {
+                    it.visitaParametrosResponse.forEach {
+                        cumpleList[it.parametro?.principioAgroecologico?.id!! - 1] =
+                            cumpleList[it.parametro?.principioAgroecologico?.id!! - 1] && it.cumple!!
                     }
-                    cumpleList.forEachIndexed { index,cumple->
-                        percentageList[index] = if (cumple) percentageList[index] + 1f/visits.size else percentageList[index]
+                    cumpleList.forEachIndexed { index, cumple ->
+                        percentageList[index] =
+                            if (cumple) percentageList[index] + 1f / visits.size else percentageList[index]
                     }
-                    approvedVisitsPercentage = if (cumpleList.all { it }) approvedVisitsPercentage + 1f/visits.size else approvedVisitsPercentage
+                    approvedVisitsPercentage =
+                        if (cumpleList.all { it }) approvedVisitsPercentage + 1f / visits.size else approvedVisitsPercentage
                 }
             }
-            binding.percentageVisitsApproved.text= "${(approvedVisitsPercentage*100).format(2)}%"
-            updateRecycler(principlesList,getFormattedPercentages(percentageList))
+            if (_binding!=null){
+                binding.percentageVisitsApproved.text = "${(approvedVisitsPercentage * 100).format(2)}%"
+                updateRecycler(principlesList, getFormattedPercentages(percentageList))
+            }
         }
     }
 
@@ -131,7 +137,7 @@ class StatsFragment : BaseFragment() {
     ) {
         binding.approvedPrinciplesGrid.apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter = StatsAdapter(principles,percentages)
+            adapter = StatsAdapter(principles, percentages)
         }
     }
 
@@ -142,26 +148,26 @@ class StatsFragment : BaseFragment() {
         _binding = null
     }
 
-    private fun getFormattedPercentages(percentages: List<Float>):List<String>{
+    private fun getFormattedPercentages(percentages: List<Float>): List<String> {
         val formattedList = mutableListOf<String>()
-        percentages.forEach{
-            formattedList.add(String.format("%.2f", it*100)+"%")
+        percentages.forEach {
+            formattedList.add(String.format("%.2f", it * 100) + "%")
         }
         return formattedList
     }
 
-    private fun onClickCardView(cardView:MaterialCardView){
-            cardView.invalidate()
-            ObjectAnimator.ofArgb(
-                cardView,
-                "strokeColor",
-                getColor(R.color.purple_200),
-                getColor(R.color.green),
-                getColor(R.color.teal_200),
-                getColor(R.color.purple_200),
-            ).apply {
-                duration = 3000
-                start()
-            }
+    private fun onClickCardView(cardView: MaterialCardView) {
+        cardView.invalidate()
+        ObjectAnimator.ofArgb(
+            cardView,
+            "strokeColor",
+            getColor(R.color.purple_200),
+            getColor(R.color.green),
+            getColor(R.color.teal_200),
+            getColor(R.color.purple_200),
+        ).apply {
+            duration = 3000
+            start()
+        }
     }
 }
