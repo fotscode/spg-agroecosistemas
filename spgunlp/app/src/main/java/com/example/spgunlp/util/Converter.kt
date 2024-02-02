@@ -23,23 +23,25 @@ class Converter {
     }
 
     @TypeConverter
-    fun fromPosicion(posicion: Posicion): String {
+    fun fromPosicion(posicion: Posicion?): String {
         return Gson().toJson(posicion)
     }
 
     @TypeConverter
-    fun toPosicion(posicion: String): Posicion{
-        val type = object : TypeToken<Posicion>() {}.type
-        return Gson().fromJson(posicion, type)
+    fun toPosicion(posicion: String): Posicion?{
+        return run {
+            val type = object : TypeToken<Posicion>() {}.type
+            Gson().fromJson(posicion, type)
+        }
     }
 
     @TypeConverter
-    fun fromRolesList(roles: List<Rol>): String {
+    fun fromRolesList(roles: List<Rol>?): String {
         return Gson().toJson(roles)
     }
 
     @TypeConverter
-    fun toRolesList(roles: String): List<Rol>{
+    fun toRolesList(roles: String): List<Rol>?{
         val listType = object : TypeToken<List<Rol>>() {}.type
         return Gson().fromJson(roles, listType)
     }

@@ -13,7 +13,6 @@ import kotlinx.parcelize.Parcelize
 
 val VISIT_ITEM="VISIT_ITEM"
 val IS_ACTIVE="IS_ACTIVE"
-val MODIFIED_VISIT="MODIFIED_VISIT"
 
 @Entity(tableName = "visits_table")
 @Parcelize

@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 4,
-    "identityHash": "08cbe1f05682d706a3c37a13dd5c49d0",
+    "version": 6,
+    "identityHash": "22456bfd8c752baeaff40e85c29ad8c4",
     "entities": [
       {
         "tableName": "poligonos_table",
@@ -234,7 +234,7 @@
       },
       {
         "tableName": "changes_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`email` TEXT NOT NULL, `visit` TEXT NOT NULL, `visitId` INTEGER NOT NULL, PRIMARY KEY(`email`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`email` TEXT NOT NULL, `visit` TEXT NOT NULL, `visitId` INTEGER NOT NULL, PRIMARY KEY(`email`, `visitId`))",
         "fields": [
           {
             "fieldPath": "email",
@@ -258,7 +258,8 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "email"
+            "email",
+            "visitId"
           ]
         },
         "indices": [],
@@ -481,7 +482,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '08cbe1f05682d706a3c37a13dd5c49d0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '22456bfd8c752baeaff40e85c29ad8c4')"
     ]
   }
 }

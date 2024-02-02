@@ -18,16 +18,19 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.spgunlp.databinding.ActivityMainBinding
 import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.model.AppVisitUpdate
+import com.example.spgunlp.model.VisitUpdate
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
 import com.example.spgunlp.util.VisitsViewModel
 import com.example.spgunlp.util.performLogin
@@ -50,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var visitsDBViewModel: VisitsDBViewModel
+    private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         // init viewmodel
         visitsDBViewModel = ViewModelProvider(this).get(VisitsDBViewModel::class.java)
+        visitUpdateViewModel = ViewModelProvider(this).get(VisitChangesDBViewModel::class.java)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -66,17 +71,6 @@ class MainActivity : AppCompatActivity() {
 
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.navigation_active,
-                R.id.navigation_inactive,
-                R.id.navigation_profile,
-                R.id.navigation_stats
-            )
-        )
-        //setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
         binding.fabSync.setOnClickListener() {
@@ -221,8 +215,10 @@ class MainActivity : AppCompatActivity() {
                 visits = body
                 updatePreferences(context)
                 //TODO manage DB updates
+                //TODO remove Visit Entity
                 visitsDBViewModel.insertVisits(visits)
                 visitsDBViewModel.updateVisits(visits)
+                visits = updateVisitsWithLocalChanges(context, visits)
                 visitsViewModel.saveVisits(visits)
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
@@ -233,5 +229,61 @@ class MainActivity : AppCompatActivity() {
             visits = visitsViewModel.getVisits() ?: emptyList()
         }
         return visits
+    }
+
+    private fun updateVisitsWithLocalChanges(context: Context, visits: List<AppVisit>): List<AppVisit> {
+        val visitsUpdated = mutableListOf<AppVisit>()
+        val preferences = PreferenceHelper.defaultPrefs(context)
+        val email: String = preferences["email"]
+        val visitChanges = visitUpdateViewModel.getVisitsByEmail(email)
+        visits.forEach { visit ->
+            val visitFound = visitChanges?.find {
+                it.visitId == visit.id
+            }
+            if (visitFound != null) {
+                visitsUpdated.add(updateVisitWithLocalVisitUpdate(visit, visitFound.visit))
+            } else {
+                visitsUpdated.add(visit)
+            }
+        }
+        return visitsUpdated
+    }
+
+    private fun updateVisitWithLocalVisitUpdate(visit: AppVisit, visitUpdate: AppVisitUpdate): AppVisit{
+        val newParameters = mutableListOf<AppVisitParameters>()
+        visit.visitaParametrosResponse?.forEach {parameter ->
+           val parFound = visitUpdate.parametros?.find { it.parametroId == parameter.id }
+            if (parFound != null){
+                newParameters.add(
+                    AppVisitParameters(
+                        parFound.aspiracionesFamiliares,
+                        parFound.comentarios,
+                        parFound.cumple,
+                        parameter.parametro?.id,
+                        parameter.nombre,
+                        parameter.parametro,
+                        parFound.sugerencias,
+                        visit.id
+                    )
+                )
+            } else {
+                newParameters.add(parameter)
+            }
+
+        }
+
+        return AppVisit(
+            visit.id,
+            visit.comentarioImagenes,
+            visit.estadoVisita,
+            visit.fechaActualizacion,
+            visit.fechaCreacion,
+            visitUpdate.fechaVisita,
+            visit.imagenes,
+            visit.integrantes,
+            visit.quintaResponse,
+            visit.usuarioOperacion,
+            newParameters
+        )
     }
 }

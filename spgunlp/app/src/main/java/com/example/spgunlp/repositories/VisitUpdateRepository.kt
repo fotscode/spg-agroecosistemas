@@ -14,7 +14,11 @@ class VisitUpdateRepository(private val visitUpdateDao: VisitUpdateDao) {
         visitUpdateDao.updateVisit(visit)
     }
 
-    fun getVisitsByEmail(email: String): List<AppVisitUpdate>? {
+    fun getVisitsByEmail(email: String): List<VisitUpdate>? {
         return visitUpdateDao.getVisitsByEmail(email).value
+    }
+
+    suspend fun deleteVisitById(id: Int){
+        visitUpdateDao.deleteVisitById(id)
     }
 }

@@ -55,7 +55,6 @@ class VisitActivity : AppCompatActivity() {
     private val parametersViewModel: ParametersViewModel by viewModels()
     private val messagesViewModel: MessagesViewModel by viewModels()
     private val bundleViewModel: BundleViewModel by viewModels()
-    private lateinit var visitsDBViewModel: VisitsDBViewModel
     private lateinit var sender:AppMessage.ChatUser
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -63,7 +62,7 @@ class VisitActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityVisitBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        getSupportActionBar()?.hide()
+        supportActionBar?.hide()
 
         supportFragmentManager.findFragmentById(active_visit);
 
@@ -88,7 +87,6 @@ class VisitActivity : AppCompatActivity() {
         this.visit = visit
         updateVisitViewModel()
         updateParametersViewModel()
-        visitsDBViewModel.updateVisit(this.visit)
 
         val preferences = PreferenceHelper.defaultPrefs(this)
         preferences["LAST_UPDATE"] = Date().time

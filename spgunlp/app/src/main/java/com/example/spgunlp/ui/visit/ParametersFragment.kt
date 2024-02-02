@@ -18,17 +18,14 @@ import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
-import com.example.spgunlp.model.MODIFIED_VISIT
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.maps.PoligonoViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.VisitChangesDBViewModel
+import com.example.spgunlp.util.VisitsDBViewModel
 import com.example.spgunlp.util.VisitsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -45,6 +42,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     private val visitsViewModel: VisitsViewModel by activityViewModels()
 
     private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
+    private lateinit var visitsDBViewModel: VisitsDBViewModel
 
     private var _binding: FragmentParametersBinding? = null
 
@@ -67,6 +65,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
         // init viewmodel
         visitUpdateViewModel = ViewModelProvider(this).get(VisitChangesDBViewModel::class.java)
+        visitsDBViewModel = ViewModelProvider(this).get(VisitsDBViewModel::class.java)
 
         if (bundleViewModel.isParametersStateEmpty()) {
             parametersList.clear()
@@ -177,6 +176,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                         Toast.LENGTH_SHORT
                     ).show()
                     (activity as VisitActivity).updateVisit(body)
+                    visitsDBViewModel.updateVisit(body)
                     preferences["COLOR_FAB"] =
                         ContextCompat.getColor(requireContext(), R.color.green)
                 } else {
@@ -271,7 +271,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         val visitToUpdate = getAppVisitUpdate()
         val email: String = preferences["email"]
 
-        visitUpdateViewModel.addVisit(visitToUpdate, email)
         val visits = visitsViewModel.getVisits()
         val visitId = visitViewModel.id.value ?: 0
         val visitFind = visits?.find { it.id == visitId }
@@ -279,6 +278,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
             val newVisit = createVisit(visitFind, visitToUpdate)
             (activity as VisitActivity).updateVisit(newVisit)
         }
+        visitUpdateViewModel.addVisit(visitToUpdate, email, visitId)
     }
 
     private fun createVisit(visit:AppVisit,update: AppVisitUpdate): AppVisit {

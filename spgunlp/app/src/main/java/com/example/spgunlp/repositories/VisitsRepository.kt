@@ -1,5 +1,6 @@
 package com.example.spgunlp.repositories
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.spgunlp.daos.VisitsDao
@@ -40,24 +41,29 @@ class VisitsRepository(private val visitsDao: VisitsDao) {
     }
 
     suspend fun updateVisit(visit: AppVisit){
-        visitsDao.updateVisit(visit)
-        visit.imagenes?.let { images ->
-            images.forEach {
-                it.visitId = visit.id
+        try {
+            visitsDao.updateVisit(visit)
+            visit.imagenes?.let { images ->
+                images.forEach {
+                    it.visitId = visit.id
+                }
+                visitsDao.updateImagesList(images)
             }
-            visitsDao.updateImagesList(images)
-        }
-        visit.integrantes?.let { members ->
-            visitsDao.updateUsersList(members)
-            members.forEach {
-                visitsDao.updateVisitUserJoin(VisitUserJoin(visit.id!!, it.id!!))
+            visit.integrantes?.let { members ->
+                visitsDao.updateUsersList(members)
+                members.forEach {
+                    visitsDao.updateVisitUserJoin(VisitUserJoin(visit.id!!, it.id!!))
+                }
             }
-        }
-        visit.visitaParametrosResponse?.let { parameters ->
-            parameters.forEach {
-                it.visitId = visit.id
+            visit.visitaParametrosResponse?.let { parameters ->
+                parameters.forEach {
+                    it.visitId = visit.id
+                }
+                visitsDao.updateParametersList(parameters)
             }
-            visitsDao.updateParametersList(parameters)
+        } catch (e: Exception) {
+            Log.e("SPGUNLP_INFO", e.message.toString())
+            Log.e("SPGUNLP_INFO", e.cause.toString())
         }
     }
 

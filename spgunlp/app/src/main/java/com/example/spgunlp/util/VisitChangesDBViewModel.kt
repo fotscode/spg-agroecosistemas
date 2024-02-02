@@ -22,15 +22,21 @@ class VisitChangesDBViewModel(application: Application):AndroidViewModel(applica
         repository = VisitUpdateRepository(visitUpdateDao)
     }
 
-    fun addVisit(visit: AppVisitUpdate, email: String){
+    fun addVisit(visit: AppVisitUpdate, email: String, id: Int){
         viewModelScope.launch(Dispatchers.IO){
-            val visitUpdate = VisitUpdate(email, visit)
+            val visitUpdate = VisitUpdate(email, visit, id)
             repository.addVisit(visitUpdate)
         }
     }
 
-    fun getVisitsByEmail(email: String): List<AppVisitUpdate>?{
+    fun getVisitsByEmail(email: String): List<VisitUpdate>?{
         return repository.getVisitsByEmail(email)
+    }
+
+    fun deleteVisitById(id: Int) {
+        viewModelScope.launch(Dispatchers.IO){
+            repository.deleteVisitById(id)
+        }
     }
 
 }

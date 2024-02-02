@@ -9,59 +9,44 @@ import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.io.response.AuthErrorResponse
 import com.example.spgunlp.model.AppUser
-import com.example.spgunlp.model.AppVisitUpdate
-import com.example.spgunlp.model.MODIFIED_VISIT
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 
 suspend fun performSync(context: Context): Boolean {
-    val preferences = context?.let { PreferenceHelper.defaultPrefs(it) }
-    val idVisits = preferences?.get("VISIT_IDS", "")?.split(",")
+    val preferences = context.let { PreferenceHelper.defaultPrefs(it) }
+    val email: String = preferences["email"]
+
+    val dao = AppDatabase.getDatabase(context).visitUpdatesDao()
+    val visits = dao.getVisitsByEmail(email).value
     Log.i("ALARM_RECEIVER", "onReceive, viendo si hay visitas")
-    val jwt = preferences?.get("jwt", "")
-    var stringToDelete = ""
+    val jwt = preferences["jwt", ""]
     var result = true
-    if (idVisits != null && jwt != null && jwt != "") {
-        for (id in idVisits) {
-            if (id != "") {
-                Log.i("ALARM_RECEIVER", "visita: $id")
-                val visitService = VisitService.create()
-                val tag = id + "_" + MODIFIED_VISIT
-                val visitGson = preferences[tag, ""]
-                val gson = Gson()
-                val type = object : TypeToken<AppVisitUpdate>() {}.type
-                if (visitGson != "") {
-                    val visitToUpdate = gson.fromJson<AppVisitUpdate>(visitGson, type)
-                    try {
-                        val header = "Bearer $jwt"
-                        val response =
-                            visitService.updateVisitById(header, id.toInt(), visitToUpdate)
-                        if (response.isSuccessful) {
-                            Log.i("ALARM_RECEIVER", "Actualizado: $id")
-                            preferences[tag] = ""
-                            stringToDelete += "$id,"
-                        } else {
-                            result = false
-                            preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
-                            Log.i("ALARM_RECEIVER", "Error actualizando: $id")
-                        }
-                    } catch (e: Exception) {
-                        result = false
-                        preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
-                        Log.i("ALARM_RECEIVER", "onReceive: $e")
-                    }
+    if (visits != null && jwt != "") {
+        val visitService = VisitService.create()
+        val header: String = "Bearer $jwt"
+        for (visit in visits) {
+            Log.i("ALARM_RECEIVER", "visita: ${visit.visitId}")
+            try {
+                val response = visitService.updateVisitById(header, visit.visitId, visit.visit)
+                if (response.isSuccessful) {
+                    Log.i("ALARM_RECEIVER", "Actualizado: ${visit.visitId}")
+                    dao.deleteVisitById(visit.visitId)
+                } else {
+                    result = false
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
+                    Log.i("ALARM_RECEIVER", "Error actualizando: ${visit.visitId}")
                 }
+            } catch (e: Exception) {
+                result = false
+                preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
+                Log.i("ALARM_RECEIVER", "onReceive: $e")
             }
         }
+
     }
-    if (stringToDelete != "") {
-        val newString = preferences?.get("VISIT_IDS", "")?.replace(stringToDelete, "")
-        preferences?.set("VISIT_IDS", newString)
-    }
-    val ids = preferences?.get("VISIT_IDS", "")
-    if (ids == "")
+    if (dao.getVisitsByEmail(email).value == null)
         preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
 
     return result
