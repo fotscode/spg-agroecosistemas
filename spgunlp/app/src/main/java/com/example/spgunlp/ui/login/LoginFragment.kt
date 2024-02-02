@@ -41,6 +41,7 @@ class LoginFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
 
+        //TODO store written login data before rotating screen
         val loginViewModel =
             ViewModelProvider(this).get(LoginViewModel::class.java)
 

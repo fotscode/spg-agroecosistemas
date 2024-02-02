@@ -43,6 +43,7 @@ data class AppVisitParameters (
         )
     }
 
+    //TODO store Principles in DB for caching
     @Parcelize
     data class Principle(
         val habilitado: Boolean?,

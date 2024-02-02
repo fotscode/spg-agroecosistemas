@@ -281,6 +281,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         visitUpdateViewModel.addVisit(visitToUpdate, email, visitId)
     }
 
+    //TODO move this method to VisitHelper
     private fun createVisit(visit:AppVisit,update: AppVisitUpdate): AppVisit {
         val newParameters = mutableListOf<AppVisitParameters>()
         if (visit.visitaParametrosResponse==null){
