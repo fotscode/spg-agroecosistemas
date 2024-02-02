@@ -34,30 +34,31 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_view"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:animateLayoutChanges="true"
-                app:cardBackgroundColor="@color/cardview_dark_background"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="10dp"
-                app:cardUseCompatPadding="true"
-                app:layout_constraintTop_toBottomOf="@id/title_stats"
-                app:strokeColor="#999"
-                app:strokeWidth="2dp">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/approved_visits_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_gravity="center">
+                    android:layout_margin="10dp"
+                    android:animateLayoutChanges="true"
+                    app:cardBackgroundColor="@color/cardview_dark_background"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="5dp"
+                    app:cardUseCompatPadding="true"
+                    app:layout_constraintTop_toBottomOf="@id/title_stats"
+                    app:strokeColor="#999"
+                    app:strokeWidth="2dp">
+
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_margin="15dp"
                         android:orientation="vertical">
 
                         <TextView
@@ -73,8 +74,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:backgroundTint="@color/cardview_light_background"
-                            android:layout_margin="10dp">
+                            android:layout_margin="10dp"
+                            android:backgroundTint="@color/cardview_light_background">
 
                             <TextView
                                 android:id="@+id/percentage_visits_approved"
@@ -87,30 +88,48 @@
                                 android:textStyle="bold" />
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
+
+
+
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/approved_principles_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:animateLayoutChanges="true"
+                    app:cardBackgroundColor="@color/cardview_dark_background"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="5dp"
+                    app:cardUseCompatPadding="true"
+                    app:layout_constraintTop_toBottomOf="@id/title_stats"
+                    app:strokeColor="#999"
+                    app:strokeWidth="2dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
                             android:gravity="center"
                             android:text="Porcentaje de principios aprobados"
                             android:textColor="@color/white"
                             android:textSize="18sp"
-                            android:layout_marginBottom="10dp"
                             android:textStyle="bold" />
 
                         <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/approved_principles_grid"
                             android:layout_width="match_parent"
-                            android:id="@+id/grid_view"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
 
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
         </LinearLayout>
 
     </ScrollView>

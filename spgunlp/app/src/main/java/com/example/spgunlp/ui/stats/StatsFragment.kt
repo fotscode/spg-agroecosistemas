@@ -2,6 +2,7 @@ package com.example.spgunlp.ui.stats
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import com.example.spgunlp.ui.visit.BundleViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.getPrinciples
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -52,18 +54,28 @@ class StatsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.cardView.setOnClickListener() {
-            binding.cardView.invalidate()
-            ObjectAnimator.ofArgb(
-                binding.cardView,
-                "strokeColor",
-                getColor(R.color.purple_200),
-                getColor(R.color.green),
-                getColor(R.color.teal_200),
-                getColor(R.color.purple_200),
-            ).apply {
-                duration = 3000
-                start()
+
+        binding.approvedVisitsCard.setOnClickListener() {
+            onClickCardView(binding.approvedVisitsCard)
+        }
+
+        binding.approvedPrinciplesCard.setOnClickListener(){
+            onClickCardView(binding.approvedPrinciplesCard)
+        }
+
+        binding.approvedPrinciplesGrid.setOnClickListener(){
+            onClickCardView(binding.approvedPrinciplesCard)
+        }
+
+        // observes the jwt changes
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        preferences.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == "jwt") {
+                val jwt = sharedPreferences.getString(key, "")
+                if (jwt != null && jwt.contains(".")) {
+                    Log.i("ActiveFragment", "jwt changed")
+                    populatePrinciples()
+                }
             }
         }
 
@@ -117,7 +129,7 @@ class StatsFragment : BaseFragment() {
         principles: List<AppVisitParameters.Principle>,
         percentages: List<String>
     ) {
-        binding.gridView.apply {
+        binding.approvedPrinciplesGrid.apply {
             layoutManager = GridLayoutManager(requireContext(), 2)
             adapter = StatsAdapter(principles,percentages)
         }
@@ -136,5 +148,20 @@ class StatsFragment : BaseFragment() {
             formattedList.add(String.format("%.2f", it*100)+"%")
         }
         return formattedList
+    }
+
+    private fun onClickCardView(cardView:MaterialCardView){
+            cardView.invalidate()
+            ObjectAnimator.ofArgb(
+                cardView,
+                "strokeColor",
+                getColor(R.color.purple_200),
+                getColor(R.color.green),
+                getColor(R.color.teal_200),
+                getColor(R.color.purple_200),
+            ).apply {
+                duration = 3000
+                start()
+            }
     }
 }
