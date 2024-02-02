@@ -5,9 +5,9 @@ val key: String = gradleLocalProperties(rootDir).getProperty("BASE_URL")
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-parcelize")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
