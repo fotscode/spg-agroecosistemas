@@ -1,23 +1,32 @@
 package com.example.spgunlp.ui.visit
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.spgunlp.model.AppMessage
-import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.model.Perfil
+import com.example.spgunlp.repositories.MessageRepository
+import com.example.spgunlp.util.AppDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class MessagesViewModel : ViewModel() {
-    private val _messages = MutableLiveData<List<AppMessage?>?>()
-    val messages: LiveData<List<AppMessage?>?> = _messages
 
-    fun setMessages(value: List<AppMessage?>?){
-        _messages.value = value
+class MessagesViewModel(application: Application): AndroidViewModel(application) {
+    private val repository: MessageRepository
+    init {
+        val messageDao = AppDatabase.getDatabase(application).messageDao()
+        repository = MessageRepository(messageDao)
     }
 
     fun addMessage(message: AppMessage){
-        val newMessages = _messages.value?.toMutableList() ?: mutableListOf()
-        newMessages.add(message)
-        _messages.value = newMessages.toList()
+        viewModelScope.launch(Dispatchers.IO){
+            repository.addMessage(message)
+        }
     }
 
+    fun getMessagesByVisitPrinciple(idVisit: Long, idPrinciple: Long): LiveData<List<AppMessage>> {
+        return repository.getMessagesByVisitPrinciple(idVisit, idPrinciple)
+    }
 }

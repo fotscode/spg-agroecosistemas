@@ -140,7 +140,6 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val name = principle.nombre ?: "Unamed"
         val id = principle.id ?: 0
-        (activity as VisitActivity).updateMessagesViewModel(id)
         requireActivity().supportFragmentManager.beginTransaction()
             .replace(this.id, ObservationsFragment(id,name,preferences["email"]))
             .addToBackStack(null)
