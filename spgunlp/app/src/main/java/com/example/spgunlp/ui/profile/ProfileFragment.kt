@@ -160,6 +160,7 @@ class ProfileFragment : BaseFragment() {
         binding.profileCellphone.text = perfil.celular
         binding.profileOrganization.text = perfil.organizacion
         binding.profileRole.text = if (perfil.rol == "ROLE_ADMIN") "Administrador" else "Usuario"
+        binding.profileData.visibility = View.VISIBLE
     }
     private fun makeLoginPopup(){
 
