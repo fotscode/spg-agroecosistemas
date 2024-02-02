@@ -3,6 +3,7 @@ package com.example.spgunlp.ui.active
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +24,6 @@ import com.example.spgunlp.util.PrinciplesViewModel
 import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.getPrinciples
 import com.example.spgunlp.util.updateRecycler
-import com.google.gson.Gson
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -59,6 +59,18 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 binding.activeList,
                 requireActivity()
             ).onClick(it)
+        }
+
+        // observes the jwt changes
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        preferences.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == "jwt") {
+                val jwt = sharedPreferences.getString(key, "")
+                if (jwt != null && jwt.contains(".")) {
+                    Log.i("ActiveFragment", "jwt changed")
+                    populateVisits()
+                }
+            }
         }
 
         if (activeViewModel.isActiveVisitListEmpty()) {
@@ -97,7 +109,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             activeViewModel.getActiveVisits()?.let { this.visitList.addAll(it) }
             updateRecycler(
                 binding.activeList, visitList,
@@ -126,13 +138,16 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
+            val visits =
+                (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
             getPrinciples(header, requireContext(), visitService, true, principlesViewModel)
             activeVisits(visits)
-            updateRecycler(
-                binding.activeList, visitList,
-                activity, this@ActiveFragment
-            )
+            if (_binding != null) {
+                updateRecycler(
+                    binding.activeList, visitList,
+                    activity, this@ActiveFragment
+                )
+            }
         }
     }
 
