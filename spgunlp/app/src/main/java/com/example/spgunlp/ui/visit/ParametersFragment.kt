@@ -192,7 +192,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     }
 
     private suspend fun getVisitParametersUpdated(header: String): Response<AppVisit> {
-        val visitId = visitViewModel.id.value ?: 0
+        val visitId = visitViewModel.visit.value?.id ?: 0
         val visitToUpdate = getAppVisitUpdate()
 
         return visitService.updateVisitById(header, visitId, visitToUpdate)
@@ -232,15 +232,16 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
             }
         }
 
-        val idMembers = visitViewModel.membersList.value?.map {
+        //val idMembers = visitViewModel.membersList.value?.map {
+        val idMembers = visitViewModel.visit.value?.integrantes?.map {
             it.id ?: 0
         }
 
         val visitToUpdate = AppVisitUpdate(
-            visitViewModel.unformattedVisitDate.value,
+            visitViewModel.visit.value?.fechaVisita,
             idMembers,
             parametersUpdate,
-            visitViewModel.countryId.value
+            visitViewModel.visit.value?.quintaResponse?.id
         )
         return visitToUpdate
     }
@@ -257,7 +258,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
     private fun updatePreferences() {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        val visitId = visitViewModel.id.value ?: 0
+        val visitId = visitViewModel.visit.value?.id ?: 0
         val visitToUpdate = getAppVisitUpdate()
         val gson = Gson()
         val visitGson = gson.toJson(visitToUpdate)
@@ -272,7 +273,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         val visitsGson = preferences["LIST_VISITS", ""]
         val type = object : TypeToken<List<AppVisit>>() {}.type
         val visits = Gson().fromJson<List<AppVisit>>(visitsGson, type)
-        val visitId = visitViewModel.id.value ?: 0
+        val visitId = visitViewModel.visit.value?.id ?: 0
         val visitFind = visits.find { it.id == visitId }
         if (visitFind != null) {
             val newVisit = createVisit(visitFind, visitUpdate)

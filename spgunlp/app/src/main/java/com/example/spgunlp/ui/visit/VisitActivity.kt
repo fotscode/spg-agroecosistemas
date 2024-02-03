@@ -48,38 +48,11 @@ class VisitActivity : AppCompatActivity() {
         updateParametersViewModel()
 
         val preferences = PreferenceHelper.defaultPrefs(this)
-        /*
-        val visitGson = Gson().toJson(visit)
-        intent.putExtra(VISIT_ITEM, visitGson)
-
-        val visitsGson = preferences["LIST_VISITS", ""]
-        val type = object : TypeToken<List<AppVisit>>() {}.type
-        val visits = Gson().fromJson<List<AppVisit>>(visitsGson, type)
-        val visitsFiltered = visits.filter { it.id != visit.id }.toMutableList()
-        visitsFiltered.add(visit)
-        val visitsJson = Gson().toJson(visitsFiltered.toList())
-        preferences["LIST_VISITS"] = visitsJson
-
-         */
         preferences["LAST_UPDATE"] = Date().time
     }
 
     @SuppressLint("NewApi")
     fun updateVisitViewModel(){
-        val memberValues = visit.integrantes?.map { it.nombre }
-        val members= memberValues?.joinToString(separator=",")
-        val formatter = DateTimeFormatter.ISO_DATE_TIME
-        val date = LocalDateTime.parse(visit.fechaVisita, formatter)
-        val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        visitViewModel.setNameProducer(visit.quintaResponse?.nombreProductor)
-        visitViewModel.setVisitDate(dateFormatted)
-        visitViewModel.setMembers(members)
-        visitViewModel.setSurfaceAgro(visit.quintaResponse?.superficieAgroecologiaCampo)
-        visitViewModel.setSurfaceCountry(visit.quintaResponse?.superficieTotalCampo)
-        visitViewModel.setId(visit.id)
-        visitViewModel.setCountryId(visit.quintaResponse?.id)
-        visitViewModel.setMembersList(visit.integrantes)
-        visitViewModel.setUnformattedVisitDate(visit.fechaVisita)
         visitViewModel.setVisit(visit)
     }
     private fun updateParametersViewModel(){

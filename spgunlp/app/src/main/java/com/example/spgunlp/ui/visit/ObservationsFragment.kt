@@ -55,27 +55,26 @@ class ObservationsFragment(
             val data = binding.inputMsg.text.toString()
             binding.inputMsg.setText("")
             //TODO send real type and data
-            visitViewModel.id.observe(viewLifecycleOwner) { idVisit ->
-                if (idVisit != null) {
-                    Log.i("VISIT_ID_MESSAGES", idVisit.toString())
-                    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-                    val isoDateTimeString = sdf.format(Date())
-                    profileViewModel.getPerfilByEmail(email).also {
-                        it.observe(viewLifecycleOwner) { profile ->
-                            Log.i("PROFILE_OBSERVATIONS", profile.toString())
-                            val name = profile?.nombre ?: "user"
-                            val message =
-                                AppMessage(
-                                    0,
-                                    idVisit,
-                                    principleId,
-                                    CONTENT_TYPE.TEXT,
-                                    data,
-                                    isoDateTimeString,
-                                    AppMessage.ChatUser(email, name)
-                                )
-                            messagesViewModel.addMessage(message)
-                        }
+            val idVisit = visitViewModel.visit.value!!.id
+            if (idVisit != null) {
+                Log.i("VISIT_ID_MESSAGES", idVisit.toString())
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                val isoDateTimeString = sdf.format(Date())
+                profileViewModel.getPerfilByEmail(email).also {
+                    it.observe(viewLifecycleOwner) { profile ->
+                        Log.i("PROFILE_OBSERVATIONS", profile.toString())
+                        val name = profile?.nombre ?: "user"
+                        val message =
+                            AppMessage(
+                                0,
+                                idVisit,
+                                principleId,
+                                CONTENT_TYPE.TEXT,
+                                data,
+                                isoDateTimeString,
+                                AppMessage.ChatUser(email, name)
+                            )
+                        messagesViewModel.addMessage(message)
                     }
                 }
             }
@@ -104,23 +103,22 @@ class ObservationsFragment(
     }
 
     private fun populateMessages() {
-        visitViewModel.id.observe(viewLifecycleOwner) { id ->
-            Log.i("VISIT_ID_MESSAGES", id.toString())
-            if (id != null)
-                messagesViewModel.getMessagesByVisitPrinciple(id.toLong(), principleId.toLong())
-                    .also {
-                        it.observe(
-                            viewLifecycleOwner
-                        ) { messages ->
-                            Log.i("MESSAGES", messages.toString())
-                            val messagesNotAdded = messages.filter { message ->
-                                !messagesList.contains(message)
-                            }
-                            messagesList.addAll(messagesNotAdded)
-                            updateRecycler()
+        val visitId = visitViewModel.visit.value!!.id
+        Log.i("VISIT_ID_MESSAGES", id.toString())
+        if (visitId != null)
+            messagesViewModel.getMessagesByVisitPrinciple(visitId.toLong(), principleId.toLong())
+                .also {
+                    it.observe(
+                        viewLifecycleOwner
+                    ) { messages ->
+                        Log.i("MESSAGES", messages.toString())
+                        val messagesNotAdded = messages.filter { message ->
+                            !messagesList.contains(message)
                         }
+                        messagesList.addAll(messagesNotAdded)
+                        updateRecycler()
                     }
-        }
+                }
     }
 
     private fun updateRecycler() {
