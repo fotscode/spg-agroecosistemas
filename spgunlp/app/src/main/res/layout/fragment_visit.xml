@@ -256,40 +256,27 @@
                 android:weightSum="2">
 
                 <Button
-                    android:id="@+id/btn_downloadPDF"
+                    android:id="@+id/btn_download_json"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginRight="10sp"
+                    android:layout_marginRight="5dp"
                     android:layout_weight="1"
-                    android:text="Descargar PDF" />
+                    android:text="Descargar JSON" />
 
                 <Button
-                    android:id="@+id/btn_downloadCSV"
+                    android:id="@+id/btn_map"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1"
-                    android:text="Descargar CSV" />
+                    android:drawableLeft="@drawable/rounded_map_24"
+                    android:drawableTint="?attr/colorOnPrimary"
+                    android:text="Ver mapa" />
+
             </LinearLayout>
-            <Button
-                android:id="@+id/btn_map"
-                android:layout_width="wrap_content"
-                android:layout_gravity="center"
-                android:text="Ver mapa"
-                android:drawableLeft="@drawable/rounded_map_24"
-                android:drawableTint="?attr/colorOnPrimary"
-                android:layout_height="wrap_content"/>
+
         </LinearLayout>
-
-
-
-
-
-        <FrameLayout
-            android:id="@+id/map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locationName" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

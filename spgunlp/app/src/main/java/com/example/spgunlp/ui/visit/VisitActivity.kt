@@ -80,6 +80,7 @@ class VisitActivity : AppCompatActivity() {
         visitViewModel.setCountryId(visit.quintaResponse?.id)
         visitViewModel.setMembersList(visit.integrantes)
         visitViewModel.setUnformattedVisitDate(visit.fechaVisita)
+        visitViewModel.setVisit(visit)
     }
     private fun updateParametersViewModel(){
         val parameterValues = visit.visitaParametrosResponse?.map { it }

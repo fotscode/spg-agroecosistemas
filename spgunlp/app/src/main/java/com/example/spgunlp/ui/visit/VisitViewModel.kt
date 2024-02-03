@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.spgunlp.model.AppUser
+import com.example.spgunlp.model.AppVisit
 
 class VisitViewModel : ViewModel() {
     private val _id = MutableLiveData<Int?>()
@@ -16,6 +17,9 @@ class VisitViewModel : ViewModel() {
     private val _countryId  = MutableLiveData<Int?>()
     private val _membersList = MutableLiveData<List<AppUser>?>()
     private val _unformattedVisitDate = MutableLiveData<String?>()
+    private val _visit =  MutableLiveData<AppVisit>()
+
+    val visit: LiveData<AppVisit> get() = _visit
 
     val id: LiveData<Int?> get() = _id
     val nameProducer: LiveData<String?> get() = _nameProducer
@@ -53,5 +57,8 @@ class VisitViewModel : ViewModel() {
     }
     fun setUnformattedVisitDate(value: String?){
         _unformattedVisitDate.value = value
+    }
+    fun setVisit(value: AppVisit){
+        _visit.value = value
     }
 }

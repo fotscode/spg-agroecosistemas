@@ -87,4 +87,8 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     androidTestImplementation("androidx.room:room-testing:$room_version")
+
+    // csv
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
 }

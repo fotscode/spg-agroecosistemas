@@ -2,16 +2,22 @@ package com.example.spgunlp.ui.visit
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import com.example.spgunlp.BuildConfig
 import com.example.spgunlp.databinding.FragmentVisitBinding
+import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.maps.MapActivity
-import com.example.spgunlp.util.PreferenceHelper
+import com.google.gson.Gson
+import java.io.File
+
 
 class VisitFragment : BaseFragment() {
 
@@ -70,17 +76,27 @@ class VisitFragment : BaseFragment() {
             }
         }
 
-        binding.btnDownloadCSV.setOnClickListener(){
-            Toast.makeText(requireContext(), "Proximamente...", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.btnDownloadPDF.setOnClickListener(){
-            Toast.makeText(requireContext(), "Proximamente...", Toast.LENGTH_SHORT).show()
+        binding.btnDownloadJson.setOnClickListener(){
+            visitViewModel.visit.value?.let { writeJsonFile(it) }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun writeJsonFile(visit: AppVisit) {
+        // write json file and then open it
+        val gson = Gson()
+        val json = gson.toJson(visit)
+        val file = File(requireContext().filesDir, "visit.json")
+        Log.i("VisitFragment", "writeJsonFile: ${file.absolutePath}")
+        file.writeText(json)
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val uri = FileProvider.getUriForFile(requireContext(), requireContext().applicationContext.packageName + ".provider",file);
+        intent.setDataAndType(uri, "application/json")
+        startActivity(intent)
     }
 }
