@@ -56,6 +56,7 @@ suspend fun performSync(context: Context): Boolean {
             }
         }
     }
+    preferences!!["SYNC_CLICKED"] = false
     if (stringToDelete != "") {
         val newString = preferences?.get("VISIT_IDS", "")?.replace(stringToDelete, "")
         preferences?.set("VISIT_IDS", newString)
@@ -70,9 +71,12 @@ suspend fun performSync(context: Context): Boolean {
             preferences!!["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
             result=false
             Log.i("ALARM_RECEIVER", "onReceive: 401 o 403")
+        }else{
+            preferences!!["SYNC_CLICKED"] = true
         }
     }catch (e:Exception){
-
+        preferences!!["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
+        result=false
     }
 
     return result

@@ -1,11 +1,13 @@
 package com.example.spgunlp.ui.stats
 
 import android.animation.ObjectAnimator
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +42,7 @@ class StatsFragment : BaseFragment() {
     private var cumpleList = mutableListOf<Boolean>()
     private var approvedVisitsPercentage = 0f
     private lateinit var jobToKill: Job
+    private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +57,21 @@ class StatsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // observes the jwt changes
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        listenerPreferences= SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
+            if (key == "jwt") {
+                val jwt = sharedPreferences.getString(key, "")
+                if (jwt != null && jwt.contains(".")) {
+                    Log.i("ActiveFragment", "jwt changed")
+                    populatePrinciples()
+                }
+            }else if (key=="SYNC_CLICKED" && sharedPreferences.getBoolean(key, false)){
+                Log.i("StatsFragment", "SYNC_CLICKED")
+                populatePrinciples()
+            }
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listenerPreferences)
         if (_binding != null) {
             binding.approvedVisitsCard.setOnClickListener() {
                 onClickCardView(binding.approvedVisitsCard)
@@ -65,18 +83,6 @@ class StatsFragment : BaseFragment() {
 
             binding.approvedPrinciplesGrid.setOnClickListener() {
                 onClickCardView(binding.approvedPrinciplesCard)
-            }
-        }
-
-        // observes the jwt changes
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        preferences.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == "jwt") {
-                val jwt = sharedPreferences.getString(key, "")
-                if (jwt != null && jwt.contains(".")) {
-                    Log.i("ActiveFragment", "jwt changed")
-                    populatePrinciples()
-                }
             }
         }
 
@@ -96,6 +102,7 @@ class StatsFragment : BaseFragment() {
             val principles =
                 getPrinciples(header, requireContext(), visitService, false, bundleViewModel)
 
+            approvedVisitsPercentage = 0f
             activePrinciples(principles)
             percentageList = MutableList(principlesList.size) { 0f }
             // get visits, for each visit, get visitParamRes, for each param get principle and cumple
@@ -116,9 +123,28 @@ class StatsFragment : BaseFragment() {
                         if (cumpleList.all { it }) approvedVisitsPercentage + 1f / visits.size else approvedVisitsPercentage
                 }
             }
-            if (_binding!=null){
-                binding.percentageVisitsApproved.text = "${(approvedVisitsPercentage * 100).format(2)}%"
+            if (_binding != null) {
+                binding.percentageVisitsApproved.text =
+                    "${(approvedVisitsPercentage * 100).format(2)}%"
                 updateRecycler(principlesList, getFormattedPercentages(percentageList))
+                if (principlesList.isEmpty())
+                    binding.approvedPrinciplesCard.visibility = View.GONE
+                if (visits.isEmpty()){
+                    binding.approvedPrinciplesCard.visibility = View.GONE
+                    binding.approvedVisitsCard.visibility = View.GONE
+                    Toast.makeText(
+                        requireContext(),
+                        "No se encontraron visitas",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    binding.noDataLayout.visibility = View.VISIBLE
+                }else{
+                    binding.approvedPrinciplesCard.visibility = View.VISIBLE
+                    binding.approvedVisitsCard.visibility = View.VISIBLE
+                    binding.noDataLayout.visibility = View.GONE
+                }
+                binding.approvedPrinciplesVeil.unVeil()
+                binding.approvedVisitsVeil.unVeil()
             }
         }
     }
@@ -126,7 +152,7 @@ class StatsFragment : BaseFragment() {
     private fun Float.format(digits: Int) = "%.${digits}f".format(this)
     private fun activePrinciples(principles: List<AppVisitParameters.Principle>) {
         val filteredPrinciples = principles.filter {
-            it.habilitado == true
+            it.habilitado == true && !principlesList.contains(it)
         }
         principlesList.addAll(filteredPrinciples)
     }
@@ -146,6 +172,9 @@ class StatsFragment : BaseFragment() {
         if (::jobToKill.isInitialized)
             jobToKill.cancel()
         _binding = null
+        // remove preferences listener
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
     }
 
     private fun getFormattedPercentages(percentages: List<Float>): List<String> {

@@ -91,4 +91,7 @@ dependencies {
     // csv
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
+
+    // skeletons
+    implementation("com.github.skydoves:androidveil:1.1.3")
 }
