@@ -1,6 +1,7 @@
 package com.example.spgunlp.ui.active
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -40,6 +41,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     private lateinit var jobToKill: Job
     private val binding get() = _binding!!
 
+    private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,7 +65,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
         // observes the jwt changes
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
-        preferences.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
+        listenerPreferences=SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
             if (key == "jwt") {
                 val jwt = sharedPreferences.getString(key, "")
                 if (jwt != null && jwt.contains(".")) {
@@ -72,6 +74,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 }
             }
         }
+        preferences.registerOnSharedPreferenceChangeListener(listenerPreferences)
 
         if (activeViewModel.isActiveVisitListEmpty()) {
             visitList.clear()
@@ -124,6 +127,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             jobToKill.cancel()
         visitList.clear()
         _binding = null
+        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
     }
 
     override fun onResume() {
