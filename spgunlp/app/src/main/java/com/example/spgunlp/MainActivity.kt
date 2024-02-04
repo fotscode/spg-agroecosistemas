@@ -210,6 +210,9 @@ class MainActivity : AppCompatActivity() {
         val pwd = view.findViewById<EditText>(R.id.edit_password)
         val result = MutableLiveData<List<AppVisit>>()
 
+        preferences["COLOR_FAB"] = ContextCompat.getColor(this, R.color.red)
+        updateColorFab()
+
         view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
             lifecycleScope.launch {
                 if (
@@ -229,6 +232,7 @@ class MainActivity : AppCompatActivity() {
                     val visits = getVisits(header, this@MainActivity, visitService, false)
                     result.postValue(visits)
                     preferences["COLOR_FAB"] = ContextCompat.getColor(this@MainActivity, R.color.green)
+                    updateColorFab()
                     dialog.dismiss()
                 } else {
                     makeText(

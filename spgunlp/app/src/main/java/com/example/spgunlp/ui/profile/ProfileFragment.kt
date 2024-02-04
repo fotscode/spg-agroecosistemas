@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.spgunlp.MainActivity
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentProfileBinding
 import com.example.spgunlp.io.AuthService
@@ -179,6 +180,10 @@ class ProfileFragment : BaseFragment() {
         mail.setText(preferences["email", ""])
         dialog.setView(view)
         val pwd = view.findViewById<EditText>(R.id.edit_password)
+
+        preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
+        (activity as MainActivity).updateColorFab()
+
         view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
             lifecycleScope.launch {
                 val authService = AuthService.create()
@@ -197,6 +202,7 @@ class ProfileFragment : BaseFragment() {
                     ).show()
                     populateProfile()
                     preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.green)
+                    (activity as MainActivity).updateColorFab()
                     dialog.dismiss()
                 } else {
                     Toast.makeText(
