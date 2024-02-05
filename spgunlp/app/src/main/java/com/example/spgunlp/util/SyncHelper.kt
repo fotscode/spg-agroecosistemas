@@ -24,7 +24,7 @@ suspend fun performSync(context: Context): Boolean {
     val jwt = preferences["jwt", ""]
     var stringToDelete = ""
     var result = true
-    if (idVisits != null && jwt != null && jwt != "") {
+    if (jwt != "") {
         for (id in idVisits) {
             if (id != "") {
                 Log.i("ALARM_RECEIVER", "visita: $id")
@@ -66,7 +66,7 @@ suspend fun performSync(context: Context): Boolean {
         preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
 
     try {
-        val res = visitService.getHome("Bearer " + jwt)
+        val res = visitService.getHome("Bearer $jwt")
         if (res.code() == 401 || res.code() == 403) {
             preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
             result = false
