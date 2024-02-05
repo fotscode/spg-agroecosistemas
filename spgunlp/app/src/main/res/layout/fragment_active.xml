@@ -73,7 +73,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-            <androidx.recyclerview.widget.RecyclerView
+            <com.skydoves.androidveil.VeilRecyclerFrameView
                 android:id="@+id/active_list"
                 android:layout_width="match_parent"
                 android:layout_marginBottom="?attr/actionBarSize"
@@ -81,6 +81,12 @@
                 android:layout_marginHorizontal="12dp"
                 android:nestedScrollingEnabled="false"
                 android:scrollbars="none"
+                app:veilFrame_layout="@layout/list_visit_element"
+                app:veilFrame_veiled="true"
+                app:veilFrame_shimmerEnable="true"
+                app:veilFrame_baseAlpha="0.6"
+                app:veilFrame_highlightAlpha="1.0"
+                app:veilFrame_radius="8dp"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:layout_constraintTop_toBottomOf="@id/extra_btn_container" />
         </androidx.constraintlayout.widget.ConstraintLayout>

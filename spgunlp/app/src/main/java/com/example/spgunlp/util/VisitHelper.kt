@@ -1,7 +1,5 @@
 package com.example.spgunlp.util
 
-import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -9,35 +7,35 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.ui.active.ActiveViewModel
 import com.example.spgunlp.ui.active.VisitAdapter
 import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.skydoves.androidveil.VeilRecyclerFrameView
 import java.time.ZonedDateTime
 import java.util.Date
 
 fun updateRecycler(
-    recyler: RecyclerView,
+    recyler: Any,
     list: List<AppVisit>,
     activity: FragmentActivity?,
     listener: VisitClickListener
 ) {
-    recyler.apply {
-        layoutManager = LinearLayoutManager(activity)
-        adapter = VisitAdapter(list, listener)
+    // check if the recycler is a recycler view or a veil recycler
+    if (recyler is RecyclerView) {
+        recyler.adapter = VisitAdapter(list, listener)
+        recyler.layoutManager = LinearLayoutManager(activity)
+    } else if (recyler is VeilRecyclerFrameView) {
+        recyler.setAdapter(VisitAdapter(list, listener))
+        recyler.setLayoutManager(LinearLayoutManager(activity))
+        recyler.unVeil()
     }
 }
 
@@ -52,7 +50,7 @@ fun calendar(
     parentFragmentManager: FragmentManager,
     visitList: List<AppVisit>,
     listener: VisitClickListener,
-    recyler: RecyclerView,
+    recyler: Any,
     activity: FragmentActivity?
 ): View.OnClickListener {
     return View.OnClickListener {

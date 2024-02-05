@@ -53,6 +53,7 @@
 
                 <TextView
                     android:id="@+id/visit_date_modif"
+                    android:layout_marginTop="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Ultima modificacion:03/12/2023"

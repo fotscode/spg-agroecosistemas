@@ -1,5 +1,6 @@
 package com.example.spgunlp.ui.active
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
@@ -10,8 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.MainActivity
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.io.VisitService
@@ -39,6 +42,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     private val principlesViewModel: PrinciplesViewModel by activityViewModels()
     val visitList = mutableListOf<AppVisit>()
     private lateinit var jobToKill: Job
+    private lateinit var context: Context
+    private lateinit var fragmentActivity: FragmentActivity
     private val binding get() = _binding!!
 
     private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
@@ -50,6 +55,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     ): View {
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
+        context=requireContext()
+        fragmentActivity=requireActivity()
 
         binding.searchView.clearFocus()
 
@@ -59,12 +66,16 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 visitList,
                 this@ActiveFragment,
                 binding.activeList,
-                requireActivity()
+                fragmentActivity
             ).onClick(it)
         }
+        binding.activeList.setAdapter(VisitAdapter(visitList, this))
+        binding.activeList.setLayoutManager(LinearLayoutManager(fragmentActivity))
+        binding.activeList.veil()
+        binding.activeList.addVeiledItems(5)
 
         // observes the jwt changes
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val preferences = PreferenceHelper.defaultPrefs(context)
         listenerPreferences=SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
             if (key == "jwt") {
                 val jwt = sharedPreferences.getString(key, "")
@@ -127,25 +138,30 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             jobToKill.cancel()
         visitList.clear()
         _binding = null
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val preferences = PreferenceHelper.defaultPrefs(context)
         preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
     }
 
     override fun onResume() {
         super.onResume()
+        binding.activeList.setAdapter(VisitAdapter(visitList, this))
+        binding.activeList.setLayoutManager(LinearLayoutManager(fragmentActivity))
+        binding.activeList.veil()
+        binding.activeList.addVeiledItems(5)
         populateVisits()
     }
 
     private fun populateVisits() {
         jobToKill = lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
+            val preferences = PreferenceHelper.defaultPrefs(context)
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
+            if (activity == null) cancel()
             val visits =
-                (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
-            getPrinciples(header, requireContext(), visitService, true, principlesViewModel)
+                (activity as MainActivity).getVisits(header, context, visitService, false)
+            getPrinciples(header, context, visitService, true, principlesViewModel)
             activeVisits(visits)
             if (_binding != null) {
                 updateRecycler(
@@ -157,7 +173,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private fun activeVisits(visits: List<AppVisit>) {
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val preferences = PreferenceHelper.defaultPrefs(context)
         val email = preferences["email", ""]
         val filteredVisits = visits.filter { visit ->
             visit.estadoVisita == "ABIERTA" && visit.integrantes!!.filter { integrante ->
@@ -169,7 +185,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     }
 
     override fun onClick(visit: AppVisit) {
-        val intent = Intent(requireActivity(), VisitActivity::class.java)
+        val intent = Intent(fragmentActivity, VisitActivity::class.java)
         intent.putExtra(VISIT_ITEM, visit)
         startActivity(intent)
     }
