@@ -1,6 +1,7 @@
 package com.example.spgunlp.ui.stats
 
 import android.animation.ObjectAnimator
+import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -24,6 +25,7 @@ import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.getPrinciples
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class StatsFragment : BaseFragment() {
@@ -43,6 +45,8 @@ class StatsFragment : BaseFragment() {
     private var approvedVisitsPercentage = 0f
     private lateinit var jobToKill: Job
     private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
+    private lateinit var mainActivity: MainActivity
+    private lateinit var context: Context
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,6 +54,8 @@ class StatsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentStatsBinding.inflate(inflater, container, false)
+        context=requireContext()
+        mainActivity = activity as MainActivity
         val root: View = binding.root
         return root
     }
@@ -58,7 +64,7 @@ class StatsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // observes the jwt changes
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val preferences = PreferenceHelper.defaultPrefs(context)
         listenerPreferences= SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
             if (key == "jwt") {
                 val jwt = sharedPreferences.getString(key, "")
@@ -91,23 +97,22 @@ class StatsFragment : BaseFragment() {
     }
 
     private fun getColor(color: Int): Int {
-        return ContextCompat.getColor(requireContext(), color)
+        return ContextCompat.getColor(context, color)
     }
 
     private fun populatePrinciples() {
         jobToKill = lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
+            val preferences = PreferenceHelper.defaultPrefs(context)
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
             val principles =
-                getPrinciples(header, requireContext(), visitService, false, bundleViewModel)
+                getPrinciples(header, context, visitService, false, bundleViewModel)
 
             approvedVisitsPercentage = 0f
             activePrinciples(principles)
             percentageList = MutableList(principlesList.size) { 0f }
             // get visits, for each visit, get visitParamRes, for each param get principle and cumple
-            val visits =
-                (activity as MainActivity).getVisits(header, requireContext(), visitService, false)
+            val visits = mainActivity.getVisits(header, context, visitService, false)
             visits.forEach {
                 cumpleList = MutableList(principlesList.size) { true }
                 if (it.visitaParametrosResponse != null) {
@@ -133,7 +138,7 @@ class StatsFragment : BaseFragment() {
                     binding.approvedPrinciplesCard.visibility = View.GONE
                     binding.approvedVisitsCard.visibility = View.GONE
                     Toast.makeText(
-                        requireContext(),
+                        context,
                         "No se encontraron visitas",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -162,7 +167,7 @@ class StatsFragment : BaseFragment() {
         percentages: List<String>
     ) {
         binding.approvedPrinciplesGrid.apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
+            layoutManager = GridLayoutManager(context, 2)
             adapter = StatsAdapter(principles, percentages)
         }
     }
@@ -173,7 +178,7 @@ class StatsFragment : BaseFragment() {
             jobToKill.cancel()
         _binding = null
         // remove preferences listener
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val preferences = PreferenceHelper.defaultPrefs(context)
         preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
     }
 
