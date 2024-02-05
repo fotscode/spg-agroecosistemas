@@ -1,10 +1,13 @@
 package com.example.spgunlp.util
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.VisitWithImagesMembersAndParameters
 import com.example.spgunlp.repositories.VisitsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,11 +52,11 @@ class VisitsDBViewModel(application: Application):AndroidViewModel(application) 
         }
     }
 
-    fun getAllVisits(): LiveData<List<AppVisit>>{
+    fun getAllVisits(): List<AppVisit>{
         return repository.getAllVisits()
     }
-    fun getVisitById(id: Int): LiveData<AppVisit>{
+
+    fun getVisitById(id: Int): LiveData<VisitWithImagesMembersAndParameters>{
         return repository.getVisitById(id)
     }
-
 }

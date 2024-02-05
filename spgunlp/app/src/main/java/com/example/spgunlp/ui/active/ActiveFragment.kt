@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.MainActivity
 import com.example.spgunlp.databinding.FragmentActiveBinding
@@ -31,7 +30,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private var _binding: FragmentActiveBinding? = null
-    private val activeViewModel: ActiveViewModel by activityViewModels()
     val visitList = mutableListOf<AppVisit>()
     private val binding get() = _binding!!
 
@@ -46,7 +44,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
         binding.searchView.clearFocus()
 
-        binding.btnCalendario.setOnClickListener() {
+        binding.btnCalendario.setOnClickListener {
             calendar(
                 parentFragmentManager,
                 visitList,
@@ -56,10 +54,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             ).onClick(it)
         }
 
-        if (activeViewModel.isActiveVisitListEmpty()) {
-            visitList.clear()
-            populateVisits()
-        }
+        visitList.clear()
+        populateVisits()
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -85,31 +81,10 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         return root
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        activeViewModel.saveActiveVisits(this.visitList)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null){
-            activeViewModel.getActiveVisits()?.let { this.visitList.addAll(it) }
-            updateRecycler(
-                binding.activeList, visitList,
-                activity, this@ActiveFragment
-            )
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         visitList.clear()
         _binding = null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        populateVisits()
     }
 
     private fun populateVisits() {
@@ -119,7 +94,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
+            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService)
             activeVisits(visits)
             updateRecycler(
                 binding.activeList, visitList,
@@ -128,13 +103,14 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         }
     }
 
+
     private fun activeVisits(visits: List<AppVisit>) {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val email = preferences["email", ""]
         val filteredVisits = visits.filter { visit ->
-            visit.estadoVisita == "ABIERTA" && visit.integrantes!!.filter { integrante ->
+            visit.estadoVisita == "ABIERTA" && visit.integrantes!!.any { integrante ->
                 integrante.email == email
-            }.isNotEmpty()
+            }
         }
         visitList.clear()
         visitList.addAll(filteredVisits.sortedBy { it.fechaActualizacion }.reversed())

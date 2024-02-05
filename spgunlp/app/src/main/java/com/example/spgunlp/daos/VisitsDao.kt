@@ -70,5 +70,5 @@ interface VisitsDao {
 
     @Transaction
     @Query("SELECT * FROM visits_table WHERE id = :id")
-    fun getFullVisitById(id: Int): VisitWithImagesMembersAndParameters
+    fun getFullVisitById(id: Int): LiveData<VisitWithImagesMembersAndParameters>
 }

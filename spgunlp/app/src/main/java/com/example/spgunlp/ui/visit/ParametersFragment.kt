@@ -64,8 +64,8 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         // init viewmodel
-        visitUpdateViewModel = ViewModelProvider(this).get(VisitChangesDBViewModel::class.java)
-        visitsDBViewModel = ViewModelProvider(this).get(VisitsDBViewModel::class.java)
+        visitUpdateViewModel = ViewModelProvider(this)[VisitChangesDBViewModel::class.java]
+        visitsDBViewModel = ViewModelProvider(requireActivity())[VisitsDBViewModel::class.java]
 
         if (bundleViewModel.isParametersStateEmpty()) {
             parametersList.clear()
@@ -203,7 +203,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     }
 
     private suspend fun getVisitParametersUpdated(header: String): Response<AppVisit> {
-        val visitId = visitViewModel.id.value ?: 0
+        val visitId = visitViewModel.visit.value?.id ?: 0
         val visitToUpdate = getAppVisitUpdate()
 
         return visitService.updateVisitById(header, visitId, visitToUpdate)
@@ -243,17 +243,16 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
             }
         }
 
-        val idMembers = visitViewModel.membersList.value?.map {
+        val idMembers = visitViewModel.visit.value?.integrantes?.map {
             it.id ?: 0
         }
 
-        val visitToUpdate = AppVisitUpdate(
-            visitViewModel.unformattedVisitDate.value,
+        return AppVisitUpdate(
+            visitViewModel.visit.value?.fechaVisita,
             idMembers,
             parametersUpdate,
-            visitViewModel.countryId.value
+            visitViewModel.visit.value?.quintaResponse?.id
         )
-        return visitToUpdate
     }
 
     private fun goToPrincipleFragment() {
@@ -271,23 +270,28 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         val visitToUpdate = getAppVisitUpdate()
         val email: String = preferences["email"]
 
-        val visits = visitsViewModel.getVisits()
-        val visitId = visitViewModel.id.value ?: 0
-        val visitFind = visits?.find { it.id == visitId }
-        if (visitFind != null) {
-            val newVisit = createVisit(visitFind, visitToUpdate)
-            (activity as VisitActivity).updateVisit(newVisit)
+        visitViewModel.visit.observe(viewLifecycleOwner) { visit ->
+            try {
+                Log.i("SPGUNLP_DB", "getting ${visit.id}...")
+                val newVisit = createVisit(visit, visitToUpdate)
+                (activity as VisitActivity).updateVisit(newVisit)
+                visit.id?.let { visitUpdateViewModel.addVisit(visitToUpdate, email, it) }
+                Log.i("SPGUNLP_DB", "stores changes on DB")
+            } catch (e: Exception) {
+                Log.e("SPGUNLP_DB", e.message.toString())
+            }
         }
-        visitUpdateViewModel.addVisit(visitToUpdate, email, visitId)
     }
 
     //TODO move this method to VisitHelper
     private fun createVisit(visit:AppVisit,update: AppVisitUpdate): AppVisit {
         val newParameters = mutableListOf<AppVisitParameters>()
+
         if (visit.visitaParametrosResponse==null){
             Log.i("visitaParametrosResponse","null")
             return visit
         }
+
         visit.visitaParametrosResponse.forEach { param->
             val parameterUpdate=update.parametros?.find { it.parametroId==param.parametro?.id}
             if (parameterUpdate!=null){
@@ -296,7 +300,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                         parameterUpdate.aspiracionesFamiliares,
                         parameterUpdate.comentarios,
                         parameterUpdate.cumple,
-                        param.parametro?.id,
+                        param.id,
                         param.nombre,
                         param.parametro,
                         parameterUpdate.sugerencias,

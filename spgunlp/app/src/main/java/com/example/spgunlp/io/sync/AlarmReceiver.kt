@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 class AlarmReceiver : BroadcastReceiver() {
-    fun BroadcastReceiver.goAsync(
+    private fun BroadcastReceiver.goAsync(
         context: CoroutineContext = EmptyCoroutineContext,
         block: suspend CoroutineScope.() -> Unit
     ) {

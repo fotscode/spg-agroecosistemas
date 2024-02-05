@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.MainActivity
 import com.example.spgunlp.databinding.FragmentActiveBinding
@@ -19,7 +18,6 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.IS_ACTIVE
 import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.active.ActiveViewModel
 import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
@@ -137,7 +135,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService, true)
+            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService)
             inactiveVisits(visits)
             updateRecycler(
                 visitLayout.activeList, visitList, activity, this@InactiveFragment
@@ -155,9 +153,9 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private fun isUserIn(user: String, visit: AppVisit): Boolean {
-        return visit.integrantes!!.filter { integrante ->
+        return visit.integrantes!!.any { integrante ->
             integrante.email == user
-        }.isNotEmpty()
+        }
 
     }
 

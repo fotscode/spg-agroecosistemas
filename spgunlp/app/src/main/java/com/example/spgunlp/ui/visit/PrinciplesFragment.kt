@@ -1,13 +1,11 @@
 package com.example.spgunlp.ui.visit
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.databinding.FragmentPrinciplesBinding
@@ -76,17 +74,17 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
             val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
-            val principles = getPrinciples(header, visitService, bundleViewModel)
+            val principles = getPrinciples(header, visitService, bundleViewModel, requireContext().applicationContext)
             activePrinciples(principles)
-            parametersViewModel.parameters.observe(viewLifecycleOwner, Observer { value ->
+            parametersViewModel.parameters.observe(viewLifecycleOwner) { value ->
                 val parametersMap =
                     value?.groupBy { it?.parametro?.principioAgroecologico?.id }
-                principlesList?.forEach { principle ->
+                principlesList.forEach { principle ->
                     statesList.add(
                         parametersMap?.get(principle.id)?.all { it?.cumple == true }
                             ?: true)
                 }
-            })
+            }
             updateRecycler(principlesList, statesList)
         }
     }

@@ -34,7 +34,7 @@ data class AppVisit(
     @Ignore
     val visitaParametrosResponse: List<AppVisitParameters>?,
 ): Parcelable {
-    constructor(id:Int,comentarioImagenes: String,estadoVisita: String,fechaActualizacion: String,fechaCreacion: String,fechaVisita: String,quintaResponse: AppQuinta,usuarioOperacion: String):
+    constructor(id:Int,comentarioImagenes: String?,estadoVisita: String?,fechaActualizacion: String?,fechaCreacion: String?,fechaVisita: String?,quintaResponse: AppQuinta?,usuarioOperacion: String?):
             this(
                 id,
                 comentarioImagenes,

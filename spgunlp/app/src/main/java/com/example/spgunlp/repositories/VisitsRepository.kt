@@ -2,10 +2,18 @@ package com.example.spgunlp.repositories
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import com.example.spgunlp.daos.VisitsDao
+import com.example.spgunlp.model.AppImage
+import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
+import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.VisitUserJoin
+import com.example.spgunlp.model.VisitWithImagesMembersAndParameters
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class VisitsRepository(private val visitsDao: VisitsDao) {
 
@@ -33,11 +41,26 @@ class VisitsRepository(private val visitsDao: VisitsDao) {
 
     suspend fun insertVisits(visits: List<AppVisit>){
         visitsDao.insertVisits(visits)
-        /*
-        visits.forEach { visit ->
-            insertVisit(visit)
+        visits.forEach {visit ->
+            visit.imagenes?.let { images ->
+                images.forEach {
+                    it.visitId = visit.id
+                }
+                visitsDao.insertImagesList(images)
+            }
+            visit.integrantes?.let { members ->
+                visitsDao.insertUsersList(members)
+                members.forEach {
+                    visitsDao.insertVisitUserJoin(VisitUserJoin(visit.id!!, it.id!!))
+                }
+            }
+            visit.visitaParametrosResponse?.let { parameters ->
+                parameters.forEach {
+                    it.visitId = visit.id
+                }
+                visitsDao.insertParametersList(parameters)
+            }
         }
-         */
     }
 
     suspend fun updateVisit(visit: AppVisit){
@@ -84,9 +107,8 @@ class VisitsRepository(private val visitsDao: VisitsDao) {
         visitsDao.clearParametersList()
     }
 
-    fun getAllVisits(): LiveData<List<AppVisit>>{
+    fun getAllVisits(): List<AppVisit>{
         val visits = visitsDao.getAllFullVisits()
-        val visits_ret: MutableLiveData<List<AppVisit>> = MutableLiveData<List<AppVisit>>()
         val appVisitList = mutableListOf<AppVisit>()
         visits.forEach { visit ->
             appVisitList.add(
@@ -105,27 +127,10 @@ class VisitsRepository(private val visitsDao: VisitsDao) {
                 )
             )
         }
-        visits_ret.postValue(appVisitList)
-        return visits_ret
+        return appVisitList
+    }
+    fun getVisitById(visitId: Int): LiveData<VisitWithImagesMembersAndParameters> {
+        return visitsDao.getFullVisitById(visitId)
     }
 
-    fun getVisitById(id: Int): LiveData<AppVisit>{
-        val visit = visitsDao.getFullVisitById(id)
-        val visit_ret: MutableLiveData<AppVisit> = MutableLiveData<AppVisit>()
-        val appVisit = AppVisit(
-            visit.visit.id,
-            visit.visit.comentarioImagenes,
-            visit.visit.estadoVisita,
-            visit.visit.fechaActualizacion,
-            visit.visit.fechaCreacion,
-            visit.visit.fechaVisita,
-            visit.imagenes,
-            visit.integrantes,
-            visit.visit.quintaResponse,
-            visit.visit.usuarioOperacion,
-            visit.parameters
-        )
-        visit_ret.postValue(appVisit)
-        return visit_ret
-    }
 }

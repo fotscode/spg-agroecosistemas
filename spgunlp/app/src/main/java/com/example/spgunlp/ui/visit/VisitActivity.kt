@@ -84,6 +84,7 @@ class VisitActivity : AppCompatActivity() {
         visit = bundleViewModel.getVisit()!!
     }
     fun updateVisit(visit: AppVisit){
+        Log.i("SPGUNLP_TAG", "Updates visit...")
         this.visit = visit
         updateVisitViewModel()
         updateParametersViewModel()
@@ -94,24 +95,11 @@ class VisitActivity : AppCompatActivity() {
 
     @SuppressLint("NewApi")
     fun updateVisitViewModel(){
-        val memberValues = visit.integrantes?.map { it.nombre }
-        val members= memberValues?.joinToString(separator=",")
-        val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
-        val date = LocalDateTime.parse(visit.fechaVisita, formatter)
-        val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        visitViewModel.setNameProducer(visit.quintaResponse?.nombreProductor)
-        visitViewModel.setVisitDate(dateFormatted)
-        visitViewModel.setMembers(members)
-        visitViewModel.setSurfaceAgro(visit.quintaResponse?.superficieAgroecologiaCampo)
-        visitViewModel.setSurfaceCountry(visit.quintaResponse?.superficieTotalCampo)
-        visitViewModel.setId(visit.id)
-        visitViewModel.setCountryId(visit.quintaResponse?.id)
-        visitViewModel.setMembersList(visit.integrantes)
-        visitViewModel.setUnformattedVisitDate(visit.fechaVisita)
+        visitViewModel.setVisit(visit)
     }
     private fun updateParametersViewModel(){
         val parameterValues = visit.visitaParametrosResponse?.map { it }
-        val parametersFiltered = parameterValues?.filter { it?.parametro?.habilitado == true }
+        val parametersFiltered = parameterValues?.filter { it.parametro?.habilitado == true }
         parametersViewModel.setParameters(parametersFiltered)
     }
 

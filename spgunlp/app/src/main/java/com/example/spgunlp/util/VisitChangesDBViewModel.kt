@@ -2,6 +2,7 @@ package com.example.spgunlp.util
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -29,8 +30,12 @@ class VisitChangesDBViewModel(application: Application):AndroidViewModel(applica
         }
     }
 
-    fun getVisitsByEmail(email: String): List<VisitUpdate>?{
+    fun getVisitsByEmail(email: String): List<VisitUpdate>{
         return repository.getVisitsByEmail(email)
+    }
+
+    fun getVisitsByEmailSync(email: String): List<VisitUpdate>{
+        return repository.getVisitsByEmailSync(email)
     }
 
     fun deleteVisitById(id: Int) {

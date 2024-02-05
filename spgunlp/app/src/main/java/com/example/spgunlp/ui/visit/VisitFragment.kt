@@ -1,16 +1,20 @@
 package com.example.spgunlp.ui.visit
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.maps.MapActivity
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class VisitFragment : BaseFragment() {
 
@@ -30,28 +34,27 @@ class VisitFragment : BaseFragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        visitViewModel.nameProducer.observe(viewLifecycleOwner, Observer { value ->
-            binding.nameProducer.text = value
-        })
+        var visitId: Int = 0
 
-        visitViewModel.members.observe(viewLifecycleOwner, Observer { value ->
-            binding.members.text = value
-        })
+        visitViewModel.visit.observe(viewLifecycleOwner) { visit ->
+            binding.nameProducer.text = visit.quintaResponse?.nombreProductor
+            val memberValues = visit.integrantes?.map { it.nombre }
+            val members= memberValues?.joinToString(separator=",")
+            binding.members.text = members
+            val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
+            val date = LocalDateTime.parse(visit.fechaVisita, formatter)
+            val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            binding.visitDate.text = dateFormatted
+            binding.surfaceCountry.text = visit.quintaResponse?.superficieTotalCampo.toString()
+            binding.surfaceAgro.text = visit.quintaResponse?.superficieAgroecologiaCampo.toString()
+            if (visit.id != null)
+                visitId = visit.id
+        }
 
-        visitViewModel.visitDate.observe(viewLifecycleOwner, Observer { value ->
-            binding.visitDate.text = value
-        })
-
-        visitViewModel.surfaceCountry.observe(viewLifecycleOwner, Observer { value ->
-            binding.surfaceCountry.text = value.toString()
-        })
-
-        visitViewModel.surfaceAgro.observe(viewLifecycleOwner, Observer { value ->
-            binding.surfaceAgro.text = value.toString()
-        })
 
         binding.btnPrinciples.setOnClickListener(){
             bundleViewModel.clearPrinciplesState()
@@ -64,7 +67,7 @@ class VisitFragment : BaseFragment() {
         binding.btnMap.setOnClickListener(){
             activity?.let{
                 val intent = Intent(it, MapActivity::class.java)
-                intent.putExtra("ID_VISIT", visitViewModel.id.value!!.toLong())
+                intent.putExtra("ID_VISIT", visitId.toLong())
                 it.startActivity(intent)
             }
         }

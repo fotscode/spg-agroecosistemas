@@ -15,6 +15,7 @@ import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -26,7 +27,7 @@ import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
-import com.example.spgunlp.model.VisitUpdate
+import com.example.spgunlp.ui.visit.PrinciplesDBViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
@@ -35,9 +36,14 @@ import com.example.spgunlp.util.VisitsDBViewModel
 import com.example.spgunlp.util.VisitsViewModel
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
+import com.example.spgunlp.util.syncPrinciplesWithDB
 import com.example.spgunlp.util.updatePreferences
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -46,14 +52,12 @@ class MainActivity : AppCompatActivity() {
     private val authService: AuthService by lazy {
         AuthService.create()
     }
-    private val visitService: VisitService by lazy {
-        VisitService.create()
-    }
 
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var visitsDBViewModel: VisitsDBViewModel
     private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
+    private lateinit var principlesViewModel: PrinciplesDBViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,12 +66,12 @@ class MainActivity : AppCompatActivity() {
         scheduler.schedule()
 
         // init viewmodel
-        visitsDBViewModel = ViewModelProvider(this).get(VisitsDBViewModel::class.java)
-        visitUpdateViewModel = ViewModelProvider(this).get(VisitChangesDBViewModel::class.java)
+        visitsDBViewModel = ViewModelProvider(this)[VisitsDBViewModel::class.java]
+        visitUpdateViewModel = ViewModelProvider(this)[VisitChangesDBViewModel::class.java]
+        principlesViewModel = ViewModelProvider(this)[PrinciplesDBViewModel::class.java]
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //getSupportActionBar()?.hide()
 
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
@@ -116,8 +120,6 @@ class MainActivity : AppCompatActivity() {
                                     "Se ha sincronizado correctamente",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                val header = "Bearer ${preferences["jwt", ""]}"
-                                getVisits(header, this@MainActivity, visitService, false)
                                 dialog.dismiss()
                             } else {
                                 makeText(
@@ -130,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     dialog.show()
                 } else
-                    Toast.makeText(
+                    makeText(
                         this@MainActivity,
                         "Sincronización fallida",
                         Toast.LENGTH_SHORT
@@ -143,11 +145,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        val visitsViewModel: VisitsViewModel by viewModels()
-        visitsViewModel.clearVisitList()
-    }
     fun setBottomNavigationVisibility(visibility: Int) {
         binding.navView.visibility = visibility
         binding.fabSync.visibility = visibility
@@ -194,19 +191,8 @@ class MainActivity : AppCompatActivity() {
         header: String,
         context: Context,
         visitService: VisitService,
-        useSaved: Boolean,
     ): List<AppVisit> {
         var visits: List<AppVisit> = emptyList()
-        val lastUpdate = PreferenceHelper.defaultPrefs(context)["LAST_UPDATE", 0L]
-        val currentDate = Date().time
-
-        val visitsViewModel: VisitsViewModel by viewModels()
-
-        if (currentDate - lastUpdate < 300000 && useSaved && !visitsViewModel.isVisitListEmpty()) {// 5mins
-            Log.i("SPGUNLP_TAG", "getVisits: last update less than 5 mins")
-            visits = visitsViewModel.getVisits() ?: emptyList()
-            return visits
-        }
 
         try {
             val response = visitService.getVisits(header)
@@ -214,52 +200,59 @@ class MainActivity : AppCompatActivity() {
             if (response.isSuccessful && body != null) {
                 visits = body
                 updatePreferences(context)
-                //TODO manage DB updates
-                //TODO remove Visit Entity
+                visitsDBViewModel.clearVisits()
                 visitsDBViewModel.insertVisits(visits)
-                visitsDBViewModel.updateVisits(visits)
+                Log.i("SPGUNLP_DB", visits.toString())
                 visits = updateVisitsWithLocalChanges(context, visits)
-                visitsViewModel.saveVisits(visits)
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
-                visits = visitsViewModel.getVisits() ?: emptyList()
+                visits = lifecycleScope.async {
+                    return@async visitsDBViewModel.getAllVisits()
+                }.await()
             }
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
-            visits = visitsViewModel.getVisits() ?: emptyList()
+            visits = lifecycleScope.async {
+                return@async visitsDBViewModel.getAllVisits()
+            }.await()
         }
+
         return visits
     }
 
-    private fun updateVisitsWithLocalChanges(context: Context, visits: List<AppVisit>): List<AppVisit> {
-        val visitsUpdated = mutableListOf<AppVisit>()
+    @OptIn(DelicateCoroutinesApi::class)
+    private suspend fun updateVisitsWithLocalChanges(context: Context, visits: List<AppVisit>): List<AppVisit> {
+        val visitsUpdates = mutableListOf<AppVisit>()
         val preferences = PreferenceHelper.defaultPrefs(context)
         val email: String = preferences["email"]
-        val visitChanges = visitUpdateViewModel.getVisitsByEmail(email)
+        val updates = GlobalScope.async {
+            return@async visitUpdateViewModel.getVisitsByEmail(email)
+        }.await()
         visits.forEach { visit ->
-            val visitFound = visitChanges?.find {
+            val visitFound = updates.find {
                 it.visitId == visit.id
             }
             if (visitFound != null) {
-                visitsUpdated.add(updateVisitWithLocalVisitUpdate(visit, visitFound.visit))
+                visitsUpdates.add(updateVisitWithLocalVisitUpdate(visit, visitFound.visit))
             } else {
-                visitsUpdated.add(visit)
+                visitsUpdates.add(visit)
             }
         }
-        return visitsUpdated
+
+        return visitsUpdates.toList()
     }
 
     private fun updateVisitWithLocalVisitUpdate(visit: AppVisit, visitUpdate: AppVisitUpdate): AppVisit{
         val newParameters = mutableListOf<AppVisitParameters>()
         visit.visitaParametrosResponse?.forEach {parameter ->
-           val parFound = visitUpdate.parametros?.find { it.parametroId == parameter.id }
+           val parFound = visitUpdate.parametros?.find { it.parametroId == parameter.parametro?.id }
             if (parFound != null){
                 newParameters.add(
                     AppVisitParameters(
                         parFound.aspiracionesFamiliares,
                         parFound.comentarios,
                         parFound.cumple,
-                        parameter.parametro?.id,
+                        parameter.id,
                         parameter.nombre,
                         parameter.parametro,
                         parFound.sugerencias,

@@ -1,6 +1,5 @@
 package com.example.spgunlp.ui.active
 
-import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -8,12 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.ListVisitElementBinding
 import com.example.spgunlp.model.AppVisit
-import java.sql.Time
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.TimeZone
 
 class VisitViewHolder(private val cardCellBinding:ListVisitElementBinding,private val clickListener:VisitClickListener): RecyclerView.ViewHolder(cardCellBinding.root)
 {
@@ -36,7 +32,7 @@ class VisitViewHolder(private val cardCellBinding:ListVisitElementBinding,privat
         val dateString="Última modificación: $res"
         cardCellBinding.visitDateModif.text = dateString
 
-        cardCellBinding.cardView.setOnClickListener(){
+        cardCellBinding.cardView.setOnClickListener{
             clickListener.onClick(visit)
         }
     }

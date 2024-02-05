@@ -43,7 +43,7 @@ class LoginFragment : BaseFragment() {
 
         //TODO store written login data before rotating screen
         val loginViewModel =
-            ViewModelProvider(this).get(LoginViewModel::class.java)
+            ViewModelProvider(this)[LoginViewModel::class.java]
 
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         val root: View = binding.root

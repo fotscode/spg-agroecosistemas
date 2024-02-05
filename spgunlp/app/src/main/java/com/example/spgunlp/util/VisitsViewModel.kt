@@ -9,6 +9,16 @@ open class VisitsViewModel(private val savedStateHandle: SavedStateHandle) : Vie
     fun saveVisits(visits: List<AppVisit>) {
         this.savedStateHandle["visits"] = visits
     }
+
+    fun updateVisit(visit: AppVisit) {
+        val visits = getVisits()?.toMutableList()
+        val oldVisit = visits?.find { it.id == visit.id }
+        if (oldVisit != null) {
+            val pos = visits.indexOf(oldVisit)
+            visits[pos] = visit
+        }
+        this.savedStateHandle["visits"] = visits?.toList()
+    }
     fun getVisits(): List<AppVisit>?{
         return savedStateHandle["visits"]
     }

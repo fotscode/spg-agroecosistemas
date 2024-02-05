@@ -46,7 +46,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         )
 
         // init viewmodel
-        mPoligonoViewModel = ViewModelProvider(this).get(PoligonoViewModel::class.java)
+        mPoligonoViewModel = ViewModelProvider(this)[PoligonoViewModel::class.java]
 
         val ID_VISIT = intent.getLongExtra("ID_VISIT", 0)
 
@@ -81,7 +81,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         mMap.addMapListener(this)
 
         // inicializar con datos de la base de datos
-        mPoligonoViewModel.getPoliByIdVisit(ID_VISIT).observe(this, Observer { poligonos ->
+        mPoligonoViewModel.getPoliByIdVisit(ID_VISIT).observe(this) { poligonos ->
             mMap.overlays.clear()
             poligonos.forEach {
                 val geoPoints = it.coordenadas.replace("[", "").replace("]", "").split(",0.0,")
@@ -97,7 +97,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
                 polygon.setOnClickListener(onClickPolygon(it.id))
                 mMap.overlays.add(polygon)
             }
-        })
+        }
 
 
         binding.drawBtn.setOnClickListener {

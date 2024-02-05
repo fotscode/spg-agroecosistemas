@@ -3,15 +3,11 @@ package com.example.spgunlp.ui.login
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.text.InputType
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.R
@@ -20,16 +16,13 @@ import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.response.AuthErrorResponse
 import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.ui.BaseFragment
-import com.example.spgunlp.ui.login.LoginFragment
-import com.example.spgunlp.ui.login.RegisterViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class RegisterFragment : BaseFragment() {
 
-    val mapItemInteger = mapOf(
+    private val mapItemInteger = mapOf(
         "Consumidor" to 1,
         "Equipo tecnico" to 2,
         "Productor/a" to 3,
@@ -51,7 +44,7 @@ class RegisterFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         val registerViewModel =
-            ViewModelProvider(this).get(RegisterViewModel::class.java)
+            ViewModelProvider(this)[RegisterViewModel::class.java]
 
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -62,15 +55,15 @@ class RegisterFragment : BaseFragment() {
         binding.autoCompleteTextView.setAdapter(adapter)
 
 
-        binding.btnInicioSesion.setOnClickListener() {
+        binding.btnInicioSesion.setOnClickListener {
             goToLoginFragment()
         }
 
-        binding.btnRegistrar.setOnClickListener() {
+        binding.btnRegistrar.setOnClickListener {
             performRegister()
         }
 
-        binding.autoCompleteTextView.setOnClickListener() {
+        binding.autoCompleteTextView.setOnClickListener {
             val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }

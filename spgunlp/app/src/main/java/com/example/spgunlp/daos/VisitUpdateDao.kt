@@ -21,7 +21,10 @@ interface VisitUpdateDao {
     suspend fun updateVisit(visit: VisitUpdate)
 
     @Query("SELECT * FROM changes_table WHERE email = :email")
-    fun getVisitsByEmail(email: String): LiveData<List<VisitUpdate>?>
+    fun getVisitsByEmail(email: String): List<VisitUpdate>
+
+    @Query("SELECT * FROM changes_table WHERE email = :email")
+    fun getVisitsByEmailSync(email: String): List<VisitUpdate>
 
     @Query("DELETE FROM changes_table WHERE visitId = :id")
     suspend fun deleteVisitById(id: Int)

@@ -88,9 +88,7 @@ class ProfileFragment : BaseFragment() {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         preferences["jwt"] = ""
         preferences["email"] = ""
-        //preferences["LIST_VISITS"] = ""
         preferences["LAST_UPDATE"] = 0L
-        //preferences["PRINCIPLES"] = ""
         preferences["UPDATE_PRINCIPLES"] = 0L
         goToLoginFragment()
     }

@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.spgunlp.daos.PerfilDao
 import com.example.spgunlp.daos.PoligonoDao
+import com.example.spgunlp.daos.PrinciplesDao
 import com.example.spgunlp.daos.VisitUpdateDao
 import com.example.spgunlp.daos.VisitsDao
 import com.example.spgunlp.model.AppImage
@@ -19,8 +20,8 @@ import com.example.spgunlp.model.VisitUpdate
 import com.example.spgunlp.model.VisitUserJoin
 
 @Database(
-    entities = [Poligono::class, Perfil::class, AppVisit::class, VisitUpdate::class, AppImage::class, AppUser::class, AppVisitParameters::class, VisitUserJoin::class],
-    version = 6,
+    entities = [Poligono::class, Perfil::class, AppVisit::class, VisitUpdate::class, AppImage::class, AppUser::class, AppVisitParameters::class, VisitUserJoin::class, AppVisitParameters.Principle::class],
+    version = 8,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -28,6 +29,8 @@ import com.example.spgunlp.model.VisitUserJoin
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6),
+        AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8),
     ]
 )
 @TypeConverters(
@@ -38,6 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun perfilDao(): PerfilDao
     abstract fun visitsDao(): VisitsDao
     abstract fun visitUpdatesDao(): VisitUpdateDao
+    abstract fun principlesDao(): PrinciplesDao
 
     companion object {
         @Volatile

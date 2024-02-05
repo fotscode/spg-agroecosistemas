@@ -44,9 +44,11 @@ data class AppVisitParameters (
     }
 
     //TODO store Principles in DB for caching
+    @Entity(tableName = "principles_table")
     @Parcelize
     data class Principle(
         val habilitado: Boolean?,
+        @PrimaryKey
         val id: Int?,
         val nombre: String?
     ): Parcelable{

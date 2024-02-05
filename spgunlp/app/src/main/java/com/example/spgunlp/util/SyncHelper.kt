@@ -1,4 +1,4 @@
-package com.example.spgunlp.util;
+package com.example.spgunlp.util
 
 import android.content.Context
 import android.util.Log
@@ -13,19 +13,24 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 
+@OptIn(DelicateCoroutinesApi::class)
 suspend fun performSync(context: Context): Boolean {
     val preferences = context.let { PreferenceHelper.defaultPrefs(it) }
     val email: String = preferences["email"]
-
     val dao = AppDatabase.getDatabase(context).visitUpdatesDao()
-    val visits = dao.getVisitsByEmail(email).value
+    val visits = GlobalScope.async {
+        return@async dao.getVisitsByEmailSync(email)
+    }.await()
     Log.i("ALARM_RECEIVER", "onReceive, viendo si hay visitas")
     val jwt = preferences["jwt", ""]
     var result = true
-    if (visits != null && jwt != "") {
+    if (visits.isNotEmpty() && (jwt != "")) {
         val visitService = VisitService.create()
-        val header: String = "Bearer $jwt"
+        val header = "Bearer $jwt"
         for (visit in visits) {
             Log.i("ALARM_RECEIVER", "visita: ${visit.visitId}")
             try {
@@ -46,7 +51,8 @@ suspend fun performSync(context: Context): Boolean {
         }
 
     }
-    if (dao.getVisitsByEmail(email).value == null)
+
+    if (result)
         preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
 
     return result
