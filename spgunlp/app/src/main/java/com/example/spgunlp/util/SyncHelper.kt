@@ -1,4 +1,4 @@
-package com.example.spgunlp.util;
+package com.example.spgunlp.util
 
 import android.content.Context
 import android.util.Log
@@ -18,10 +18,10 @@ import com.example.spgunlp.util.PreferenceHelper.set
 
 suspend fun performSync(context: Context): Boolean {
     val visitService = VisitService.create()
-    val preferences = context?.let { PreferenceHelper.defaultPrefs(it) }
-    val idVisits = preferences?.get("VISIT_IDS", "")?.split(",")
+    val preferences = context.let { PreferenceHelper.defaultPrefs(it) }
+    val idVisits = preferences["VISIT_IDS", ""].split(",")
     Log.i("ALARM_RECEIVER", "onReceive, viendo si hay visitas")
-    val jwt = preferences?.get("jwt", "")
+    val jwt = preferences["jwt", ""]
     var stringToDelete = ""
     var result = true
     if (idVisits != null && jwt != null && jwt != "") {
@@ -56,27 +56,27 @@ suspend fun performSync(context: Context): Boolean {
             }
         }
     }
-    preferences!!["SYNC_CLICKED"] = false
+    preferences["SYNC_CLICKED"] = false
     if (stringToDelete != "") {
-        val newString = preferences?.get("VISIT_IDS", "")?.replace(stringToDelete, "")
-        preferences?.set("VISIT_IDS", newString)
+        val newString = preferences["VISIT_IDS", ""].replace(stringToDelete, "")
+        preferences["VISIT_IDS"] = newString
     }
-    val ids = preferences?.get("VISIT_IDS", "")
+    val ids = preferences["VISIT_IDS", ""]
     if (ids == "")
         preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
 
     try {
-        val res=visitService.getHome("Bearer "+jwt)
-        if (res.code()==401||res.code()==403) {
-            preferences!!["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
-            result=false
+        val res = visitService.getHome("Bearer " + jwt)
+        if (res.code() == 401 || res.code() == 403) {
+            preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
+            result = false
             Log.i("ALARM_RECEIVER", "onReceive: 401 o 403")
-        }else{
-            preferences!!["SYNC_CLICKED"] = true
+        } else {
+            preferences["SYNC_CLICKED"] = true
         }
-    }catch (e:Exception){
-        preferences!!["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
-        result=false
+    } catch (e: Exception) {
+        preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
+        result = false
     }
 
     return result
