@@ -1,15 +1,19 @@
 package com.example.spgunlp.ui.inactive
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.spgunlp.MainActivity
 import com.example.spgunlp.databinding.FragmentActiveBinding
 import com.example.spgunlp.databinding.FragmentInactiveBinding
@@ -18,13 +22,16 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.IS_ACTIVE
 import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
+import com.example.spgunlp.ui.active.VisitAdapter
 import com.example.spgunlp.ui.active.VisitClickListener
+import com.example.spgunlp.ui.login.LoginFragment
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.calendar
 import com.example.spgunlp.util.updateRecycler
 import com.google.gson.Gson
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -44,6 +51,9 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var visitLayout: FragmentActiveBinding
+    private lateinit var jobToKill: Job
+    private lateinit var context: Context
+    private lateinit var fragmentActivity: FragmentActivity
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -51,6 +61,8 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        context = requireContext()
+        fragmentActivity = requireActivity()
 
         showAll=inactiveViewModel.showAll
 
@@ -63,6 +75,11 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
             if (inactiveViewModel.showAll) "Mostrar mis visitas" else "Mostrar todas las visitas"
 
         if (inactiveViewModel.isInactiveVisitListEmpty()){
+            Log.i("InactiveFragment", "onCreateView: populateVisits()")
+            visitLayout.activeList.setAdapter(VisitAdapter(visitList, this))
+            visitLayout.activeList.setLayoutManager(LinearLayoutManager(fragmentActivity))
+            visitLayout.activeList.veil()
+            visitLayout.activeList.addVeiledItems(5)
             visitList.clear()
             populateVisits()
         }
@@ -96,7 +113,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
                 visitList,
                 this@InactiveFragment,
                 visitLayout.activeList,
-                requireActivity()
+                fragmentActivity
             ).onClick(it)
         }
         visitLayout.btnFiltro.visibility=View.VISIBLE
@@ -128,23 +145,37 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        visitLayout.activeList.setAdapter(VisitAdapter(visitList, this))
+        visitLayout.activeList.setLayoutManager(LinearLayoutManager(fragmentActivity))
+        visitLayout.activeList.veil()
+        visitLayout.activeList.addVeiledItems(5)
+        populateVisits()
+    }
+
     private fun populateVisits() {
-        lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        jobToKill = lifecycleScope.launch {
+            val preferences = PreferenceHelper.defaultPrefs(context)
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
                 cancel()
             val header = "Bearer $jwt"
-            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService)
+            val visits = (activity as MainActivity).getVisits(header, context, visitService)
             inactiveVisits(visits)
-            updateRecycler(
-                visitLayout.activeList, visitList, activity, this@InactiveFragment
-            )
+            if (_binding != null){
+
+                updateRecycler(
+                    visitLayout.activeList, visitList, activity, this@InactiveFragment
+                )
+                visitLayout.activeList.unVeil()
+            }
+            Log.i("InactiveFragment", "populateVisits: ")
         }
     }
 
     private fun inactiveVisits(visits: List<AppVisit>) {
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        val preferences = PreferenceHelper.defaultPrefs(context)
         val email = preferences["email", ""]
         val filteredVisits = visits.filter { visit ->
             visit.estadoVisita == "CERRADA" && (isUserIn(email, visit) || showAll)
@@ -160,7 +191,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     }
 
     override fun onClick(visit: AppVisit) {
-        val intent = Intent(requireActivity(), VisitActivity::class.java)
+        val intent = Intent(fragmentActivity, VisitActivity::class.java)
         val gson = Gson()
         val visitGson = gson.toJson(visit)
         intent.putExtra(VISIT_ITEM, visitGson)
@@ -170,6 +201,8 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
         visitList.clear()
         _binding = null
     }

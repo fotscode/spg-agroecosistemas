@@ -18,6 +18,7 @@ import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.ui.BaseFragment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class RegisterFragment : BaseFragment() {
@@ -38,6 +39,8 @@ class RegisterFragment : BaseFragment() {
     private val binding get() = _binding!!
 
     private lateinit var viewModel: RegisterViewModel
+
+    private lateinit var jobToKill: Job
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,7 +94,7 @@ class RegisterFragment : BaseFragment() {
         }
 
         // make the call to the remote API with coroutines
-        lifecycleScope.launch {
+        jobToKill = lifecycleScope.launch {
             val user = AppUser(
                 editMail,
                 editPassword,
@@ -127,4 +130,10 @@ class RegisterFragment : BaseFragment() {
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
+        _binding = null
+    }
 }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.async
 
 @OptIn(DelicateCoroutinesApi::class)
 suspend fun performSync(context: Context): Boolean {
+    val visitService = VisitService.create()
     val preferences = context.let { PreferenceHelper.defaultPrefs(it) }
     val email: String = preferences["email"]
     val dao = AppDatabase.getDatabase(context).visitUpdatesDao()
@@ -49,11 +50,26 @@ suspend fun performSync(context: Context): Boolean {
                 Log.i("ALARM_RECEIVER", "onReceive: $e")
             }
         }
-
     }
 
     if (result)
         preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
+
+    // sync_clicked is true if there's internet connection
+    preferences["SYNC_CLICKED"] = false
+    try {
+        val res = visitService.getHome("Bearer $jwt")
+        if (res.code() == 401 || res.code() == 403) {
+            preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
+            result = false
+            Log.i("ALARM_RECEIVER", "onReceive: 401 o 403")
+        } else {
+            preferences["SYNC_CLICKED"] = true
+        }
+    } catch (e: Exception) {
+        preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
+        result = false
+    }
 
     return result
 }

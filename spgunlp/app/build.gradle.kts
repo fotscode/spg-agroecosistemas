@@ -5,9 +5,9 @@ val key: String = gradleLocalProperties(rootDir).getProperty("BASE_URL")
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-parcelize")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -87,4 +87,11 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     androidTestImplementation("androidx.room:room-testing:$room_version")
+
+    // csv
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
+
+    // skeletons
+    implementation("com.github.skydoves:androidveil:1.1.3")
 }

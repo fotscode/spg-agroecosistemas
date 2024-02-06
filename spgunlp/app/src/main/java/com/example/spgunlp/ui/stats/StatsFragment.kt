@@ -1,10 +1,14 @@
 package com.example.spgunlp.ui.stats
 
 import android.animation.ObjectAnimator
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +23,9 @@ import com.example.spgunlp.ui.visit.BundleViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.getPrinciples
+import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class StatsFragment : BaseFragment() {
@@ -36,6 +43,10 @@ class StatsFragment : BaseFragment() {
     private var percentageList = mutableListOf<Float>()
     private var cumpleList = mutableListOf<Boolean>()
     private var approvedVisitsPercentage = 0f
+    private lateinit var jobToKill: Job
+    private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
+    private lateinit var mainActivity: MainActivity
+    private lateinit var context: Context
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,26 +54,41 @@ class StatsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentStatsBinding.inflate(inflater, container, false)
+        context=requireContext()
+        mainActivity = activity as MainActivity
         val root: View = binding.root
-
         return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.cardView.setOnClickListener() {
-            binding.cardView.invalidate()
-            ObjectAnimator.ofArgb(
-                binding.cardView,
-                "strokeColor",
-                getColor(R.color.purple_200),
-                getColor(R.color.green),
-                getColor(R.color.teal_200),
-                getColor(R.color.purple_200),
-            ).apply {
-                duration = 3000
-                start()
+        // observes the jwt changes
+        val preferences = PreferenceHelper.defaultPrefs(context)
+        listenerPreferences= SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
+            if (key == "jwt") {
+                val jwt = sharedPreferences.getString(key, "")
+                if (jwt != null && jwt.contains(".")) {
+                    Log.i("ActiveFragment", "jwt changed")
+                    populatePrinciples()
+                }
+            }else if (key=="SYNC_CLICKED" && sharedPreferences.getBoolean(key, false)){
+                Log.i("StatsFragment", "SYNC_CLICKED")
+                populatePrinciples()
+            }
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listenerPreferences)
+        if (_binding != null) {
+            binding.approvedVisitsCard.setOnClickListener() {
+                onClickCardView(binding.approvedVisitsCard)
+            }
+
+            binding.approvedPrinciplesCard.setOnClickListener() {
+                onClickCardView(binding.approvedPrinciplesCard)
+            }
+
+            binding.approvedPrinciplesGrid.setOnClickListener() {
+                onClickCardView(binding.approvedPrinciplesCard)
             }
         }
 
@@ -71,43 +97,67 @@ class StatsFragment : BaseFragment() {
     }
 
     private fun getColor(color: Int): Int {
-        return ContextCompat.getColor(requireContext(), color)
+        return ContextCompat.getColor(context, color)
     }
 
     private fun populatePrinciples() {
-        lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
+        jobToKill = lifecycleScope.launch {
+            val preferences = PreferenceHelper.defaultPrefs(context)
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
             val principles =
-                getPrinciples(header, visitService, bundleViewModel, requireContext().applicationContext)
+                getPrinciples(header, visitService, bundleViewModel, context.applicationContext)
 
+            approvedVisitsPercentage = 0f
             activePrinciples(principles)
             percentageList = MutableList(principlesList.size) { 0f }
             // get visits, for each visit, get visitParamRes, for each param get principle and cumple
-            val visits =
-                (activity as MainActivity).getVisits(header, requireContext(), visitService)
+            val visits = mainActivity.getVisits(header, context, visitService)
             visits.forEach {
                 cumpleList = MutableList(principlesList.size) { true }
-                if (it.visitaParametrosResponse != null){
-                    it.visitaParametrosResponse.forEach{
-                        cumpleList[it.parametro?.principioAgroecologico?.id!!-1] = cumpleList[it.parametro?.principioAgroecologico?.id!!-1] && it.cumple!!
+                if (it.visitaParametrosResponse != null) {
+                    it.visitaParametrosResponse.forEach {
+                        cumpleList[it.parametro?.principioAgroecologico?.id!! - 1] =
+                            cumpleList[it.parametro?.principioAgroecologico?.id!! - 1] && it.cumple!!
                     }
-                    cumpleList.forEachIndexed { index,cumple->
-                        percentageList[index] = if (cumple) percentageList[index] + 1f/visits.size else percentageList[index]
+                    cumpleList.forEachIndexed { index, cumple ->
+                        percentageList[index] =
+                            if (cumple) percentageList[index] + 1f / visits.size else percentageList[index]
                     }
-                    approvedVisitsPercentage = if (cumpleList.all { it }) approvedVisitsPercentage + 1f/visits.size else approvedVisitsPercentage
+                    approvedVisitsPercentage =
+                        if (cumpleList.all { it }) approvedVisitsPercentage + 1f / visits.size else approvedVisitsPercentage
                 }
             }
-            binding.percentageVisitsApproved.text= "${(approvedVisitsPercentage*100).format(2)}%"
-            updateRecycler(principlesList,getFormattedPercentages(percentageList))
+            if (_binding != null) {
+                binding.percentageVisitsApproved.text =
+                    "${(approvedVisitsPercentage * 100).format(2)}%"
+                updateRecycler(principlesList, getFormattedPercentages(percentageList))
+                if (principlesList.isEmpty())
+                    binding.approvedPrinciplesCard.visibility = View.GONE
+                if (visits.isEmpty()){
+                    binding.approvedPrinciplesCard.visibility = View.GONE
+                    binding.approvedVisitsCard.visibility = View.GONE
+                    Toast.makeText(
+                        context,
+                        "No se encontraron visitas",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    binding.noDataLayout.visibility = View.VISIBLE
+                }else{
+                    binding.approvedPrinciplesCard.visibility = View.VISIBLE
+                    binding.approvedVisitsCard.visibility = View.VISIBLE
+                    binding.noDataLayout.visibility = View.GONE
+                }
+                binding.approvedPrinciplesVeil.unVeil()
+                binding.approvedVisitsVeil.unVeil()
+            }
         }
     }
 
     private fun Float.format(digits: Int) = "%.${digits}f".format(this)
     private fun activePrinciples(principles: List<AppVisitParameters.Principle>) {
         val filteredPrinciples = principles.filter {
-            it.habilitado == true
+            it.habilitado == true && !principlesList.contains(it)
         }
         principlesList.addAll(filteredPrinciples)
     }
@@ -116,22 +166,42 @@ class StatsFragment : BaseFragment() {
         principles: List<AppVisitParameters.Principle>,
         percentages: List<String>
     ) {
-        binding.gridView.apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
-            adapter = StatsAdapter(principles,percentages)
+        binding.approvedPrinciplesGrid.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = StatsAdapter(principles, percentages)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
         _binding = null
+        // remove preferences listener
+        val preferences = PreferenceHelper.defaultPrefs(context)
+        preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
     }
 
-    private fun getFormattedPercentages(percentages: List<Float>):List<String>{
+    private fun getFormattedPercentages(percentages: List<Float>): List<String> {
         val formattedList = mutableListOf<String>()
-        percentages.forEach{
-            formattedList.add(String.format("%.2f", it*100)+"%")
+        percentages.forEach {
+            formattedList.add(String.format("%.2f", it * 100) + "%")
         }
         return formattedList
+    }
+
+    private fun onClickCardView(cardView: MaterialCardView) {
+        cardView.invalidate()
+        ObjectAnimator.ofArgb(
+            cardView,
+            "strokeColor",
+            getColor(R.color.purple_200),
+            getColor(R.color.green),
+            getColor(R.color.teal_200),
+            getColor(R.color.purple_200),
+        ).apply {
+            duration = 3000
+            start()
+        }
     }
 }

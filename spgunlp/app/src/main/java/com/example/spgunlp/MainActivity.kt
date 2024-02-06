@@ -11,11 +11,11 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.makeText
-import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -27,26 +27,21 @@ import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
-import com.example.spgunlp.ui.visit.PrinciplesDBViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
-import com.example.spgunlp.util.VisitsViewModel
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
-import com.example.spgunlp.util.syncPrinciplesWithDB
 import com.example.spgunlp.util.updatePreferences
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private val authService: AuthService by lazy {
@@ -57,7 +52,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var visitsDBViewModel: VisitsDBViewModel
     private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
-    private lateinit var principlesViewModel: PrinciplesDBViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +62,6 @@ class MainActivity : AppCompatActivity() {
         // init viewmodel
         visitsDBViewModel = ViewModelProvider(this)[VisitsDBViewModel::class.java]
         visitUpdateViewModel = ViewModelProvider(this)[VisitChangesDBViewModel::class.java]
-        principlesViewModel = ViewModelProvider(this)[PrinciplesDBViewModel::class.java]
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -95,42 +88,7 @@ class MainActivity : AppCompatActivity() {
                         ContextCompat.getColor(applicationContext, R.color.green)
                     updateColorFab()
                 } else if (preferences["COLOR_FAB", -1] == colorRed) {
-                    val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
-                    val inflater = LayoutInflater.from(this@MainActivity)
-                    val view = inflater.inflate(R.layout.fragment_login, null)
-                    view.findViewById<TextView>(R.id.title_inicio).text =
-                        "Token expirado, inicie sesión nuevamente"
-                    view.findViewById<Button>(R.id.btn_crear_usuario).visibility = View.GONE
-                    val mail = view.findViewById<EditText>(R.id.edit_mail)
-                    mail.setText(preferences["email", ""])
-                    dialog.setView(view)
-                    val pwd = view.findViewById<EditText>(R.id.edit_password)
-                    view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
-                        lifecycleScope.launch {
-                            if (
-                                performLogin(
-                                    mail.text.toString(),
-                                    pwd.text.toString(),
-                                    this@MainActivity,
-                                    authService
-                                ) && performSync(this@MainActivity)
-                            ) {
-                                makeText(
-                                    this@MainActivity,
-                                    "Se ha sincronizado correctamente",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                dialog.dismiss()
-                            } else {
-                                makeText(
-                                    this@MainActivity,
-                                    "Inicio de sesion fallido",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }
-                    dialog.show()
+                    makeLoginPopup()
                 } else
                     makeText(
                         this@MainActivity,
@@ -209,6 +167,9 @@ class MainActivity : AppCompatActivity() {
                 visits = lifecycleScope.async {
                     return@async visitsDBViewModel.getAllVisits()
                 }.await()
+                makeLoginPopup().also {
+                    it.observe(this) { visits = it }
+                }
             }
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
@@ -218,6 +179,57 @@ class MainActivity : AppCompatActivity() {
         }
 
         return visits
+    }
+
+    private fun makeLoginPopup(): LiveData<List<AppVisit>>{
+        val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
+        val inflater = LayoutInflater.from(this@MainActivity)
+        val view = inflater.inflate(R.layout.fragment_login, null)
+        view.findViewById<TextView>(R.id.title_inicio).text =
+            "Token expirado, inicie sesión nuevamente"
+        view.findViewById<Button>(R.id.btn_crear_usuario).visibility = View.GONE
+        val mail = view.findViewById<EditText>(R.id.edit_mail)
+        val preferences = PreferenceHelper.defaultPrefs(this)
+        mail.setText(preferences["email", ""])
+        dialog.setView(view)
+        val pwd = view.findViewById<EditText>(R.id.edit_password)
+        val result = MutableLiveData<List<AppVisit>>()
+
+        preferences["COLOR_FAB"] = ContextCompat.getColor(this, R.color.red)
+        updateColorFab()
+
+        view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
+            lifecycleScope.launch {
+                if (
+                    performLogin(
+                        mail.text.toString(),
+                        pwd.text.toString(),
+                        this@MainActivity,
+                        authService
+                    ) && performSync(this@MainActivity)
+                ) {
+                    makeText(
+                        this@MainActivity,
+                        "Se ha sincronizado correctamente",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val header = "Bearer ${preferences["jwt", ""]}"
+                    val visits = getVisits(header, this@MainActivity, visitService, false)
+                    result.postValue(visits)
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(this@MainActivity, R.color.green)
+                    updateColorFab()
+                    dialog.dismiss()
+                } else {
+                    makeText(
+                        this@MainActivity,
+                        "Inicio de sesion fallido",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        dialog.show()
+        return result
     }
 
     @OptIn(DelicateCoroutinesApi::class)

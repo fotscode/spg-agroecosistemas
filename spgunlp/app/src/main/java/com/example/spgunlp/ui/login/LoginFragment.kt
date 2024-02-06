@@ -10,15 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.FragmentLoginBinding
 import com.example.spgunlp.io.AuthService
-import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.active.ActiveFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
-import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.performLogin
-import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
@@ -34,6 +31,8 @@ class LoginFragment : BaseFragment() {
     // onDestroyView.
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var jobToKill: Job
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,7 +57,7 @@ class LoginFragment : BaseFragment() {
         binding.btnIniciarSesion.setOnClickListener() {
             val editEmail = binding.editMail.text.toString()
             val editPassword = binding.editPassword.text.toString()
-            lifecycleScope.launch {
+            jobToKill = lifecycleScope.launch {
                 if (performLogin(editEmail, editPassword, requireContext(), authService)) {
                     Toast.makeText(
                         context,
@@ -79,6 +78,8 @@ class LoginFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (::jobToKill.isInitialized)
+            jobToKill.cancel()
         _binding = null
     }
 

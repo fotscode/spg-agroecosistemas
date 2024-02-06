@@ -7,8 +7,6 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
@@ -20,22 +18,26 @@ import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.ui.visit.BundleViewModel
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.android.material.datepicker.MaterialDatePicker
-import kotlinx.coroutines.CompletableDeferred
+import com.skydoves.androidveil.VeilRecyclerFrameView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import java.time.ZonedDateTime
 import java.util.Date
 
 fun updateRecycler(
-    recyler: RecyclerView,
+    recyler: Any,
     list: List<AppVisit>,
     activity: FragmentActivity?,
     listener: VisitClickListener
 ) {
-    recyler.apply {
-        layoutManager = LinearLayoutManager(activity)
-        adapter = VisitAdapter(list, listener)
+    // check if the recycler is a recycler view or a veil recycler
+    if (recyler is RecyclerView) {
+        recyler.adapter = VisitAdapter(list, listener)
+        recyler.layoutManager = LinearLayoutManager(activity)
+    } else if (recyler is VeilRecyclerFrameView) {
+        recyler.setAdapter(VisitAdapter(list, listener))
+        recyler.setLayoutManager(LinearLayoutManager(activity))
+        recyler.unVeil()
     }
 }
 
@@ -50,7 +52,7 @@ fun calendar(
     parentFragmentManager: FragmentManager,
     visitList: List<AppVisit>,
     listener: VisitClickListener,
-    recyler: RecyclerView,
+    recyler: Any,
     activity: FragmentActivity?
 ): View.OnClickListener {
     return View.OnClickListener {
