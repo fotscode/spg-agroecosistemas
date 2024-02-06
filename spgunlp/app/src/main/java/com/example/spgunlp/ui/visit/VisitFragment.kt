@@ -10,8 +10,8 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
+import androidx.lifecycle.Observer
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.maps.MapActivity

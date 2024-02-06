@@ -5,10 +5,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.FragmentActivity
@@ -36,6 +37,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private var _binding: FragmentActiveBinding? = null
+    private lateinit var someActivityResultLauncher: ActivityResultLauncher<Intent>
     val visitList = mutableListOf<AppVisit>()
     private lateinit var jobToKill: Job
     private lateinit var context: Context
@@ -53,6 +55,10 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         val root: View = binding.root
         context=requireContext()
         fragmentActivity=requireActivity()
+
+        someActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            populateVisits()
+        }
 
         binding.searchView.clearFocus()
 
@@ -164,6 +170,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     override fun onClick(visit: AppVisit) {
         val intent = Intent(fragmentActivity, VisitActivity::class.java)
         intent.putExtra(VISIT_ITEM, visit)
-        startActivity(intent)
+        someActivityResultLauncher.launch(intent)
     }
 }

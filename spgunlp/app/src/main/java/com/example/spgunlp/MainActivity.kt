@@ -27,11 +27,12 @@ import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
+import com.example.spgunlp.ui.visit.PrinciplesDBViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
-import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
+import com.example.spgunlp.util.createVisit
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
 import com.example.spgunlp.util.updatePreferences
@@ -48,14 +49,11 @@ class MainActivity : AppCompatActivity() {
         AuthService.create()
     }
 
-    private val visitService: VisitService by lazy {
-        VisitService.create()
-    }
-
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var visitsDBViewModel: VisitsDBViewModel
     private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
+    private lateinit var principlesViewModel: PrinciplesDBViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         // init viewmodel
         visitsDBViewModel = ViewModelProvider(this)[VisitsDBViewModel::class.java]
         visitUpdateViewModel = ViewModelProvider(this)[VisitChangesDBViewModel::class.java]
+        principlesViewModel = ViewModelProvider(this)[PrinciplesDBViewModel::class.java]
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -88,8 +87,6 @@ class MainActivity : AppCompatActivity() {
                         "Sincronización exitosa",
                         Toast.LENGTH_SHORT
                     ).show()
-                    preferences["COLOR_FAB"] =
-                        ContextCompat.getColor(applicationContext, R.color.green)
                     updateColorFab()
                 } else if (preferences["COLOR_FAB", -1] == colorRed) {
                     makeLoginPopup(visitService)
@@ -131,24 +128,30 @@ class MainActivity : AppCompatActivity() {
         return binding.fabSync
     }
 
-    fun updateColorFab() {
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun updateColorFab() {
         val preferences = PreferenceHelper.defaultPrefs(this)
         val color = preferences["COLOR_FAB", -1]
-        val ids = preferences["VISIT_IDS", ""]
 
         if (color != -1) {
             binding.fabSync.backgroundTintList = ColorStateList.valueOf(color)
-        } else if (ids == "") {
-            binding.fabSync.backgroundTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.green))
         } else {
-            binding.fabSync.backgroundTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.yellow))
+            val visits = GlobalScope.async {
+                return@async visitUpdateViewModel.getVisitsByEmail(preferences["email"])
+            }.await()
+            if (visits.isEmpty()) {
+                binding.fabSync.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.green))
+            } else {
+                binding.fabSync.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.yellow))
+            }
         }
 
         Log.i("MainActivity", "updateColorFab: ${preferences["COLOR_FAB", -1]}")
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     suspend fun getVisits(
         header: String,
         context: Context,
@@ -161,15 +164,14 @@ class MainActivity : AppCompatActivity() {
             val body = response.body()
             if (response.isSuccessful && body != null) {
                 visits = body
-                updatePreferences(context)
                 visitsDBViewModel.clearVisits()
                 visitsDBViewModel.insertVisits(visits)
-                Log.i("SPGUNLP_DB", visits.toString())
                 visits = updateVisitsWithLocalChanges(context, visits)
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
-                visits = lifecycleScope.async {
-                    return@async visitsDBViewModel.getAllVisits()
+                visits = GlobalScope.async {
+                    val visitsDB = visitsDBViewModel.getAllVisits()
+                    return@async updateVisitsWithLocalChanges(context, visitsDB)
                 }.await()
                 makeLoginPopup(visitService).also {
                     it.observe(this) { visits = it }
@@ -178,7 +180,8 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
             visits = GlobalScope.async {
-                return@async visitsDBViewModel.getAllVisits()
+                val visitsDB = visitsDBViewModel.getAllVisits()
+                return@async updateVisitsWithLocalChanges(context, visitsDB)
             }.await()
         }
 
@@ -249,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                 it.visitId == visit.id
             }
             if (visitFound != null) {
-                visitsUpdates.add(updateVisitWithLocalVisitUpdate(visit, visitFound.visit))
+                visitsUpdates.add(createVisit(visit, visitFound.visit))
             } else {
                 visitsUpdates.add(visit)
             }
@@ -258,41 +261,4 @@ class MainActivity : AppCompatActivity() {
         return visitsUpdates.toList()
     }
 
-    private fun updateVisitWithLocalVisitUpdate(visit: AppVisit, visitUpdate: AppVisitUpdate): AppVisit{
-        val newParameters = mutableListOf<AppVisitParameters>()
-        visit.visitaParametrosResponse?.forEach {parameter ->
-           val parFound = visitUpdate.parametros?.find { it.parametroId == parameter.parametro?.id }
-            if (parFound != null){
-                newParameters.add(
-                    AppVisitParameters(
-                        parFound.aspiracionesFamiliares,
-                        parFound.comentarios,
-                        parFound.cumple,
-                        parameter.id,
-                        parameter.nombre,
-                        parameter.parametro,
-                        parFound.sugerencias,
-                        visit.id
-                    )
-                )
-            } else {
-                newParameters.add(parameter)
-            }
-
-        }
-
-        return AppVisit(
-            visit.id,
-            visit.comentarioImagenes,
-            visit.estadoVisita,
-            visit.fechaActualizacion,
-            visit.fechaCreacion,
-            visitUpdate.fechaVisita,
-            visit.imagenes,
-            visit.integrantes,
-            visit.quintaResponse,
-            visit.usuarioOperacion,
-            newParameters
-        )
-    }
 }

@@ -1,7 +1,6 @@
 package com.example.spgunlp.io
 
 import com.example.spgunlp.BuildConfig
-import com.example.spgunlp.io.response.VisitByIdResponse
 import com.example.spgunlp.model.AppUser
 import retrofit2.Response
 import retrofit2.Retrofit

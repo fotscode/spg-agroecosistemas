@@ -13,10 +13,10 @@ import com.example.spgunlp.R
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
+import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.ui.active.VisitAdapter
 import com.example.spgunlp.ui.active.VisitClickListener
 import com.example.spgunlp.ui.visit.BundleViewModel
-import com.example.spgunlp.util.PreferenceHelper.set
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.skydoves.androidveil.VeilRecyclerFrameView
 import kotlinx.coroutines.Dispatchers
@@ -39,12 +39,6 @@ fun updateRecycler(
         recyler.setLayoutManager(LinearLayoutManager(activity))
         recyler.unVeil()
     }
-}
-
-fun updatePreferences(context: Context) {
-    val currentDate = Date().time
-    val preferences = PreferenceHelper.defaultPrefs(context)
-    preferences["LAST_UPDATE"] = currentDate
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -128,4 +122,42 @@ suspend fun syncPrinciplesWithDB(
     } catch (e: Exception) {
         Log.e("SPGUNLP_TAG", e.message.toString())
     }
+}
+fun createVisit(visit: AppVisit, visitUpdate: AppVisitUpdate): AppVisit{
+    if (visit.visitaParametrosResponse==null)
+        return visit
+
+    val newParameters = mutableListOf<AppVisitParameters>()
+
+    visit.visitaParametrosResponse.forEach {parameter ->
+        val parFound = visitUpdate.parametros?.find { it.parametroId == parameter.parametro?.id }
+        if (parFound != null){
+            newParameters.add(
+                AppVisitParameters(
+                    parFound.aspiracionesFamiliares,
+                    parFound.comentarios,
+                    parFound.cumple,
+                    parameter.id,
+                    parameter.nombre,
+                    parameter.parametro,
+                    parFound.sugerencias,
+                    visit.id
+                )
+            )
+        }
+    }
+
+    return AppVisit(
+        visit.id,
+        visit.comentarioImagenes,
+        visit.estadoVisita,
+        visit.fechaActualizacion,
+        visit.fechaCreacion,
+        visitUpdate.fechaVisita,
+        visit.imagenes,
+        visit.integrantes,
+        visit.quintaResponse,
+        visit.usuarioOperacion,
+        newParameters
+    )
 }

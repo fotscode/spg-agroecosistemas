@@ -2,18 +2,10 @@ package com.example.spgunlp.repositories
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
 import com.example.spgunlp.daos.VisitsDao
-import com.example.spgunlp.model.AppImage
-import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.VisitUserJoin
 import com.example.spgunlp.model.VisitWithImagesMembersAndParameters
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class VisitsRepository(private val visitsDao: VisitsDao) {
 
@@ -85,18 +77,12 @@ class VisitsRepository(private val visitsDao: VisitsDao) {
                 visitsDao.updateParametersList(parameters)
             }
         } catch (e: Exception) {
-            Log.e("SPGUNLP_INFO", e.message.toString())
-            Log.e("SPGUNLP_INFO", e.cause.toString())
+            Log.e("SPGUNLP_DB", e.message.toString())
         }
     }
 
     suspend fun updateVisits(visits: List<AppVisit>){
         visitsDao.updateVisits(visits)
-        /*
-        visits.forEach { visit ->
-            updateVisit(visit)
-        }
-         */
     }
 
     suspend fun clearVisits(){

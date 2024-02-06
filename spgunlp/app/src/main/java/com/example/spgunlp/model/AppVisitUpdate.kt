@@ -1,9 +1,6 @@
 package com.example.spgunlp.model
 
-import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
 
 data class AppVisitUpdate(
     val fechaVisita: String?,

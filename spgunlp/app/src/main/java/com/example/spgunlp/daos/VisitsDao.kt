@@ -2,7 +2,6 @@ package com.example.spgunlp.daos
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -13,7 +12,6 @@ import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.VisitUserJoin
 import com.example.spgunlp.model.VisitWithImagesMembersAndParameters
-import com.example.spgunlp.repositories.VisitsRepository
 import androidx.room.Update as Update
 
 @Dao
