@@ -48,6 +48,10 @@ class MainActivity : AppCompatActivity() {
         AuthService.create()
     }
 
+    private val visitService: VisitService by lazy {
+        VisitService.create()
+    }
+
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var visitsDBViewModel: VisitsDBViewModel
@@ -88,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                         ContextCompat.getColor(applicationContext, R.color.green)
                     updateColorFab()
                 } else if (preferences["COLOR_FAB", -1] == colorRed) {
-                    makeLoginPopup()
+                    makeLoginPopup(visitService)
                 } else
                     makeText(
                         this@MainActivity,
@@ -167,13 +171,13 @@ class MainActivity : AppCompatActivity() {
                 visits = lifecycleScope.async {
                     return@async visitsDBViewModel.getAllVisits()
                 }.await()
-                makeLoginPopup().also {
+                makeLoginPopup(visitService).also {
                     it.observe(this) { visits = it }
                 }
             }
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
-            visits = lifecycleScope.async {
+            visits = GlobalScope.async {
                 return@async visitsDBViewModel.getAllVisits()
             }.await()
         }
@@ -181,7 +185,7 @@ class MainActivity : AppCompatActivity() {
         return visits
     }
 
-    private fun makeLoginPopup(): LiveData<List<AppVisit>>{
+    private fun makeLoginPopup(visitService: VisitService): LiveData<List<AppVisit>>{
         val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
         val inflater = LayoutInflater.from(this@MainActivity)
         val view = inflater.inflate(R.layout.fragment_login, null)
@@ -214,7 +218,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                     val header = "Bearer ${preferences["jwt", ""]}"
-                    val visits = getVisits(header, this@MainActivity, visitService, false)
+                    val visits = getVisits(header, this@MainActivity, visitService)
                     result.postValue(visits)
                     preferences["COLOR_FAB"] = ContextCompat.getColor(this@MainActivity, R.color.green)
                     updateColorFab()

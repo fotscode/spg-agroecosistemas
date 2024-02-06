@@ -24,6 +24,7 @@ import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.calendar
+import com.example.spgunlp.util.syncPrinciplesWithDB
 import com.example.spgunlp.util.updateRecycler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -136,7 +137,8 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 cancel()
             val header = "Bearer $jwt"
             if (activity == null) cancel()
-            val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService)
+            val visits = (activity as MainActivity).getVisits(header, context, visitService)
+            syncPrinciplesWithDB(header, visitService, context)
             activeVisits(visits)
             if (_binding != null) {
                 updateRecycler(
