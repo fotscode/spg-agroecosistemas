@@ -28,22 +28,8 @@ data class AppVisitParameters (
         val principioAgroecologico: Principle?,
         val situacionEsperable: String?
     ): Parcelable{
-        constructor(
-            habilitado: Boolean,
-            id: Int,
-            nombre: String,
-            principioAgroecologico: Principle,
-            situacionEsperable: String
-        ):this(
-            habilitado,
-            null,
-            nombre,
-            principioAgroecologico,
-            situacionEsperable
-        )
     }
 
-    //TODO store Principles in DB for caching
     @Entity(tableName = "principles_table")
     @Parcelize
     data class Principle(

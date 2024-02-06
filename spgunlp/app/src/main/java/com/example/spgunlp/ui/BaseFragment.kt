@@ -1,11 +1,12 @@
 package com.example.spgunlp.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.MainActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 
 abstract class BaseFragment : Fragment() {
 
@@ -16,7 +17,7 @@ abstract class BaseFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         // get the reference of the parent activity and call the setBottomNavigationVisibility method.
         if (activity is MainActivity) {
-            var  mainActivity = activity as MainActivity
+            val mainActivity = activity as MainActivity
             mainActivity.setBottomNavigationVisibility(bottomNavigationViewVisibility)
             fabButton=mainActivity.getFab()
         }
@@ -24,9 +25,11 @@ abstract class BaseFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (activity is MainActivity) {
-            var  mainActivity = activity as MainActivity
+            val mainActivity = activity as MainActivity
             mainActivity.setBottomNavigationVisibility(bottomNavigationViewVisibility)
-            mainActivity.updateColorFab()
+            lifecycleScope.launch {
+                mainActivity.updateColorFab()
+            }
         }
     }
 }

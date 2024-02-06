@@ -5,8 +5,6 @@ import com.example.spgunlp.daos.PrinciplesDao
 import com.example.spgunlp.model.AppVisitParameters
 
 class PrinciplesRepository(private val principlesDao: PrinciplesDao) {
-    val getPrinciples: LiveData<List<AppVisitParameters.Principle>> = principlesDao.getPrinciplesAsync()
-
     suspend fun insertPrinciples(principles: List<AppVisitParameters.Principle>){
         return principlesDao.insertPrinciples(principles)
     }

@@ -34,14 +34,4 @@ class VisitChangesDBViewModel(application: Application):AndroidViewModel(applica
         return repository.getVisitsByEmail(email)
     }
 
-    fun getVisitsByEmailSync(email: String): List<VisitUpdate>{
-        return repository.getVisitsByEmailSync(email)
-    }
-
-    fun deleteVisitById(id: Int) {
-        viewModelScope.launch(Dispatchers.IO){
-            repository.deleteVisitById(id)
-        }
-    }
-
 }

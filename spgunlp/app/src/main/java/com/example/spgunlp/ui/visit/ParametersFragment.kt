@@ -1,7 +1,6 @@
 package com.example.spgunlp.ui.visit
 
 import android.os.Bundle
-import android.provider.Settings.Global
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -19,16 +18,14 @@ import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
-import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
-import com.example.spgunlp.util.VisitsViewModel
+import com.example.spgunlp.util.createVisit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -42,7 +39,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     private val parameterViewModel: ParametersViewModel by activityViewModels()
     private val visitViewModel: VisitViewModel by activityViewModels()
     private val bundleViewModel: BundleViewModel by activityViewModels()
-    private val visitsViewModel: VisitsViewModel by activityViewModels()
 
     private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
     private lateinit var visitsDBViewModel: VisitsDBViewModel
@@ -276,7 +272,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         val visit = visitViewModel.visit.value
         if (visit != null) {
             try {
-                Log.i("SPGUNLP_DB", "getting ${visit.id}...")
                 val newVisit = createVisit(visit, visitToUpdate)
                 (activity as VisitActivity).updateVisit(newVisit)
                 visit.id?.let { visitUpdateViewModel.addVisit(visitToUpdate, email, it) }
@@ -285,48 +280,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
                 Log.e("SPGUNLP_DB", e.message.toString())
             }
         }
-    }
-
-    //TODO move this method to VisitHelper
-    private fun createVisit(visit:AppVisit,update: AppVisitUpdate): AppVisit {
-        val newParameters = mutableListOf<AppVisitParameters>()
-
-        if (visit.visitaParametrosResponse==null){
-            Log.i("visitaParametrosResponse","null")
-            return visit
-        }
-
-        visit.visitaParametrosResponse.forEach { param->
-            val parameterUpdate=update.parametros?.find { it.parametroId==param.parametro?.id}
-            if (parameterUpdate!=null){
-                newParameters.add(
-                    AppVisitParameters(
-                        parameterUpdate.aspiracionesFamiliares,
-                        parameterUpdate.comentarios,
-                        parameterUpdate.cumple,
-                        param.id,
-                        param.nombre,
-                        param.parametro,
-                        parameterUpdate.sugerencias,
-                        visit.id
-                    )
-                )
-            }
-        }
-
-        return AppVisit(
-            visit.id,
-            visit.comentarioImagenes,
-            visit.estadoVisita,
-            visit.fechaActualizacion,
-            visit.fechaCreacion,
-            update.fechaVisita,
-            visit.imagenes,
-            visit.integrantes,
-            visit.quintaResponse,
-            visit.usuarioOperacion,
-            newParameters,
-        )
     }
 }
 

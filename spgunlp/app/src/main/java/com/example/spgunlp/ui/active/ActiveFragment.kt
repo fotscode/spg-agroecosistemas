@@ -1,10 +1,8 @@
 package com.example.spgunlp.ui.active
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -130,6 +128,5 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         val intent = Intent(requireActivity(), VisitActivity::class.java)
         intent.putExtra(VISIT_ITEM, visit)
         someActivityResultLauncher.launch(intent)
-        //startActivity(intent)
     }
 }

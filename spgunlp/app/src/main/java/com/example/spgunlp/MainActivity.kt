@@ -11,11 +11,9 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.makeText
-import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -25,14 +23,12 @@ import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.ui.visit.PrinciplesDBViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
-import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
+import com.example.spgunlp.util.createVisit
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -86,8 +82,6 @@ class MainActivity : AppCompatActivity() {
                         "Sincronización exitosa",
                         Toast.LENGTH_SHORT
                     ).show()
-                    preferences["COLOR_FAB"] =
-                        ContextCompat.getColor(applicationContext, R.color.green)
                     updateColorFab()
                 } else if (preferences["COLOR_FAB", -1] == colorRed) {
                     val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
@@ -164,20 +158,24 @@ class MainActivity : AppCompatActivity() {
         return binding.fabSync
     }
 
-    //TODO refactor
-    fun updateColorFab() {
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun updateColorFab() {
         val preferences = PreferenceHelper.defaultPrefs(this)
         val color = preferences["COLOR_FAB", -1]
-        val ids = preferences["VISIT_IDS", ""]
 
         if (color != -1) {
             binding.fabSync.backgroundTintList = ColorStateList.valueOf(color)
-        } else if (ids == "") {
-            binding.fabSync.backgroundTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.green))
         } else {
-            binding.fabSync.backgroundTintList =
-                ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.yellow))
+            val visits = GlobalScope.async {
+                return@async visitUpdateViewModel.getVisitsByEmail(preferences["email"])
+            }.await()
+            if (visits.isEmpty()) {
+                binding.fabSync.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.green))
+            } else {
+                binding.fabSync.backgroundTintList =
+                    ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.yellow))
+            }
         }
 
         Log.i("MainActivity", "updateColorFab: ${preferences["COLOR_FAB", -1]}")
@@ -202,13 +200,15 @@ class MainActivity : AppCompatActivity() {
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
                 visits = GlobalScope.async {
-                    return@async visitsDBViewModel.getAllVisits()
+                    val visitsDB = visitsDBViewModel.getAllVisits()
+                    return@async updateVisitsWithLocalChanges(context, visitsDB)
                 }.await()
             }
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
             visits = GlobalScope.async {
-                return@async visitsDBViewModel.getAllVisits()
+                val visitsDB = visitsDBViewModel.getAllVisits()
+                return@async updateVisitsWithLocalChanges(context, visitsDB)
             }.await()
         }
 
@@ -228,7 +228,7 @@ class MainActivity : AppCompatActivity() {
                 it.visitId == visit.id
             }
             if (visitFound != null) {
-                visitsUpdates.add(updateVisitWithLocalVisitUpdate(visit, visitFound.visit))
+                visitsUpdates.add(createVisit(visit, visitFound.visit))
             } else {
                 visitsUpdates.add(visit)
             }
@@ -237,41 +237,4 @@ class MainActivity : AppCompatActivity() {
         return visitsUpdates.toList()
     }
 
-    private fun updateVisitWithLocalVisitUpdate(visit: AppVisit, visitUpdate: AppVisitUpdate): AppVisit{
-        val newParameters = mutableListOf<AppVisitParameters>()
-        visit.visitaParametrosResponse?.forEach {parameter ->
-           val parFound = visitUpdate.parametros?.find { it.parametroId == parameter.parametro?.id }
-            if (parFound != null){
-                newParameters.add(
-                    AppVisitParameters(
-                        parFound.aspiracionesFamiliares,
-                        parFound.comentarios,
-                        parFound.cumple,
-                        parameter.id,
-                        parameter.nombre,
-                        parameter.parametro,
-                        parFound.sugerencias,
-                        visit.id
-                    )
-                )
-            } else {
-                newParameters.add(parameter)
-            }
-
-        }
-
-        return AppVisit(
-            visit.id,
-            visit.comentarioImagenes,
-            visit.estadoVisita,
-            visit.fechaActualizacion,
-            visit.fechaCreacion,
-            visitUpdate.fechaVisita,
-            visit.imagenes,
-            visit.integrantes,
-            visit.quintaResponse,
-            visit.usuarioOperacion,
-            newParameters
-        )
-    }
 }

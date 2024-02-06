@@ -4,43 +4,30 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.ScrollView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.R
 import com.example.spgunlp.R.id.active_visit
 import com.example.spgunlp.databinding.ActivityVisitBinding
 import com.example.spgunlp.io.UserService
-import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppMessage
 import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.model.CONTENT_TYPE
 import com.example.spgunlp.model.PROFILE
 import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
-import com.example.spgunlp.util.VisitsDBViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.TimeZone
 
 val MESSAGES = "MESSAGES"
 class VisitActivity : AppCompatActivity() {
@@ -88,9 +75,6 @@ class VisitActivity : AppCompatActivity() {
         this.visit = visit
         updateVisitViewModel()
         updateParametersViewModel()
-
-        val preferences = PreferenceHelper.defaultPrefs(this)
-        preferences["LAST_UPDATE"] = Date().time
     }
 
     @SuppressLint("NewApi")
@@ -120,7 +104,7 @@ class VisitActivity : AppCompatActivity() {
     private suspend fun setUserChat(header: String) {
         val preferences = PreferenceHelper.defaultPrefs(baseContext)
         val email: String = preferences["email"]
-        var usrName: String = "NAME"
+        var usrName = "NAME"
         if (preferences[PROFILE, ""] != "") {
             val type = object : TypeToken<AppUser>() {}.type
             val user = Gson().fromJson<AppUser>(preferences[PROFILE, ""], type)

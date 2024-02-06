@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.example.spgunlp.databinding.FragmentVisitBinding
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.maps.MapActivity
@@ -45,7 +44,7 @@ class VisitFragment : BaseFragment() {
             val memberValues = visit.integrantes?.map { it.nombre }
             val members= memberValues?.joinToString(separator=",")
             binding.members.text = members
-            val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
+            val formatter = DateTimeFormatter.ISO_DATE_TIME
             val date = LocalDateTime.parse(visit.fechaVisita, formatter)
             val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
             binding.visitDate.text = dateFormatted
