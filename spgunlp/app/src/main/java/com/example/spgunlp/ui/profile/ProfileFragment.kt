@@ -182,7 +182,9 @@ class ProfileFragment : BaseFragment() {
         val pwd = view.findViewById<EditText>(R.id.edit_password)
 
         preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
-        (activity as MainActivity).updateColorFab()
+        lifecycleScope.launch {
+            (activity as MainActivity).updateColorFab()
+        }
 
         view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
             lifecycleScope.launch {

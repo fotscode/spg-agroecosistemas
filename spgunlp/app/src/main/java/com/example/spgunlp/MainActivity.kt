@@ -25,17 +25,15 @@ import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.model.AppVisitParameters
-import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.ui.visit.PrinciplesDBViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
+import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
 import com.example.spgunlp.util.createVisit
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
-import com.example.spgunlp.util.updatePreferences
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -47,6 +45,10 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private val authService: AuthService by lazy {
         AuthService.create()
+    }
+
+    private val visitService: VisitService by lazy {
+        VisitService.create()
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -203,7 +205,9 @@ class MainActivity : AppCompatActivity() {
         val result = MutableLiveData<List<AppVisit>>()
 
         preferences["COLOR_FAB"] = ContextCompat.getColor(this, R.color.red)
-        updateColorFab()
+        lifecycleScope.launch {
+            updateColorFab()
+        }
 
         view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
             lifecycleScope.launch {
