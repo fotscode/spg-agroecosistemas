@@ -39,12 +39,6 @@ fun updateRecycler(
     }
 }
 
-fun updatePreferences(context: Context) {
-    val currentDate = Date().time
-    val preferences = PreferenceHelper.defaultPrefs(context)
-    preferences["LAST_UPDATE"] = currentDate
-}
-
 @RequiresApi(Build.VERSION_CODES.O)
 fun calendar(
     parentFragmentManager: FragmentManager,

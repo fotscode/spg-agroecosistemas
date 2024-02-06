@@ -1,5 +1,6 @@
 package com.example.spgunlp.ui.active
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -7,6 +8,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +23,7 @@ import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.calendar
+import com.example.spgunlp.util.syncPrinciplesWithDB
 import com.example.spgunlp.util.updateRecycler
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -30,6 +34,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private var _binding: FragmentActiveBinding? = null
+    private lateinit var someActivityResultLauncher: ActivityResultLauncher<Intent>
     val visitList = mutableListOf<AppVisit>()
     private val binding get() = _binding!!
 
@@ -41,6 +46,10 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     ): View {
         _binding = FragmentActiveBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        someActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+            populateVisits()
+        }
 
         binding.searchView.clearFocus()
 
@@ -95,6 +104,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                 cancel()
             val header = "Bearer $jwt"
             val visits = (activity as MainActivity).getVisits(header, requireContext(), visitService)
+            syncPrinciplesWithDB(header, visitService, requireContext())
             activeVisits(visits)
             updateRecycler(
                 binding.activeList, visitList,
@@ -119,6 +129,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     override fun onClick(visit: AppVisit) {
         val intent = Intent(requireActivity(), VisitActivity::class.java)
         intent.putExtra(VISIT_ITEM, visit)
-        startActivity(intent)
+        someActivityResultLauncher.launch(intent)
+        //startActivity(intent)
     }
 }

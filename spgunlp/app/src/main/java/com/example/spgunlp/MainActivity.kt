@@ -33,20 +33,15 @@ import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
 import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
-import com.example.spgunlp.util.VisitsViewModel
 import com.example.spgunlp.util.performLogin
 import com.example.spgunlp.util.performSync
-import com.example.spgunlp.util.syncPrinciplesWithDB
-import com.example.spgunlp.util.updatePreferences
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     private val authService: AuthService by lazy {
@@ -169,6 +164,7 @@ class MainActivity : AppCompatActivity() {
         return binding.fabSync
     }
 
+    //TODO refactor
     fun updateColorFab() {
         val preferences = PreferenceHelper.defaultPrefs(this)
         val color = preferences["COLOR_FAB", -1]
@@ -187,6 +183,7 @@ class MainActivity : AppCompatActivity() {
         Log.i("MainActivity", "updateColorFab: ${preferences["COLOR_FAB", -1]}")
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     suspend fun getVisits(
         header: String,
         context: Context,
@@ -199,20 +196,18 @@ class MainActivity : AppCompatActivity() {
             val body = response.body()
             if (response.isSuccessful && body != null) {
                 visits = body
-                updatePreferences(context)
                 visitsDBViewModel.clearVisits()
                 visitsDBViewModel.insertVisits(visits)
-                Log.i("SPGUNLP_DB", visits.toString())
                 visits = updateVisitsWithLocalChanges(context, visits)
                 Log.i("SPGUNLP_TAG", "getVisits: made api call and was successful")
             } else if (response.code() == 401 || response.code() == 403) {
-                visits = lifecycleScope.async {
+                visits = GlobalScope.async {
                     return@async visitsDBViewModel.getAllVisits()
                 }.await()
             }
         } catch (e: Exception) {
             Log.e("SPGUNLP_TAG", e.message.toString())
-            visits = lifecycleScope.async {
+            visits = GlobalScope.async {
                 return@async visitsDBViewModel.getAllVisits()
             }.await()
         }

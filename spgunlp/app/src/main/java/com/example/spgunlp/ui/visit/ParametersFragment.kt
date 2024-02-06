@@ -1,6 +1,7 @@
 package com.example.spgunlp.ui.visit
 
 import android.os.Bundle
+import android.provider.Settings.Global
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.model.AppVisitUpdate
+import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
@@ -26,6 +28,7 @@ import com.example.spgunlp.util.VisitChangesDBViewModel
 import com.example.spgunlp.util.VisitsDBViewModel
 import com.example.spgunlp.util.VisitsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -270,7 +273,8 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         val visitToUpdate = getAppVisitUpdate()
         val email: String = preferences["email"]
 
-        visitViewModel.visit.observe(viewLifecycleOwner) { visit ->
+        val visit = visitViewModel.visit.value
+        if (visit != null) {
             try {
                 Log.i("SPGUNLP_DB", "getting ${visit.id}...")
                 val newVisit = createVisit(visit, visitToUpdate)
