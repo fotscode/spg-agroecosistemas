@@ -43,6 +43,11 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.principlesList.setAdapter(PrinciplesAdapter(principlesList, statesList, this))
+        binding.principlesList.setLayoutManager(LinearLayoutManager(activity))
+        binding.principlesList.veil()
+        binding.principlesList.addVeiledItems(5)
+
         if (bundleViewModel.isPrinciplesStateEmpty()) {
             principlesList.clear()
             statesList.clear()
@@ -101,10 +106,9 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
         principles: List<AppVisitParameters.Principle>,
         states: List<Boolean>
     ) {
-        binding.principlesList.apply {
-            layoutManager = LinearLayoutManager(activity)
-            adapter = PrinciplesAdapter(principles, states, this@PrinciplesFragment)
-        }
+        binding.principlesList.setLayoutManager(LinearLayoutManager(activity))
+        binding.principlesList.setAdapter(PrinciplesAdapter(principles, states, this))
+        binding.principlesList.unVeil()
     }
 
     override fun onClickChecklist(principle: AppVisitParameters.Principle) {

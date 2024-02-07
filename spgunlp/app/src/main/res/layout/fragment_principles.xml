@@ -25,7 +25,7 @@
             android:text="@string/principios"
             android:textSize="16sp" />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.skydoves.androidveil.VeilRecyclerFrameView
             android:id="@+id/principlesList"
             android:layout_width="match_parent"
             android:paddingVertical="20dp"
@@ -34,7 +34,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_height="wrap_content"
-            android:gravity="center"/>
+            android:gravity="center"
+            app:veilFrame_layout="@layout/principle_item"
+            app:veilFrame_veiled="true"
+            app:veilFrame_shimmerEnable="true"
+            app:veilFrame_isItemWrapContentHeight="true"
+            app:veilFrame_isItemWrapContentWidth="true"
+            app:veilFrame_baseAlpha="0.6"
+            app:veilFrame_highlightAlpha="1.0"
+            app:veilFrame_radius="8dp" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

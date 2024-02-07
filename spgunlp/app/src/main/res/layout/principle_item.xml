@@ -31,7 +31,7 @@
                 android:id="@+id/principle_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Estado"
+                android:text="Estado del principio"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="@color/black"
                 />
@@ -48,7 +48,7 @@
                 android:id="@+id/principle_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Title"
+                android:text="Titulo del principio"
                 android:textAppearance="?attr/textAppearanceBody1"
                 />
         </LinearLayout>
@@ -70,6 +70,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:chipCornerRadius="10dp"
+                    app:ensureMinTouchTargetSize="false"
                     app:chipIcon="@drawable/observations_light"
                     android:text="Observaciones"/>
 
@@ -78,26 +79,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:chipCornerRadius="10dp"
+                    app:ensureMinTouchTargetSize="false"
                     app:chipIcon="@drawable/checklist_light"
                     android:text="Checklist"/>
             </com.google.android.material.chip.ChipGroup>
-
-            <!--
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_observations"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="Observaciones"
-                style="?attr/borderlessButtonStyle"
-                />
-            <com.google.android.material.button.MaterialButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Checklist"
-                style="?attr/borderlessButtonStyle"
-                />
-            -->
         </LinearLayout>
 
     </LinearLayout>
