@@ -55,7 +55,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var visitsDBViewModel: VisitsDBViewModel
     private lateinit var visitUpdateViewModel: VisitChangesDBViewModel
-    private lateinit var principlesViewModel: PrinciplesDBViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +65,6 @@ class MainActivity : AppCompatActivity() {
         // init viewmodel
         visitsDBViewModel = ViewModelProvider(this)[VisitsDBViewModel::class.java]
         visitUpdateViewModel = ViewModelProvider(this)[VisitChangesDBViewModel::class.java]
-        principlesViewModel = ViewModelProvider(this)[PrinciplesDBViewModel::class.java]
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -185,6 +183,9 @@ class MainActivity : AppCompatActivity() {
                 val visitsDB = visitsDBViewModel.getAllVisits()
                 return@async updateVisitsWithLocalChanges(context, visitsDB)
             }.await()
+            val preferences = PreferenceHelper.defaultPrefs(this)
+            preferences["COLOR_FAB"]= ContextCompat.getColor(this, R.color.yellow) // not synced
+            updateColorFab()
         }
 
         return visits
