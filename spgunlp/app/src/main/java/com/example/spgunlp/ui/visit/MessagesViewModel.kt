@@ -3,10 +3,8 @@ package com.example.spgunlp.ui.visit
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.spgunlp.model.AppMessage
-import com.example.spgunlp.model.Perfil
 import com.example.spgunlp.repositories.MessageRepository
 import com.example.spgunlp.util.AppDatabase
 import kotlinx.coroutines.Dispatchers

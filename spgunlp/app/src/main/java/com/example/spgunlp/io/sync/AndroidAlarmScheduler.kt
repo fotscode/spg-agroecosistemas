@@ -11,7 +11,7 @@ class AndroidAlarmScheduler(private val context: Context) : AlarmScheduler {
     override fun schedule() {
         val intent = Intent(context, AlarmReceiver::class.java)
         alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP, 0
+            AlarmManager.RTC_WAKEUP, 5000
             , 1000 * 60 * 30, // 30min,
             PendingIntent.getBroadcast(
                 context,

@@ -22,4 +22,4 @@ data class VisitUpdate(
     val email: String,
     val visit: AppVisitUpdate,
     val visitId: Int
-){}
+)

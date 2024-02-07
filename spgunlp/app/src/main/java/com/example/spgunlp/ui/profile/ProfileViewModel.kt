@@ -3,13 +3,9 @@ package com.example.spgunlp.ui.profile
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spgunlp.model.Perfil
-import com.example.spgunlp.model.Poligono
 import com.example.spgunlp.repositories.PerfilRepository
-import com.example.spgunlp.repositories.PoligonoRepository
 import com.example.spgunlp.util.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

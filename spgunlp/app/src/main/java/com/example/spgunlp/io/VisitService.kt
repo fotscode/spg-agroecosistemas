@@ -21,16 +21,9 @@ interface VisitService {
     @GET("visitas/")
     suspend fun getVisits(@Header("Authorization") token: String): Response<List<AppVisit>>
 
-    @GET("visitas/{id}")
-    suspend fun getVisitById(@Path("id") visitId: Int): Response<VisitByIdResponse>
-
     @Headers("Accept: */*")
     @GET("principios/")
     suspend fun getPrinciples(@Header("Authorization") token: String): Response<List<AppVisitParameters.Principle>>
-
-    @Headers("Accept: */*")
-    @GET("parametros/habilitados")
-    suspend fun getParameters(@Header("Authorization") token: String): Response<List<AppVisitParameters>>
 
     @PUT("visitas/{id}")
     suspend fun updateVisitById(@Header("Authorization") token: String, @Path("id") visitId: Int, @Body visit: AppVisitUpdate): Response<AppVisit>

@@ -15,10 +15,6 @@ interface UserService {
     @GET("usuarios/activos/")
     suspend fun getUsers(@Header("Authorization") token: String): Response<List<AppUser>>
 
-    @Headers("Accept: */*")
-    @GET("usuarios/{id}")
-    suspend fun getUserById(@Header("Authorization") token: String, @Path("id") id: Int): Response<AppUser>
-
     companion object Factory {
         fun create(): UserService {
             val baseUrl= BuildConfig.BASE_URL

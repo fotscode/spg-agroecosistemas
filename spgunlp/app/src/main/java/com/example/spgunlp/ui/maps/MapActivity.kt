@@ -1,18 +1,15 @@
 package com.example.spgunlp.ui.maps
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import com.example.spgunlp.R
-
 import android.graphics.Color
 import android.graphics.Rect
 import android.location.GpsStatus
+import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.spgunlp.R
 import com.example.spgunlp.databinding.ActivityMapBinding
 import com.example.spgunlp.model.Poligono
-
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -34,8 +31,8 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
 
 
     lateinit var mMap: MapView
-    lateinit var controller: IMapController;
-    lateinit var mMyLocationOverlay: MyLocationNewOverlay;
+    lateinit var controller: IMapController
+    lateinit var mMyLocationOverlay: MyLocationNewOverlay
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMapBinding.inflate(layoutInflater)
@@ -66,7 +63,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         mMyLocationOverlay.isDrawAccuracyEnabled = true
         mMyLocationOverlay.runOnFirstFix {
             runOnUiThread {
-                controller.setCenter(mMyLocationOverlay.myLocation);
+                controller.setCenter(mMyLocationOverlay.myLocation)
                 controller.animateTo(mMyLocationOverlay.myLocation)
             }
         }
@@ -106,8 +103,8 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
             binding.saveBtn.visibility = android.view.View.VISIBLE
             binding.crosshair.visibility = android.view.View.VISIBLE
             binding.markBtn.visibility = android.view.View.VISIBLE
-            geoPoints = ArrayList();
-            polygon = Polygon();
+            geoPoints = ArrayList()
+            polygon = Polygon()
 
             polygon.fillPaint.color = Color.parseColor("#1EFFE70E") //set fill color
             polygon.outlinePaint.color = Color.parseColor("#028A0F") //set outline color
@@ -154,7 +151,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
 
 
         Log.e("TAG", "onZoom zoom level: ${event?.zoomLevel}   source:  ${event?.source}")
-        return false;
+        return false
     }
 
     override fun onGpsStatusChanged(event: Int) {

@@ -25,7 +25,6 @@ import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.getPrinciples
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class StatsFragment : BaseFragment() {
@@ -55,11 +54,10 @@ class StatsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentStatsBinding.inflate(inflater, container, false)
-        context=requireContext()
+        context = requireContext()
         mainActivity = activity as MainActivity
         preferences = PreferenceHelper.defaultPrefs(context)
-        val root: View = binding.root
-        return root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,15 +78,15 @@ class StatsFragment : BaseFragment() {
         }
         preferences.registerOnSharedPreferenceChangeListener(listenerPreferences)
         if (_binding != null) {
-            binding.approvedVisitsCard.setOnClickListener() {
+            binding.approvedVisitsCard.setOnClickListener {
                 onClickCardView(binding.approvedVisitsCard)
             }
 
-            binding.approvedPrinciplesCard.setOnClickListener() {
+            binding.approvedPrinciplesCard.setOnClickListener {
                 onClickCardView(binding.approvedPrinciplesCard)
             }
 
-            binding.approvedPrinciplesGrid.setOnClickListener() {
+            binding.approvedPrinciplesGrid.setOnClickListener {
                 onClickCardView(binding.approvedPrinciplesCard)
             }
         }
@@ -113,12 +111,12 @@ class StatsFragment : BaseFragment() {
             percentageList = MutableList(principlesList.size) { 0f }
             // get visits, for each visit, get visitParamRes, for each param get principle and cumple
             val visits = mainActivity.getVisits(header, context, visitService)
-            visits.forEach {
+            visits.forEach { it ->
                 cumpleList = MutableList(principlesList.size) { true }
                 if (it.visitaParametrosResponse != null) {
                     it.visitaParametrosResponse.forEach {
                         cumpleList[it.parametro?.principioAgroecologico?.id!! - 1] =
-                            cumpleList[it.parametro?.principioAgroecologico?.id!! - 1] && it.cumple!!
+                            cumpleList[it.parametro.principioAgroecologico.id - 1] && it.cumple!!
                     }
                     cumpleList.forEachIndexed { index, cumple ->
                         percentageList[index] =

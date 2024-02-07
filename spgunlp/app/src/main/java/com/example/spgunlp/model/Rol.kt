@@ -7,4 +7,4 @@ import kotlinx.parcelize.Parcelize
 data class Rol (
     val id: Int?,
     val nombre: String?
-): Parcelable {}
+): Parcelable

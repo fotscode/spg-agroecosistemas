@@ -54,7 +54,7 @@ class LoginFragment : BaseFragment() {
             goToActiveFragment()
 
 
-        binding.btnIniciarSesion.setOnClickListener() {
+        binding.btnIniciarSesion.setOnClickListener {
             val editEmail = binding.editMail.text.toString()
             val editPassword = binding.editPassword.text.toString()
             jobToKill = lifecycleScope.launch {
@@ -69,7 +69,7 @@ class LoginFragment : BaseFragment() {
             }
         }
 
-        binding.btnCrearUsuario.setOnClickListener() {
+        binding.btnCrearUsuario.setOnClickListener {
             goToRegisterFragment()
         }
 

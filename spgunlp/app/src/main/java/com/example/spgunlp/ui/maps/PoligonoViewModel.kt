@@ -10,7 +10,6 @@ import com.example.spgunlp.repositories.PoligonoRepository
 import com.example.spgunlp.util.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class PoligonoViewModel(application: Application):AndroidViewModel(application) {
     private val getPoligonos: LiveData<List<Poligono>>

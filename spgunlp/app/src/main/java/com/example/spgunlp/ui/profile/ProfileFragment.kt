@@ -66,7 +66,7 @@ class ProfileFragment : BaseFragment() {
         populateProfile()
 
         if (_binding!=null)
-            binding.btnCerrarSesion.setOnClickListener() {
+            binding.btnCerrarSesion.setOnClickListener {
                 performLogout()
             }
 
@@ -75,7 +75,7 @@ class ProfileFragment : BaseFragment() {
 
     private fun populateProfile() {
         val email = preferences["email", ""]
-        mProfileViewModel.getPerfilByEmail(email).also { it ->
+        mProfileViewModel.getPerfilByEmail(email).also {
             it.observe(viewLifecycleOwner) { perfil ->
                 if (perfil != null) {
                     fillProfile(perfil)
@@ -191,7 +191,7 @@ class ProfileFragment : BaseFragment() {
             (activity as MainActivity).updateColorFab()
         }
 
-        view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
+        view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener {
             lifecycleScope.launch {
                 val authService = AuthService.create()
                 if (

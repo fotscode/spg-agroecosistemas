@@ -1,11 +1,9 @@
 package com.example.spgunlp.ui.visit
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.marginTop
 import androidx.recyclerview.widget.RecyclerView
 import com.example.spgunlp.databinding.ObsMeItemBinding
 import com.example.spgunlp.databinding.ObsOtherItemBinding
@@ -45,7 +43,7 @@ class ObservationsAdapter(private val messages: List<AppMessage>, private val em
         @SuppressLint("NewApi")
         fun bind(message: AppMessage, position: Int) {
 
-            val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
+            val formatter = DateTimeFormatter.ISO_DATE_TIME
             val date = LocalDateTime.parse(message.date, formatter)
             val timestamp = date.format(DateTimeFormatter.ofPattern("HH:mm"))
             val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
@@ -70,7 +68,7 @@ class ObservationsAdapter(private val messages: List<AppMessage>, private val em
         fun bind(message: AppMessage, position: Int) {
 
 
-            val formatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
+            val formatter = DateTimeFormatter.ISO_DATE_TIME
             val date = LocalDateTime.parse(message.date, formatter)
             val timestamp = date.format(DateTimeFormatter.ofPattern("HH:mm"))
             val dateFormatted = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))

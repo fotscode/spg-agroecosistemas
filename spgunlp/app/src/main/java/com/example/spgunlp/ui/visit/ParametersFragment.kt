@@ -136,14 +136,15 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     }
 
     private fun populateParameters() {
-        parameterViewModel.parametersCurrentPrinciple.observe(viewLifecycleOwner, Observer { value ->
+        parameterViewModel.parametersCurrentPrinciple.observe(viewLifecycleOwner) { value ->
             value?.forEach {
                 if (it != null)
                     this.parametersList.add(it)
             }
-            binding.detailTitle.text = parametersList[0].parametro?.principioAgroecologico?.nombre.toString()
+            binding.detailTitle.text =
+                parametersList[0].parametro?.principioAgroecologico?.nombre.toString()
             updateRecycler(parametersList)
-        })
+        }
     }
 
     private fun updateRecycler(list: List<AppVisitParameters>) {

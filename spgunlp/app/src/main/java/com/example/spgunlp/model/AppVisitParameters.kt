@@ -27,8 +27,7 @@ data class AppVisitParameters (
         val nombre: String?,
         val principioAgroecologico: Principle?,
         val situacionEsperable: String?
-    ): Parcelable{
-    }
+    ): Parcelable
 
     @Entity(tableName = "principles_table")
     @Parcelize

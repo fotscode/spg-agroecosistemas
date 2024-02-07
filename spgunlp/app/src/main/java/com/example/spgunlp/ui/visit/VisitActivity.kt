@@ -3,31 +3,14 @@ package com.example.spgunlp.ui.visit
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
-import com.example.spgunlp.R
 import com.example.spgunlp.R.id.active_visit
 import com.example.spgunlp.databinding.ActivityVisitBinding
-import com.example.spgunlp.io.UserService
-import com.example.spgunlp.model.AppMessage
-import com.example.spgunlp.model.AppUser
 import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.model.CONTENT_TYPE
-import com.example.spgunlp.model.PROFILE
 import com.example.spgunlp.model.VISIT_ITEM
-import com.example.spgunlp.util.PreferenceHelper
-import com.example.spgunlp.util.PreferenceHelper.set
 import kotlinx.coroutines.Job
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
 
 class VisitActivity : AppCompatActivity() {
 
@@ -47,10 +30,10 @@ class VisitActivity : AppCompatActivity() {
         setContentView(binding.root)
         supportActionBar?.hide()
 
-        supportFragmentManager.findFragmentById(active_visit);
+        supportFragmentManager.findFragmentById(active_visit)
 
         if (bundleViewModel.isActivityStateEmpty()) {
-            visit = intent.getParcelableExtra<AppVisit>(VISIT_ITEM)!!
+            visit = intent.getParcelableExtra(VISIT_ITEM)!!
             intent.removeExtra(VISIT_ITEM)
             updateVisitViewModel()
             updateParametersViewModel()

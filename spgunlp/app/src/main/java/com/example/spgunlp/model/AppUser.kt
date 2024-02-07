@@ -6,7 +6,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-val PROFILE="PROFILE"
 @Entity(tableName = "users_table")
 @Parcelize
 data class AppUser(

@@ -25,7 +25,6 @@ import com.example.spgunlp.model.VISIT_ITEM
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.active.VisitAdapter
 import com.example.spgunlp.ui.active.VisitClickListener
-import com.example.spgunlp.ui.login.LoginFragment
 import com.example.spgunlp.ui.visit.VisitActivity
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
@@ -116,7 +115,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
             }
         })
 
-        visitLayout.btnCalendario.setOnClickListener() {
+        visitLayout.btnCalendario.setOnClickListener {
             calendar(
                 parentFragmentManager,
                 visitList,
@@ -127,7 +126,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         }
         visitLayout.btnFiltro.visibility=View.VISIBLE
 
-        visitLayout.btnFiltro.setOnClickListener() {
+        visitLayout.btnFiltro.setOnClickListener {
             visitLayout.btnFiltro.text =
                 if (!inactiveViewModel.showAll) "Mostrar mis visitas" else "Mostrar todas las visitas"
             inactiveViewModel.showAll = !inactiveViewModel.showAll

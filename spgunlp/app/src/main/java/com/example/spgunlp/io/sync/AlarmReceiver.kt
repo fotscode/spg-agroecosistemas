@@ -27,7 +27,6 @@ class AlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context?, intent: Intent?) = goAsync {
         if (context != null) {
             performSync(context)

@@ -16,4 +16,4 @@ data class VisitByIdResponse(
     val usuarioOperacion: String?,
     val visitaParametrosResponse: List<AppVisitParameters>?,
     val id: Int?
-){}
+)

@@ -13,7 +13,6 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import com.example.spgunlp.databinding.FragmentVisitBinding
-import androidx.lifecycle.Observer
 import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.maps.MapActivity
@@ -50,15 +49,15 @@ class VisitFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        visitViewModel.visit.observe(viewLifecycleOwner, Observer {
+        visitViewModel.visit.observe(viewLifecycleOwner) { it ->
             binding.nameProducer.text = it.quintaResponse?.nombreProductor
             binding.visitDate.text = it.fechaVisita?.let { isoDate -> getDateFormatted(isoDate) }
-            binding.members.text=it.integrantes?.map { it.nombre }?.joinToString(separator=",")
+            binding.members.text = it.integrantes?.map { it.nombre }?.joinToString(separator = ",")
             binding.surfaceAgro.text = it.quintaResponse?.superficieAgroecologiaCampo.toString()
             binding.surfaceCountry.text = it.quintaResponse?.superficieTotalCampo.toString()
-        })
+        }
 
-        binding.btnPrinciples.setOnClickListener(){
+        binding.btnPrinciples.setOnClickListener {
             bundleViewModel.clearPrinciplesState()
             fragmentActivity.supportFragmentManager.beginTransaction()
                 .replace(this.id, PrinciplesFragment())
@@ -66,7 +65,7 @@ class VisitFragment : BaseFragment() {
                 .commit()
         }
 
-        binding.btnMap.setOnClickListener(){
+        binding.btnMap.setOnClickListener {
             activity?.let{
                 val intent = Intent(it, MapActivity::class.java)
                 intent.putExtra("ID_VISIT", visitViewModel.visit.value?.id?.toLong())
@@ -74,7 +73,7 @@ class VisitFragment : BaseFragment() {
             }
         }
 
-        binding.btnDownloadJson.setOnClickListener(){
+        binding.btnDownloadJson.setOnClickListener {
             visitViewModel.visit.value?.let { writeJsonFile(it) }
         }
     }
@@ -93,7 +92,7 @@ class VisitFragment : BaseFragment() {
         file.writeText(json)
         val intent = Intent(Intent.ACTION_VIEW)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        val uri = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".provider",file);
+        val uri = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".provider", file)
         intent.setDataAndType(uri, "application/json")
         startActivity(intent)
     }
@@ -101,7 +100,7 @@ class VisitFragment : BaseFragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getDateFormatted(date: String): String {
         val formatter = DateTimeFormatter.ISO_DATE_TIME
-        val date = LocalDateTime.parse(date, formatter)
-        return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val dateNew = LocalDateTime.parse(date, formatter)
+        return dateNew.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
     }
 }

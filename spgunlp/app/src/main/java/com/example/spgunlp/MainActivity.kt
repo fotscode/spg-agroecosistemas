@@ -25,7 +25,6 @@ import com.example.spgunlp.io.AuthService
 import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.io.sync.AndroidAlarmScheduler
 import com.example.spgunlp.model.AppVisit
-import com.example.spgunlp.ui.visit.PrinciplesDBViewModel
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.PreferenceHelper.set
@@ -73,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navView.setupWithNavController(navController)
 
-        binding.fabSync.setOnClickListener() {
+        binding.fabSync.setOnClickListener {
             val preferences = PreferenceHelper.defaultPrefs(this)
             if (!preferences["jwt", ""].contains(".")) {
                 return@setOnClickListener
@@ -195,8 +194,7 @@ class MainActivity : AppCompatActivity() {
         val dialog = MaterialAlertDialogBuilder(this@MainActivity).create()
         val inflater = LayoutInflater.from(this@MainActivity)
         val view = inflater.inflate(R.layout.fragment_login, null)
-        view.findViewById<TextView>(R.id.title_inicio).text =
-            "Token expirado, inicie sesión nuevamente"
+        view.findViewById<TextView>(R.id.title_inicio).text = "Token expirado, inicie sesión nuevamente"
         view.findViewById<Button>(R.id.btn_crear_usuario).visibility = View.GONE
         val mail = view.findViewById<EditText>(R.id.edit_mail)
         val preferences = PreferenceHelper.defaultPrefs(this)
@@ -210,7 +208,7 @@ class MainActivity : AppCompatActivity() {
             updateColorFab()
         }
 
-        view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener() {
+        view.findViewById<Button>(R.id.btn_iniciar_sesion).setOnClickListener {
             lifecycleScope.launch {
                 if (
                     performLogin(

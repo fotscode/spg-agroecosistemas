@@ -1,17 +1,11 @@
 package com.example.spgunlp.util
 
 import android.app.Application
-import android.content.Context
-import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.spgunlp.model.AppVisit
 import com.example.spgunlp.model.AppVisitUpdate
 import com.example.spgunlp.model.VisitUpdate
 import com.example.spgunlp.repositories.VisitUpdateRepository
-import com.example.spgunlp.repositories.VisitsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
