@@ -57,9 +57,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         context=requireContext()
         fragmentActivity=requireActivity()
 
-        someActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-            populateVisits()
-        }
+        someActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->  }
 
         binding.searchView.clearFocus()
 
@@ -86,12 +84,13 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
                     Log.i("ActiveFragment", "jwt changed")
                     populateVisits()
                 }
+            } else if (key=="SYNC_CLICKED" && sharedPreferences.getBoolean(key, false)) {
+                Log.i("ActiveFragment", "SYNC_CLICKED")
+                populateVisits()
             }
         }
         preferences.registerOnSharedPreferenceChangeListener(listenerPreferences)
 
-        visitList.clear()
-        populateVisits()
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {

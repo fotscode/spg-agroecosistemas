@@ -2,6 +2,7 @@ package com.example.spgunlp.ui.inactive
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -55,6 +56,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     private lateinit var context: Context
     private lateinit var fragmentActivity: FragmentActivity
 
+    private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,15 +76,21 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         visitLayout.btnFiltro.text =
             if (inactiveViewModel.showAll) "Mostrar mis visitas" else "Mostrar todas las visitas"
 
-        if (inactiveViewModel.isInactiveVisitListEmpty()){
-            Log.i("InactiveFragment", "onCreateView: populateVisits()")
-            visitLayout.activeList.setAdapter(VisitAdapter(visitList, this))
-            visitLayout.activeList.setLayoutManager(LinearLayoutManager(fragmentActivity))
-            visitLayout.activeList.veil()
-            visitLayout.activeList.addVeiledItems(5)
-            visitList.clear()
-            populateVisits()
+        // observes the jwt changes
+        val preferences = PreferenceHelper.defaultPrefs(context)
+        listenerPreferences=SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
+            if (key == "jwt") {
+                val jwt = sharedPreferences.getString(key, "")
+                if (jwt != null && jwt.contains(".")) {
+                    Log.i("InactiveFragment", "jwt changed")
+                    populateVisits()
+                }
+            } else if (key=="SYNC_CLICKED" && sharedPreferences.getBoolean(key, false)) {
+                Log.i("InactiveFragment", "SYNC_CLICKED")
+                populateVisits()
+            }
         }
+        preferences.registerOnSharedPreferenceChangeListener(listenerPreferences)
 
         visitLayout.searchView.clearFocus()
 
@@ -204,6 +212,8 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         if (::jobToKill.isInitialized)
             jobToKill.cancel()
         visitList.clear()
+        val preferences = PreferenceHelper.defaultPrefs(context)
+        preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
         _binding = null
     }
 }
