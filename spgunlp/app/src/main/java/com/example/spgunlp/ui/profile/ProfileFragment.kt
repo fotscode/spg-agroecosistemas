@@ -104,8 +104,6 @@ class ProfileFragment : BaseFragment() {
         val preferences = PreferenceHelper.defaultPrefs(requireContext())
         preferences["jwt"] = ""
         preferences["email"] = ""
-        preferences["LAST_UPDATE"] = 0L
-        preferences["UPDATE_PRINCIPLES"] = 0L
         goToLoginFragment()
     }
 
@@ -141,6 +139,7 @@ class ProfileFragment : BaseFragment() {
             } else if (response.code() == 401) {
                 makeLoginPopup()
                 // TODO: rehacer sincronizar, con los datos
+                binding.namePositionVeil.visibility = View.GONE
                 return null
             }
         } catch (e: Exception) {
@@ -149,6 +148,7 @@ class ProfileFragment : BaseFragment() {
                 "No se pudo obtener el perfil, verificar la conexión a internet",
                 Toast.LENGTH_SHORT
             ).show()
+            binding.namePositionVeil.visibility = View.GONE
         }
         Log.i("ProfileFragment", "getProfile: made api call and was not successful")
         return null
@@ -163,6 +163,7 @@ class ProfileFragment : BaseFragment() {
             binding.profileOrganization.text = perfil.organizacion
             binding.profileRole.text = if (perfil.rol == "ROLE_ADMIN") "Administrador" else "Usuario"
             binding.profileData.visibility = View.VISIBLE
+            binding.namePositionVeil.visibility = View.VISIBLE
             binding.profileVeil.unVeil()
             binding.namePositionVeil.unVeil()
         }
