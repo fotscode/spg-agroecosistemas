@@ -74,7 +74,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_toStartOf="@+id/btn_send"
                 android:background="@android:color/transparent"
-                android:hint="Ingrese un mensaje"
+                android:hint="@string/ingrese_un_mensaje"
                 android:inputType="text"
                 android:maxLines="6"
                 tools:ignore="Autofill" />
@@ -84,8 +84,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_marginRight="5dp"
-                android:contentDescription="Enviar"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="@string/enviar"
                 android:src="?attr/btn_send" />
 
         </RelativeLayout>

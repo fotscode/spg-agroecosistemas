@@ -26,6 +26,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="350dp"
                     android:adjustViewBounds="true"
+                    android:contentDescription="@string/fondo_del_perfil"
                     android:scaleType="fitStart"
                     android:src="@drawable/background_profile"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -46,6 +47,7 @@
                     <ImageView
                         android:id="@+id/profile_pic"
                         android:layout_width="150dp"
+                        android:contentDescription="@string/imagen_de_perfil"
                         android:layout_height="150dp"
                         android:src="@drawable/profile_picture" />
                 </androidx.cardview.widget.CardView>
@@ -56,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="30dp"
                     android:letterSpacing="0.05"
-                    android:text="Perfil"
+                    android:text="@string/perfil"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="26sp"
                     android:textStyle="bold"
@@ -97,7 +99,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Nombre"
+                    android:text="@string/nombre"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="20sp"
                     android:textStyle="bold"
@@ -111,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Posicion"
+                    android:text="@string/posicion"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="16sp"
                     android:layout_gravity="center"
@@ -163,7 +165,7 @@
 
                             <TextView
                                 android:id="@+id/label_email"
-                                android:text="Email:"
+                                android:text="@string/email_dots"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="?attr/colorBW"
@@ -174,17 +176,19 @@
                                 android:id="@+id/profile_email"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="10dp"
+                                android:layout_marginStart="10dp"
                                 android:ellipsize="none"
                                 android:maxLines="100"
                                 android:scrollHorizontally="false"
                                 android:textColor="?attr/colorBW"
                                 android:textSize="18sp"
-                                android:text="grupo7@consumidor.com" />
+                                android:text="grupo7@consumidor.com"
+                                tools:ignore="HardcodedText" />
 
                             <ImageView
                                 android:layout_width="match_parent"
                                 android:layout_height="2dp"
+                                android:contentDescription="@string/separador"
                                 android:layout_columnSpan="2"
                                 android:src="@drawable/separator_profile" />
 
@@ -193,7 +197,7 @@
                                 android:id="@+id/label_cellphone"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Celular:"
+                                android:text="@string/celular_dots"
                                 android:textColor="?attr/colorBW"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -202,14 +206,16 @@
                                 android:id="@+id/profile_cellphone"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="10dp"
+                                android:layout_marginStart="10dp"
                                 android:text="22100000000"
                                 android:textColor="?attr/colorBW"
-                                android:textSize="18sp" />
+                                android:textSize="18sp"
+                                tools:ignore="HardcodedText" />
 
                             <ImageView
                                 android:layout_width="match_parent"
                                 android:layout_height="2dp"
+                                android:contentDescription="@string/separador"
                                 android:layout_columnSpan="2"
                                 android:src="@drawable/separator_profile" />
 
@@ -217,7 +223,7 @@
                                 android:id="@+id/label_organization"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Org. :"
+                                android:text="@string/org"
                                 android:textColor="?attr/colorBW"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -226,22 +232,24 @@
                                 android:id="@+id/profile_organization"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="10dp"
+                                android:layout_marginStart="10dp"
                                 android:text="Organizacion"
                                 android:textColor="?attr/colorBW"
-                                android:textSize="18sp" />
+                                android:textSize="18sp"
+                                tools:ignore="HardcodedText" />
 
                             <ImageView
                                 android:layout_width="match_parent"
                                 android:layout_height="2dp"
                                 android:layout_columnSpan="2"
+                                android:contentDescription="@string/separador"
                                 android:src="@drawable/separator_profile" />
 
                             <TextView
                                 android:id="@+id/label_role"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Rol:"
+                                android:text="@string/rol"
                                 android:textColor="?attr/colorBW"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
@@ -250,10 +258,11 @@
                                 android:id="@+id/profile_role"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="10dp"
+                                android:layout_marginStart="10dp"
                                 android:text="Rol"
                                 android:textColor="?attr/colorBW"
-                                android:textSize="18sp" />
+                                android:textSize="18sp"
+                                tools:ignore="HardcodedText" />
 
 
                         </GridLayout>
@@ -269,7 +278,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginVertical="20dp"
-                    android:text="Cerrar sesion"
+                    android:text="@string/cerrar_sesion"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"

@@ -73,12 +73,12 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_weight="1"
                         android:ellipsize="none"
                         android:maxLines="100"
                         android:scrollHorizontally="false"
-                        android:text="Nombre"
+                        android:text="@string/nombre"
                         android:textColor="?attr/colorBW"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -109,14 +109,15 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_weight="1"
                         android:ellipsize="none"
                         android:maxLines="100"
                         android:scrollHorizontally="false"
                         android:text="Integrante1, Integrante2, Integrante3"
                         android:textColor="?attr/colorBW"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <com.google.android.material.divider.MaterialDivider
@@ -145,14 +146,15 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_weight="1"
                         android:ellipsize="none"
                         android:maxLines="100"
                         android:scrollHorizontally="false"
                         android:text="12/12/2023"
                         android:textColor="?attr/colorBW"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <com.google.android.material.divider.MaterialDivider
@@ -181,14 +183,15 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_weight="1"
                         android:ellipsize="none"
                         android:maxLines="100"
                         android:scrollHorizontally="false"
                         android:text="2 ha"
                         android:textColor="?attr/colorBW"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <com.google.android.material.divider.MaterialDivider
@@ -217,14 +220,15 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_weight="1"
                         android:ellipsize="none"
                         android:maxLines="100"
                         android:scrollHorizontally="false"
                         android:text="1 ha"
                         android:textColor="?attr/colorBW"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -259,20 +263,20 @@
                     android:id="@+id/btn_download_json"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
                     android:layout_weight="1"
-                    android:text="Descargar JSON" />
+                    android:text="@string/descargar_json" />
 
                 <Button
                     android:id="@+id/btn_map"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
                     android:layout_weight="1"
-                    android:drawableLeft="@drawable/rounded_map_24"
+                    android:drawableStart="@drawable/rounded_map_24"
                     android:drawableTint="?attr/colorOnPrimary"
-                    android:text="Ver mapa" />
+                    android:text="@string/ver_mapa" />
 
             </LinearLayout>
 

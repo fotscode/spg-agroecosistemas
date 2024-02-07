@@ -76,7 +76,7 @@
                 android:id="@+id/btn_iniciar_sesion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Iniciar sesion" />
+                android:text="@string/iniciar_sesion" />
 
             <Button
                 android:id="@+id/btn_crear_usuario"
@@ -85,7 +85,7 @@
                 android:textAllCaps="false"
                 android:background="@android:color/transparent"
                 android:layout_height="wrap_content"
-                android:text="No tenes una cuenta? Crear usuario"/>
+                android:text="@string/no_tenes_una_cuenta_crear_usuario"/>
 
         </LinearLayout>
 

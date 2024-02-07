@@ -55,7 +55,8 @@
             android:id="@+id/fab_sync"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:contentDescription="@string/actualizar_datos"
+            android:layout_gravity="end"
             android:layout_margin="16dp"
             app:fabSize="mini"
             app:srcCompat="@drawable/baseline_sync_24" />
