@@ -43,6 +43,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     private lateinit var jobToKill: Job
     private lateinit var context: Context
     private lateinit var fragmentActivity: FragmentActivity
+    private lateinit var preferences: SharedPreferences
     private val binding get() = _binding!!
 
     private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
@@ -56,6 +57,7 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         val root: View = binding.root
         context=requireContext()
         fragmentActivity=requireActivity()
+        preferences = PreferenceHelper.defaultPrefs(context)
 
         someActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->  }
 
@@ -76,7 +78,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
         binding.activeList.addVeiledItems(5)
 
         // observes the jwt changes
-        val preferences = PreferenceHelper.defaultPrefs(context)
         listenerPreferences=SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
             if (key == "jwt") {
                 val jwt = sharedPreferences.getString(key, "")
@@ -122,7 +123,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
             jobToKill.cancel()
         visitList.clear()
         _binding = null
-        val preferences = PreferenceHelper.defaultPrefs(context)
         preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
     }
 
@@ -137,7 +137,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
 
     private fun populateVisits() {
         jobToKill = lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(context)
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
                 cancel()
@@ -156,7 +155,6 @@ class ActiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private fun activeVisits(visits: List<AppVisit>) {
-        val preferences = PreferenceHelper.defaultPrefs(context)
         val email = preferences["email", ""]
         val filteredVisits = visits.filter { visit ->
             visit.estadoVisita == "ABIERTA" && visit.integrantes!!.any { integrante ->

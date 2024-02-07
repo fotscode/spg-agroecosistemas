@@ -55,6 +55,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     private lateinit var jobToKill: Job
     private lateinit var context: Context
     private lateinit var fragmentActivity: FragmentActivity
+    private lateinit var preferences: SharedPreferences
 
     private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
     @RequiresApi(Build.VERSION_CODES.O)
@@ -65,6 +66,7 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     ): View {
         context = requireContext()
         fragmentActivity = requireActivity()
+        preferences = PreferenceHelper.defaultPrefs(context)
 
         showAll=inactiveViewModel.showAll
 
@@ -77,7 +79,6 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
             if (inactiveViewModel.showAll) "Mostrar mis visitas" else "Mostrar todas las visitas"
 
         // observes the jwt changes
-        val preferences = PreferenceHelper.defaultPrefs(context)
         listenerPreferences=SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
             if (key == "jwt") {
                 val jwt = sharedPreferences.getString(key, "")
@@ -164,7 +165,6 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
 
     private fun populateVisits() {
         jobToKill = lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(context)
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
                 cancel()
@@ -183,7 +183,6 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
     }
 
     private fun inactiveVisits(visits: List<AppVisit>) {
-        val preferences = PreferenceHelper.defaultPrefs(context)
         val email = preferences["email", ""]
         val filteredVisits = visits.filter { visit ->
             visit.estadoVisita == "CERRADA" && (isUserIn(email, visit) || showAll)
@@ -212,7 +211,6 @@ class InactiveFragment : BaseFragment(), VisitClickListener {
         if (::jobToKill.isInitialized)
             jobToKill.cancel()
         visitList.clear()
-        val preferences = PreferenceHelper.defaultPrefs(context)
         preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
         _binding = null
     }

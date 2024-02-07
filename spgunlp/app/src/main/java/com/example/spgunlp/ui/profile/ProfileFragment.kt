@@ -1,5 +1,7 @@
 package com.example.spgunlp.ui.profile
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.spgunlp.MainActivity
@@ -41,6 +44,9 @@ class ProfileFragment : BaseFragment() {
     private var _binding: FragmentProfileBinding? = null
 
     private lateinit var jobToKill: Job
+    private lateinit var preferences: SharedPreferences
+    private lateinit var context:Context
+    private lateinit var fragmentActivity: FragmentActivity
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -53,9 +59,10 @@ class ProfileFragment : BaseFragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
         mProfileViewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
-
+        context = requireContext()
+        fragmentActivity = requireActivity()
+        preferences = PreferenceHelper.defaultPrefs(context)
         populateProfile()
 
         if (_binding!=null)
@@ -67,7 +74,6 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun populateProfile() {
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val email = preferences["email", ""]
         mProfileViewModel.getPerfilByEmail(email).also { it ->
             it.observe(viewLifecycleOwner) { perfil ->
@@ -101,7 +107,6 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun performLogout() {
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
         preferences["jwt"] = ""
         preferences["email"] = ""
         goToLoginFragment()
@@ -109,7 +114,7 @@ class ProfileFragment : BaseFragment() {
 
     private fun goToLoginFragment() {
         val bottomNavigationView: BottomNavigationView =
-            requireActivity().findViewById(R.id.nav_view)
+            fragmentActivity.findViewById(R.id.nav_view)
         bottomNavigationView.selectedItemId = R.id.navigation_active
         val newFragment = LoginFragment()
         val transaction = parentFragmentManager.beginTransaction()
@@ -144,7 +149,7 @@ class ProfileFragment : BaseFragment() {
             }
         } catch (e: Exception) {
             Toast.makeText(
-                requireContext(),
+                context,
                 "No se pudo obtener el perfil, verificar la conexión a internet",
                 Toast.LENGTH_SHORT
             ).show()
@@ -170,19 +175,18 @@ class ProfileFragment : BaseFragment() {
     }
     private fun makeLoginPopup(){
 
-        val dialog = MaterialAlertDialogBuilder(requireContext()).create()
-        val inflater = LayoutInflater.from(requireContext())
+        val dialog = MaterialAlertDialogBuilder(context).create()
+        val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.fragment_login, null)
         view.findViewById<TextView>(R.id.title_inicio).text =
             "Token expirado, inicie sesión nuevamente"
         view.findViewById<Button>(R.id.btn_crear_usuario).visibility = View.GONE
         val mail = view.findViewById<EditText>(R.id.edit_mail)
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
         mail.setText(preferences["email", ""])
         dialog.setView(view)
         val pwd = view.findViewById<EditText>(R.id.edit_password)
 
-        preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
+        preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
         lifecycleScope.launch {
             (activity as MainActivity).updateColorFab()
         }
@@ -194,22 +198,22 @@ class ProfileFragment : BaseFragment() {
                     performLogin(
                         mail.text.toString(),
                         pwd.text.toString(),
-                        requireContext(),
+                        context,
                         authService
-                    ) && performSync(requireContext())
+                    ) && performSync(context)
                 ) {
                     Toast.makeText(
-                        requireContext(),
+                        context,
                         "Se ha sincronizado correctamente",
                         Toast.LENGTH_SHORT
                     ).show()
                     populateProfile()
-                    preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.green)
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.green)
                     (activity as MainActivity).updateColorFab()
                     dialog.dismiss()
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        context,
                         "Inicio de sesion fallido",
                         Toast.LENGTH_SHORT
                     ).show()

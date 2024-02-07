@@ -1,5 +1,6 @@
 package com.example.spgunlp.ui.visit
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import com.example.spgunlp.databinding.FragmentVisitBinding
 import androidx.lifecycle.Observer
@@ -29,12 +31,17 @@ class VisitFragment : BaseFragment() {
 
     private val binding get() = _binding!!
 
+    private lateinit var context: Context
+    private lateinit var fragmentActivity: FragmentActivity
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVisitBinding.inflate(inflater, container, false)
+
+        context = requireContext()
+        fragmentActivity = requireActivity()
 
         return binding.root
     }
@@ -53,7 +60,7 @@ class VisitFragment : BaseFragment() {
 
         binding.btnPrinciples.setOnClickListener(){
             bundleViewModel.clearPrinciplesState()
-            requireActivity().supportFragmentManager.beginTransaction()
+            fragmentActivity.supportFragmentManager.beginTransaction()
                 .replace(this.id, PrinciplesFragment())
                 .addToBackStack(null)
                 .commit()
@@ -81,12 +88,12 @@ class VisitFragment : BaseFragment() {
         // write json file and then open it
         val gson = Gson()
         val json = gson.toJson(visit)
-        val file = File(requireContext().filesDir, "visit.json")
+        val file = File(context.filesDir, "visit.json")
         Log.i("VisitFragment", "writeJsonFile: ${file.absolutePath}")
         file.writeText(json)
         val intent = Intent(Intent.ACTION_VIEW)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        val uri = FileProvider.getUriForFile(requireContext(), requireContext().applicationContext.packageName + ".provider",file);
+        val uri = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".provider",file);
         intent.setDataAndType(uri, "application/json")
         startActivity(intent)
     }

@@ -46,6 +46,7 @@ class StatsFragment : BaseFragment() {
     private lateinit var jobToKill: Job
     private lateinit var listenerPreferences: SharedPreferences.OnSharedPreferenceChangeListener
     private lateinit var mainActivity: MainActivity
+    private lateinit var preferences: SharedPreferences
     private lateinit var context: Context
 
     override fun onCreateView(
@@ -56,6 +57,7 @@ class StatsFragment : BaseFragment() {
         _binding = FragmentStatsBinding.inflate(inflater, container, false)
         context=requireContext()
         mainActivity = activity as MainActivity
+        preferences = PreferenceHelper.defaultPrefs(context)
         val root: View = binding.root
         return root
     }
@@ -64,7 +66,6 @@ class StatsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // observes the jwt changes
-        val preferences = PreferenceHelper.defaultPrefs(context)
         listenerPreferences= SharedPreferences.OnSharedPreferenceChangeListener{ sharedPreferences, key ->
             if (key == "jwt") {
                 val jwt = sharedPreferences.getString(key, "")
@@ -102,7 +103,6 @@ class StatsFragment : BaseFragment() {
 
     private fun populatePrinciples() {
         jobToKill = lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(context)
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
             val principles =
@@ -178,7 +178,6 @@ class StatsFragment : BaseFragment() {
             jobToKill.cancel()
         _binding = null
         // remove preferences listener
-        val preferences = PreferenceHelper.defaultPrefs(context)
         preferences.unregisterOnSharedPreferenceChangeListener(listenerPreferences)
     }
 

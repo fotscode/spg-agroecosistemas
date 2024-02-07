@@ -1,5 +1,7 @@
 package com.example.spgunlp.ui.visit
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -48,6 +51,10 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     private val binding get() = _binding!!
     private val parametersList = mutableListOf<AppVisitParameters>()
 
+    private lateinit var context: Context
+    private lateinit var fragmentActivity: FragmentActivity
+    private lateinit var preferences: SharedPreferences
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -55,6 +62,9 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     ): View {
 
         _binding = FragmentParametersBinding.inflate(inflater, container, false)
+        context=requireContext()
+        fragmentActivity = requireActivity()
+        preferences = PreferenceHelper.defaultPrefs(context)
 
         return binding.root
     }
@@ -64,7 +74,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
         // init viewmodel
         visitUpdateViewModel = ViewModelProvider(this)[VisitChangesDBViewModel::class.java]
-        visitsDBViewModel = ViewModelProvider(requireActivity())[VisitsDBViewModel::class.java]
+        visitsDBViewModel = ViewModelProvider(fragmentActivity)[VisitsDBViewModel::class.java]
 
         if (bundleViewModel.isParametersStateEmpty()) {
             parametersList.clear()
@@ -72,7 +82,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         }
 
         binding.btnSave.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
+            MaterialAlertDialogBuilder(context)
                 .setTitle(binding.btnSave.text)
                 .setMessage("¿Está seguro que desea guardar los cambios realizados?")
                 .setNegativeButton("Cancelar") { _, _ ->
@@ -88,7 +98,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
         }
 
         binding.btnCancel.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
+            MaterialAlertDialogBuilder(context)
                 .setTitle(binding.btnCancel.text)
                 .setMessage("¿Está seguro que desea volver atrás? Los cambios realizados no serán guardados")
                 .setNegativeButton("Cancelar") { _, _ ->
@@ -158,7 +168,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
     private fun updateVisitParameters() {
         lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             if (!jwt.contains("."))
                 cancel()
@@ -170,31 +179,31 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
 
                 if (response.isSuccessful && body != null) {
                     Toast.makeText(
-                        requireContext(),
+                        context,
                         "Los cambios han sido guardados con éxito",
                         Toast.LENGTH_SHORT
                     ).show()
                     (activity as VisitActivity).updateVisit(body)
                     visitsDBViewModel.updateVisit(body)
                     preferences["COLOR_FAB"] =
-                        ContextCompat.getColor(requireContext(), R.color.green)
+                        ContextCompat.getColor(context, R.color.green)
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        context,
                         "Los cambios fueron guardados pero no se pudo sincronizar con el servidor",
                         Toast.LENGTH_SHORT
                     ).show()
                     saveUserChanges()
-                    preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.red)
+                    preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.red)
                 }
             } catch (e: Exception) {
                 Toast.makeText(
-                    requireContext(),
+                    context,
                     "Los cambios fueron guardados pero no se pudo sincronizar con el servidor",
                     Toast.LENGTH_SHORT
                 ).show()
                 saveUserChanges()
-                preferences["COLOR_FAB"] = ContextCompat.getColor(requireContext(), R.color.yellow)
+                preferences["COLOR_FAB"] = ContextCompat.getColor(context, R.color.yellow)
             }
 
             goToPrincipleFragment()
@@ -257,7 +266,7 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     private fun goToPrincipleFragment() {
         bundleViewModel.clearPrinciplesState()
 
-        requireActivity().supportFragmentManager.popBackStack()
+        fragmentActivity.supportFragmentManager.popBackStack()
     }
 
     override fun onClick(parameter: AppVisitParameters) {
@@ -265,7 +274,6 @@ class ParametersFragment(): BaseFragment(), ParameterClickListener {
     }
 
     private fun saveUserChanges() {
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val visitToUpdate = getAppVisitUpdate()
         val email: String = preferences["email"]
 

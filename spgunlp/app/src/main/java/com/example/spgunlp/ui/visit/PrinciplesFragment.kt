@@ -1,10 +1,13 @@
 package com.example.spgunlp.ui.visit
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,12 +33,20 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
     private val parametersViewModel: ParametersViewModel by activityViewModels()
     private val bundleViewModel: BundleViewModel by activityViewModels()
 
+    private lateinit var context: Context
+    private lateinit var preferences: SharedPreferences
+    private lateinit var fragmentActivity: FragmentActivity
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPrinciplesBinding.inflate(inflater, container, false)
+
+        context = requireContext()
+        fragmentActivity = requireActivity()
+        preferences = PreferenceHelper.defaultPrefs(context)
 
         return binding.root
     }
@@ -76,10 +87,9 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
 
     private fun populatePrinciples() {
         lifecycleScope.launch {
-            val preferences = PreferenceHelper.defaultPrefs(requireContext())
             val jwt = preferences["jwt", ""]
             val header = "Bearer $jwt"
-            val principles = getPrinciples(header, visitService, bundleViewModel, requireContext().applicationContext)
+            val principles = getPrinciples(header, visitService, bundleViewModel, context.applicationContext)
             activePrinciples(principles)
             parametersViewModel.parameters.observe(viewLifecycleOwner) { value ->
                 val parametersMap =
@@ -125,12 +135,12 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
         }
         if (parametersList.isNotEmpty()) {
             parametersViewModel.setParametersCurrentPrinciple(parametersList)
-            requireActivity().supportFragmentManager.beginTransaction()
+            fragmentActivity.supportFragmentManager.beginTransaction()
                 .replace(this.id, ParametersFragment())
                 .addToBackStack(null)
                 .commit()
         } else Toast.makeText(
-            requireContext(),
+            context,
             "El principio seleccionado no dispone de parámetros",
             Toast.LENGTH_SHORT
         ).show()
@@ -139,10 +149,9 @@ class PrinciplesFragment : BaseFragment(), PrincipleClickListener {
     override fun onClickObservations(principle: AppVisitParameters.Principle) {
         bundleViewModel.clearPrinciplesState()
         bundleViewModel.clearObservationsState()
-        val preferences = PreferenceHelper.defaultPrefs(requireContext())
         val name = principle.nombre ?: "Unamed"
         val id = principle.id ?: 0
-        requireActivity().supportFragmentManager.beginTransaction()
+        fragmentActivity.supportFragmentManager.beginTransaction()
             .replace(this.id, ObservationsFragment(id,name,preferences["email"]))
             .addToBackStack(null)
             .commit()
