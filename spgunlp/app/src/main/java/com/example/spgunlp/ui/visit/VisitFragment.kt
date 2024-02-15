@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
@@ -92,9 +93,21 @@ class VisitFragment : BaseFragment() {
         file.writeText(json)
         val intent = Intent(Intent.ACTION_VIEW)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        val uri = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".provider", file)
-        intent.setDataAndType(uri, "application/json")
-        startActivity(intent)
+        try {
+            val uri = FileProvider.getUriForFile(
+                context,
+                context.applicationContext.packageName + ".provider",
+                file
+            )
+            intent.setDataAndType(uri, "application/json")
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(
+                context,
+                "No se encuentra instalada una aplicación para abrir archivos Json",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
