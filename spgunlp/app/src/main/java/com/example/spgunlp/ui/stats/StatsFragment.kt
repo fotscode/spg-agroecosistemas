@@ -21,6 +21,7 @@ import com.example.spgunlp.io.VisitService
 import com.example.spgunlp.model.AppVisitParameters
 import com.example.spgunlp.ui.BaseFragment
 import com.example.spgunlp.ui.visit.BundleViewModel
+import com.example.spgunlp.ui.visit.ParameterClickListener
 import com.example.spgunlp.util.PreferenceHelper
 import com.example.spgunlp.util.PreferenceHelper.get
 import com.example.spgunlp.util.getPrinciples
@@ -29,7 +30,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-class StatsFragment : BaseFragment() {
+class StatsFragment : BaseFragment(), StatsClickListener {
 
     private var _binding: FragmentStatsBinding? = null
 
@@ -174,7 +175,7 @@ class StatsFragment : BaseFragment() {
     ) {
         binding.approvedPrinciplesGrid.apply {
             layoutManager = GridLayoutManager(context, 1)
-            adapter = StatsAdapter(requireContext(), principles, percentages)
+            adapter = StatsAdapter(requireContext(), principles, percentages, this@StatsFragment)
         }
     }
 
@@ -208,5 +209,13 @@ class StatsFragment : BaseFragment() {
             duration = 3000
             start()
         }
+    }
+
+    override fun onClick(percentage: String, principleName: String) {
+        Toast.makeText(
+            context,
+            "$principleName ($percentage%)",
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
