@@ -37,9 +37,9 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
     private lateinit var currentLocationFab: FloatingActionButton
 
 
-    lateinit var mMap: MapView
-    lateinit var controller: IMapController
-    lateinit var mMyLocationOverlay: MyLocationNewOverlay
+    private lateinit var mMap: MapView
+    private lateinit var controller: IMapController
+    private lateinit var mMyLocationOverlay: MyLocationNewOverlay
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMapBinding.inflate(layoutInflater)
@@ -74,14 +74,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
 
         setCurrentLocation()
         if (isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION) || isPermissionAllowed(android.Manifest.permission.ACCESS_COARSE_LOCATION))
-            if (isGPSEnabled(this))
-                setFab()
-            else
-                Toast.makeText(
-                    this,
-                    "No se puede acceder a la ubicación actual porque no se encuentra habilitada",
-                    Toast.LENGTH_SHORT
-                ).show()
+            setFab()
 
 
         if (!isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -169,20 +162,21 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         return false
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onGpsStatusChanged(event: Int) {
     }
 
     private fun onClickPolygon(id: Long): OnClickListener {
-        return OnClickListener { polygon, mapView, eventPos ->
+        return OnClickListener { polygon, _, _ ->
             val builder = android.app.AlertDialog.Builder(this)
             builder.setTitle("Eliminar Poligono")
             builder.setMessage("Esta seguro que desea eliminar el poligono?")
-            builder.setPositiveButton("Si") { dialogInterface, which ->
+            builder.setPositiveButton("Si") { _, _ ->
                 mPoligonoViewModel.deletePoliById(id)
                 mMap.overlays.remove(polygon)
                 mMap.invalidate()
             }
-            builder.setNegativeButton("No") { dialogInterface, which ->
+            builder.setNegativeButton("No") { dialogInterface, _ ->
                 dialogInterface.dismiss()
             }
             val alert = builder.create()
@@ -200,14 +194,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         setCurrentLocation()
         if (isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION) || isPermissionAllowed(android.Manifest.permission.ACCESS_COARSE_LOCATION))
-            if (isGPSEnabled(this))
-                setFab()
-            else
-                Toast.makeText(
-                    this,
-                    "No se puede acceder a la ubicación actual porque no se encuentra habilitada",
-                    Toast.LENGTH_SHORT
-                ).show()
+            setFab()
     }
 
     private fun setCurrentLocation() {
@@ -225,8 +212,15 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
     private fun setFab() {
         currentLocationFab.visibility = android.view.View.VISIBLE
         currentLocationFab.setOnClickListener {
-            controller.setCenter(mMyLocationOverlay.myLocation)
-            controller.animateTo(mMyLocationOverlay.myLocation)
+            if (isLocationEnabled()) {
+                controller.setCenter(mMyLocationOverlay.myLocation)
+                controller.animateTo(mMyLocationOverlay.myLocation)
+            } else
+                Toast.makeText(
+                    this,
+                    "No tiene conexión para acceder a su ubicación",
+                    Toast.LENGTH_SHORT
+                ).show()
         }
     }
 
@@ -237,9 +231,9 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun isGPSEnabled(context: Context): Boolean {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
 }
