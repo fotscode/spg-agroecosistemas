@@ -1,15 +1,17 @@
 package com.example.spgunlp.ui.maps
 
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.location.GpsStatus
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.spgunlp.R
 import com.example.spgunlp.databinding.ActivityMapBinding
 import com.example.spgunlp.model.Poligono
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
@@ -25,9 +27,11 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
+    private val FINE_LOCATION_PERMISSION_REQUEST_CODE = 1
     private lateinit var mPoligonoViewModel: PoligonoViewModel
     private lateinit var geoPoints: ArrayList<GeoPoint>
     private lateinit var polygon: Polygon
+    private lateinit var currentLocationFab: FloatingActionButton
 
 
     lateinit var mMap: MapView
@@ -41,6 +45,8 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
             applicationContext,
             getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE)
         )
+        // get fab
+        currentLocationFab = binding.currentLocationFab
 
         // init viewmodel
         mPoligonoViewModel = ViewModelProvider(this)[PoligonoViewModel::class.java]
@@ -57,22 +63,25 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
 
         controller = mMap.controller
 
-        mMyLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), mMap)
-        mMyLocationOverlay.enableMyLocation()
-        mMyLocationOverlay.enableFollowLocation()
-        mMyLocationOverlay.isDrawAccuracyEnabled = true
-        mMyLocationOverlay.runOnFirstFix {
-            runOnUiThread {
-                controller.setCenter(mMyLocationOverlay.myLocation)
-                controller.animateTo(mMyLocationOverlay.myLocation)
-            }
-        }
         val mapPoint = GeoPoint(-34.9214500, -57.9545300)
-
+        controller.animateTo(mapPoint)
         controller.setZoom(13.0)
 
+        mMyLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), mMap)
 
-        controller.animateTo(mapPoint)
+        setCurrentLocation()
+        if (isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION) || isPermissionAllowed(android.Manifest.permission.ACCESS_COARSE_LOCATION))
+            setFab()
+
+
+        if (!isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+            requestPermissions(
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                FINE_LOCATION_PERMISSION_REQUEST_CODE
+            )
+            setCurrentLocation()
+        }
+
         mMap.overlays.add(mMyLocationOverlay)
 
         mMap.addMapListener(this)
@@ -94,6 +103,7 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
                 polygon.setOnClickListener(onClickPolygon(it.id))
                 mMap.overlays.add(polygon)
             }
+            mMap.overlays.add(mMyLocationOverlay)
         }
 
 
@@ -138,29 +148,21 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
             val poligono = Poligono(0, ID_VISIT, polygon.title, geoPoints.toString())
             mPoligonoViewModel.addPoligono(poligono)
         }
+        binding.currentLocationFab
     }
 
     override fun onScroll(event: ScrollEvent?): Boolean {
-        // event?.source?.getMapCenter()
-        //  Log.e("TAG", "onScroll   x: ${event?.x}  y: ${event?.y}", )
         return true
     }
 
     override fun onZoom(event: ZoomEvent?): Boolean {
-        //  event?.zoomLevel?.let { controller.setZoom(it) }
-
-
-        Log.e("TAG", "onZoom zoom level: ${event?.zoomLevel}   source:  ${event?.source}")
         return false
     }
 
     override fun onGpsStatusChanged(event: Int) {
-
-
-        TODO("Not yet implemented")
     }
 
-    private fun onClickPolygon(id: Long): OnClickListener{
+    private fun onClickPolygon(id: Long): OnClickListener {
         return OnClickListener { polygon, mapView, eventPos ->
             val builder = android.app.AlertDialog.Builder(this)
             builder.setTitle("Eliminar Poligono")
@@ -180,4 +182,41 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
     }
 
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        setCurrentLocation()
+        if (isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION) || isPermissionAllowed(android.Manifest.permission.ACCESS_COARSE_LOCATION))
+            setFab()
+    }
+
+    private fun setCurrentLocation() {
+        mMyLocationOverlay.enableMyLocation()
+        mMyLocationOverlay.enableFollowLocation()
+        mMyLocationOverlay.isDrawAccuracyEnabled = true
+        mMyLocationOverlay.runOnFirstFix {
+            runOnUiThread {
+                controller.setCenter(mMyLocationOverlay.myLocation)
+                controller.animateTo(mMyLocationOverlay.myLocation)
+            }
+        }
+    }
+
+    private fun setFab() {
+        currentLocationFab.visibility = android.view.View.VISIBLE
+        currentLocationFab.setOnClickListener {
+            controller.setCenter(mMyLocationOverlay.myLocation)
+            controller.animateTo(mMyLocationOverlay.myLocation)
+        }
+    }
+
+    private fun isPermissionAllowed(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 }
