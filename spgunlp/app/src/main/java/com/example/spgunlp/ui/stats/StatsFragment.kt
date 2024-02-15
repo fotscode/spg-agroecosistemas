@@ -2,6 +2,7 @@ package com.example.spgunlp.ui.stats
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -212,10 +213,13 @@ class StatsFragment : BaseFragment(), StatsClickListener {
     }
 
     override fun onClick(percentage: String, principleName: String) {
-        Toast.makeText(
-            context,
-            "$principleName ($percentage%)",
-            Toast.LENGTH_LONG
-        ).show()
+        val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+        builder
+            .setTitle("$percentage completado")
+            .setMessage("$principleName.\n")
+            .setPositiveButton("Cerrar") { _, _ ->
+            }
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
     }
 }
