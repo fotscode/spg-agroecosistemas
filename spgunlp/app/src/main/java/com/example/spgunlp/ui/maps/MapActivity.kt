@@ -213,8 +213,15 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         currentLocationFab.visibility = android.view.View.VISIBLE
         currentLocationFab.setOnClickListener {
             if (isLocationEnabled()) {
-                controller.setCenter(mMyLocationOverlay.myLocation)
-                controller.animateTo(mMyLocationOverlay.myLocation)
+                if (mMyLocationOverlay.mMyLocationProvider.lastKnownLocation != null) {
+                    controller.setCenter(mMyLocationOverlay.myLocation)
+                    controller.animateTo(mMyLocationOverlay.myLocation)
+                } else
+                    Toast.makeText(
+                        this,
+                        "Cargando ubicación...",
+                        Toast.LENGTH_SHORT
+                    ).show()
             } else
                 Toast.makeText(
                     this,
