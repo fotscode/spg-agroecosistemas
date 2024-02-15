@@ -1,6 +1,7 @@
 package com.example.spgunlp.ui.stats
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -26,6 +27,7 @@ import com.example.spgunlp.util.getPrinciples
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class StatsFragment : BaseFragment() {
 
@@ -99,6 +101,7 @@ class StatsFragment : BaseFragment() {
         return ContextCompat.getColor(context, color)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun populatePrinciples() {
         jobToKill = lifecycleScope.launch {
             val jwt = preferences["jwt", ""]
@@ -127,8 +130,14 @@ class StatsFragment : BaseFragment() {
                 }
             }
             if (_binding != null) {
-                binding.percentageVisitsApproved.text =
-                    "${(approvedVisitsPercentage * 100).format(2)}%"
+                val value = (approvedVisitsPercentage * 100).roundToInt()
+                when (value) {
+                    in 0..25 -> binding.cardviewApprovedvisits.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.red)
+                    in 26..74 -> binding.cardviewApprovedvisits.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.yellow)
+                    in 75..100 -> binding.cardviewApprovedvisits.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.green)
+                }
+                binding.percentageVisitsApproved.text = "${value}%"
+                
                 updateRecycler(principlesList, getFormattedPercentages(percentageList))
                 if (principlesList.isEmpty())
                     binding.approvedPrinciplesCard.visibility = View.GONE
@@ -152,7 +161,6 @@ class StatsFragment : BaseFragment() {
         }
     }
 
-    private fun Float.format(digits: Int) = "%.${digits}f".format(this)
     private fun activePrinciples(principles: List<AppVisitParameters.Principle>) {
         val filteredPrinciples = principles.filter {
             it.habilitado == true && !principlesList.contains(it)
@@ -165,8 +173,8 @@ class StatsFragment : BaseFragment() {
         percentages: List<String>
     ) {
         binding.approvedPrinciplesGrid.apply {
-            layoutManager = GridLayoutManager(context, 2)
-            adapter = StatsAdapter(principles, percentages)
+            layoutManager = GridLayoutManager(context, 1)
+            adapter = StatsAdapter(requireContext(), principles, percentages)
         }
     }
 
@@ -182,7 +190,7 @@ class StatsFragment : BaseFragment() {
     private fun getFormattedPercentages(percentages: List<Float>): List<String> {
         val formattedList = mutableListOf<String>()
         percentages.forEach {
-            formattedList.add(String.format("%.2f", it * 100) + "%")
+            formattedList.add("${(it * 100).roundToInt()}%")
         }
         return formattedList
     }

@@ -54,7 +54,7 @@
     <string name="organizacion">Organización</string>
     <string name="crear_usuario">Crear usuario</string>
     <string name="ya_tenes_una_cuenta_iniciar_sesion">Ya tenes una cuenta? Iniciar sesión</string>
-    <string name="estadisticas">Estadisticas</string>
+    <string name="estadisticas">Estadísticas</string>
     <string name="porcentaje_de_visitas_aprobadas">Porcentaje de visitas aprobadas</string>
     <string name="porcentaje_de_principios_aprobados">Porcentaje de principios aprobados</string>
     <string name="descargar_json">Descargar JSON</string>
