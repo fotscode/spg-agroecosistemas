@@ -6,8 +6,6 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.location.GpsStatus
 import android.location.LocationManager
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
