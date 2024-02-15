@@ -1,10 +1,15 @@
 package com.example.spgunlp.ui.maps
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.location.GpsStatus
+import android.location.LocationManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -71,7 +76,14 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
 
         setCurrentLocation()
         if (isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION) || isPermissionAllowed(android.Manifest.permission.ACCESS_COARSE_LOCATION))
-            setFab()
+            if (isGPSEnabled(this))
+                setFab()
+            else
+                Toast.makeText(
+                    this,
+                    "No se puede acceder a la ubicación actual porque no se encuentra habilitada",
+                    Toast.LENGTH_SHORT
+                ).show()
 
 
         if (!isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -190,7 +202,14 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         setCurrentLocation()
         if (isPermissionAllowed(android.Manifest.permission.ACCESS_FINE_LOCATION) || isPermissionAllowed(android.Manifest.permission.ACCESS_COARSE_LOCATION))
-            setFab()
+            if (isGPSEnabled(this))
+                setFab()
+            else
+                Toast.makeText(
+                    this,
+                    "No se puede acceder a la ubicación actual porque no se encuentra habilitada",
+                    Toast.LENGTH_SHORT
+                ).show()
     }
 
     private fun setCurrentLocation() {
@@ -219,4 +238,10 @@ class MapActivity : AppCompatActivity(), MapListener, GpsStatus.Listener {
             permission
         ) == PackageManager.PERMISSION_GRANTED
     }
+
+    private fun isGPSEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
 }
